@@ -1,0 +1,11 @@
+version = 1
+
+[weights]
+door_to_door_commute = 5
+housing_affordability = 5
+street_care = 3
+green_space = 3
+betting_shops = 2
+cafes = 2
+yoga_studios = 1
+premium_grocers = 1
