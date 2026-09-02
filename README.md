@@ -67,6 +67,19 @@ Fly-tipping remains a low-confidence local-authority prior, raw report volume is
 informational, and only a structured visit audit no more than 180 days old
 overrides the proxy score.
 
+Sharing a run is a separate, deliberate step. Preview a redacted export, read
+what it still reveals, then add `--execute`:
+
+```powershell
+python scripts/export_run.py --run-dir research-runs/NAME --origin-decimals 2 --strip-housing --anonymise-destinations
+```
+
+The export rounds the approximate origin, can drop the budget and property
+requirements together with the affordability evidence, can replace destination
+labels, then re-scores the redacted evidence through the same schema gates so the
+shared `results.json` stays consistent. The route envelope, travel limits, and
+preferences remain, and the command never uploads anything.
+
 ```powershell
 npm install
 npm run dev

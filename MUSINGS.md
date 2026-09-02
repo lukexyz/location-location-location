@@ -619,3 +619,8 @@ The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 202
 - `whatif.ts` reproduces the scorer's category means, weighted overall, confidence, and contribution arithmetic, including Python's round-half-to-even on exact binary ties. Parity is proven against the demo bundle at its researched weights and against a second Python scoring of the same evidence with different importance, which `build_demo.py` now emits and CI keeps reproducible.
 - The register hosts a Tune importance panel. While a what-if is active the order and bright scores are the preview, rank numbers and the dossier dial remain the researched result, the footer and eyebrow say so, and one control restores the researched weights. Importing a bundle resets any preview.
 - Metrics that were never observed anywhere in a bundle cannot be tuned, because their category weight is unknown; metrics missing for one place reduce that place's what-if confidence exactly as the scorer would.
+
+### P7 completion note
+
+- `scripts/export_run.py` previews what a shared bundle would still reveal, then writes a redacted copy: origin rounded to a chosen precision, optional removal of budget, property requirements, market evidence, and the affordability metric, and optional replacement of destination labels wherever they appear, including the prose of merged commute observations.
+- Redaction is applied to the profile and evidence and the result is re-scored through `write_bundle`, so an export is always a schema-valid, internally consistent bundle rather than a hand-edited file. The route envelope, limits, and preferences are retained and the preview says so.
