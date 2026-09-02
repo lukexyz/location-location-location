@@ -1,0 +1,49 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
+
+import demoData from "./data/demo-results.json";
+
+vi.mock("./components/MapView", () => ({
+  MapView: ({ candidates, onSelect }: { candidates: { id: string }[]; onSelect: (id: string) => void }) => (
+    <div data-testid="map-view">
+      <button type="button" onClick={() => onSelect(candidates[1].id)}>Select map candidate</button>
+    </div>
+  ),
+}));
+
+import App from "./App";
+
+describe("viewer", () => {
+  it("keeps map and dossier selection synchronized", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "Alder Green" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Select map candidate" }));
+    expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
+  });
+
+  it("imports valid result JSON locally without a fetch", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const imported = structuredClone(demoData);
+    imported.run_id = "private-local-run";
+    imported.candidates[0].name = "Test Reach";
+    render(<App />);
+    const file = new File([JSON.stringify(imported)], "private-results.json", { type: "application/json" });
+    await user.upload(screen.getByTestId("result-import"), file);
+    expect(await screen.findByText("private-results.json loaded in this tab only")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Test Reach" })).toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("reports an incompatible imported schema", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const file = new File(['{"schema_version":"2"}'], "old-results.json", { type: "application/json" });
+    await user.upload(screen.getByTestId("result-import"), file);
+    expect(await screen.findByText(/Incompatible schema 2/)).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,14 @@
+{
+  "name": "location-location-location",
+  "private": true,
+  "workspaces": ["app"],
+  "scripts": {
+    "dev": "npm run dev --workspace app",
+    "build": "npm run build --workspace app",
+    "test:web": "npm run test --workspace app",
+    "test:e2e": "npm run test:e2e --workspace app"
+  },
+  "devDependencies": {
+    "jsdom": "29.1.1"
+  }
+}

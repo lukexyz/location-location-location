@@ -1,0 +1,525 @@
+{
+  "candidates": [
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 33.33,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "alder-betting",
+              "metric": "betting_shops",
+              "normalized_score": 100.0,
+              "raw_value": 0,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 20.92,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "alder-cafes",
+              "metric": "cafes",
+              "normalized_score": 62.75,
+              "raw_value": 4,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 6.45,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "alder-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 38.69,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 7.18,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "alder-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            }
+          ],
+          "overall_contribution": 13.58,
+          "score": 67.88,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 42.5,
+              "confidence": 0.55,
+              "confidence_notes": "Deliberately lower-confidence proxy",
+              "evidence_id": "alder-care",
+              "metric": "street_care",
+              "normalized_score": 85.0,
+              "raw_value": 85,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 48.5,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "alder-green",
+              "metric": "green_space",
+              "normalized_score": 97.0,
+              "raw_value": 3,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 27.3,
+          "score": 91.0,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 29.91,
+              "confidence": 0.95,
+              "confidence_notes": "Synthetic high-confidence example",
+              "evidence_id": "alder-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 59.83,
+              "raw_value": 58,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "minutes",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 45.12,
+              "confidence": 0.85,
+              "confidence_notes": "Synthetic comparable-sales example",
+              "evidence_id": "alder-housing",
+              "metric": "housing_affordability",
+              "normalized_score": 90.25,
+              "raw_value": 0.78,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 37.52,
+          "score": 75.04,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 82.27,
+      "hard_constraints": {
+        "passed": true,
+        "results": [
+          {
+            "actual": 58,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": true,
+            "value": 65
+          }
+        ]
+      },
+      "id": "alder-green",
+      "informational_metrics": [],
+      "location": {
+        "latitude": 51.61,
+        "longitude": -0.18
+      },
+      "missing_metrics": [],
+      "name": "Alder Green",
+      "overall_score": 78.4,
+      "rank": 1,
+      "warnings": []
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 20.44,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "north-betting",
+              "metric": "betting_shops",
+              "normalized_score": 61.31,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 28.55,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "north-cafes",
+              "metric": "cafes",
+              "normalized_score": 85.66,
+              "raw_value": 8,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 10.22,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "north-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 61.31,
+              "raw_value": 2,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 7.18,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "north-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            }
+          ],
+          "overall_contribution": 13.28,
+          "score": 66.39,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 36.0,
+              "confidence": 0.55,
+              "confidence_notes": "Deliberately lower-confidence proxy",
+              "evidence_id": "north-care",
+              "metric": "street_care",
+              "normalized_score": 72.0,
+              "raw_value": 72,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 43.75,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "north-green",
+              "metric": "green_space",
+              "normalized_score": 87.5,
+              "raw_value": 8,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 23.93,
+          "score": 79.75,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 41.0,
+              "confidence": 0.95,
+              "confidence_notes": "Synthetic high-confidence example",
+              "evidence_id": "north-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 82.0,
+              "raw_value": 38,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "minutes",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 34.16,
+              "confidence": 0.85,
+              "confidence_notes": "Synthetic comparable-sales example",
+              "evidence_id": "north-housing",
+              "metric": "housing_affordability",
+              "normalized_score": 68.33,
+              "raw_value": 0.95,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 37.58,
+          "score": 75.16,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 82.27,
+      "hard_constraints": {
+        "passed": true,
+        "results": [
+          {
+            "actual": 38,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": true,
+            "value": 65
+          }
+        ]
+      },
+      "id": "northbridge",
+      "informational_metrics": [],
+      "location": {
+        "latitude": 51.48,
+        "longitude": 0.04
+      },
+      "missing_metrics": [],
+      "name": "Northbridge",
+      "overall_score": 74.78,
+      "rank": 2,
+      "warnings": []
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 7.54,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "mere-betting",
+              "metric": "betting_shops",
+              "normalized_score": 22.63,
+              "raw_value": 3,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 32.29,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "mere-cafes",
+              "metric": "cafes",
+              "normalized_score": 96.88,
+              "raw_value": 11,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 2.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 14.97,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "mere-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 89.82,
+              "raw_value": 4,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 14.36,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "mere-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 86.14,
+              "raw_value": 3,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "count_15_min_walk",
+              "weight": 1.0
+            }
+          ],
+          "overall_contribution": 13.83,
+          "score": 69.16,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 29.0,
+              "confidence": 0.55,
+              "confidence_notes": "Deliberately lower-confidence proxy",
+              "evidence_id": "mere-care",
+              "metric": "street_care",
+              "normalized_score": 58.0,
+              "raw_value": 58,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 36.25,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "mere-green",
+              "metric": "green_space",
+              "normalized_score": 72.5,
+              "raw_value": 14,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 19.57,
+          "score": 65.25,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 21.75,
+              "confidence": 0.95,
+              "confidence_notes": "Synthetic high-confidence example",
+              "evidence_id": "mere-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 43.5,
+              "raw_value": 72,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "minutes",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 49.62,
+              "confidence": 0.85,
+              "confidence_notes": "Synthetic comparable-sales example",
+              "evidence_id": "mere-housing",
+              "metric": "housing_affordability",
+              "normalized_score": 99.25,
+              "raw_value": 0.66,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 35.69,
+          "score": 71.38,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 82.27,
+      "hard_constraints": {
+        "passed": false,
+        "results": [
+          {
+            "actual": 72,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": false,
+            "value": 65
+          }
+        ]
+      },
+      "id": "mereford",
+      "informational_metrics": [],
+      "location": {
+        "latitude": 51.72,
+        "longitude": -0.31
+      },
+      "missing_metrics": [],
+      "name": "Mereford",
+      "overall_score": 69.1,
+      "rank": 3,
+      "warnings": []
+    }
+  ],
+  "generated_at": "2026-08-01T12:00:00+00:00",
+  "run_id": "demo-three-places",
+  "schema_version": "1",
+  "scoring_version": "1",
+  "unknown_data_policy": "warn"
+}
