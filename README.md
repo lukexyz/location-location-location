@@ -196,10 +196,13 @@ python scripts/export_run.py --run-dir research-runs/NAME --origin-decimals 2 --
 ```
 
 The export rounds the approximate origin, can drop the budget and property
-requirements with the affordability evidence, can replace destination labels,
-and re-scores the redacted evidence through the same schema gates so the shared
-`results.json` stays consistent. The route envelope, limits, and preferences
-remain, and the command never uploads anything.
+requirements with the affordability evidence, can replace destination labels in
+every field (any letter case, prose or slug) and withhold London arrival
+stations, removes personal visit audits unless `--keep-visit-audits` is given,
+re-hashes the request ledger so the exact request bodies cannot be matched by
+brute force, and re-scores the redacted evidence through the same schema gates
+so the shared `results.json` stays consistent. The route envelope, limits, and
+preferences remain, and the command never uploads anything.
 
 ### Viewer
 

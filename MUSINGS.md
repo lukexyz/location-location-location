@@ -727,3 +727,9 @@ The project is on target with the scope-corrected vision and the build claims ab
 - A door-to-door limit can only be attached to a public_transport destination, because the cited rail import is the only commute evidence path in v1. The CLI and the profile validator both reject a limit on a driving, cycling, or walking destination with the reason.
 - A weighted category with no evidence is no longer silently renormalised away. Results carry `unmeasured_categories` and `score_coverage_percent`; the scorer warns "Unmeasured category: essentials (weight 5) has no evidence; the overall score covers 50% of the intended category weight", the dossier renders the category as a hatched no-evidence block with a Coverage readout, and the register shows the measured share. The what-if preview reports the same coverage and parity is tested.
 - The result contract moved to `schema_version` 2 for these fields. The viewer rejects a version 1 bundle with a message that says to rerun the research command.
+
+### P11 completion note
+
+- Exports re-hash every request ledger id with a random salt. The original id was a hash of the exact provider request body, and with a rounded origin inside a known isochrone the body could be brute-forced from an export; the salted hash keeps the ledger's count, timing, and cache facts without that link.
+- Destination anonymisation now rewrites every field, matches any letter case and the hyphenated slug form agents use in identifiers, and withholds London arrival stations, which named the destination terminal.
+- Personal visit audits, with their notes and walking scope, are removed from exports unless `--keep-visit-audits` is given. Removal re-derives the street-care observation through the same merge so the export's score matches its components and falls back to cited proxies.

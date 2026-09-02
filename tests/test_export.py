@@ -14,6 +14,17 @@ from location3.housing import configure_housing_profile, merge_housing_research
 from location3.rail import merge_rail_research
 from location3.reporting import write_bundle
 from location3.scoring import score_research
+from location3.street_care import merge_street_care_research
+
+
+LEDGER = [{
+    "provider": "openrouteservice",
+    "request_id": "sha256:" + "a" * 64,
+    "endpoint": "https://api.openrouteservice.org/v2/isochrones/driving-car",
+    "requested_at": "2026-08-01T11:00:00+00:00",
+    "cache": "miss",
+    "status": 200,
+}]
 
 
 def demo_run(directory: Path) -> Path:
@@ -23,6 +34,10 @@ def demo_run(directory: Path) -> Path:
     evidence = json.loads((fixtures / "evidence.json").read_text(encoding="utf-8"))
     rail = json.loads((fixtures / "rail.json").read_text(encoding="utf-8"))
     housing = json.loads((fixtures / "housing.json").read_text(encoding="utf-8"))
+    street = json.loads((fixtures / "street-care.json").read_text(encoding="utf-8"))
+    # A lowercase mention and a slug form of the label, as agents tend to write them.
+    rail["journeys"][0]["confidence_notes"] += " Timed for a central destination arrival."
+    rail["journeys"][0]["id"] = "welwyn-central-destination-rail"
     profile["search"]["approximate_origin"] = {
         "latitude": 51.51234, "longitude": -0.12345, "precision": "user-provided",
     }
@@ -37,9 +52,10 @@ def demo_run(directory: Path) -> Path:
     profile = configure_housing_profile(profile, housing)
     evidence = merge_rail_research(evidence, rail)
     evidence = merge_housing_research(profile, evidence, housing)
+    evidence = merge_street_care_research(evidence, street)
     results = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
     run = directory / "run"
-    write_bundle(run, profile, evidence, results)
+    write_bundle(run, profile, evidence, results, request_ledger=LEDGER)
     (run / "route-boundary.geojson").write_text("{}", encoding="utf-8")
     return run
 
@@ -66,6 +82,8 @@ class ExportTests(unittest.TestCase):
         self.assertTrue(any("names Central destination" in line for line in lines))
         self.assertTrue(any(line.startswith("Warning: an exported bundle still reveals") for line in lines))
         self.assertTrue(any("Nothing is uploaded" in line for line in lines))
+        self.assertTrue(any(line.startswith("Visit audits: removed 2 personal audit(s)") for line in lines))
+        self.assertTrue(any(line.startswith("Request ledger: request ids re-hashed") for line in lines))
 
     def test_execute_rounds_origin_strips_housing_and_anonymises_destinations(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -81,13 +99,25 @@ class ExportTests(unittest.TestCase):
             exported = bundle_text(output)
             profile = json.loads((output / "profile.json").read_text(encoding="utf-8"))
             results = json.loads((output / "results.json").read_text(encoding="utf-8"))
+            manifest = json.loads((output / "provenance.json").read_text(encoding="utf-8"))
             original = bundle_text(run)
             self.assertTrue((output / "route-boundary.geojson").exists())
 
         self.assertIn("500000", original)
         self.assertNotIn("500000", exported)
-        self.assertNotIn("Central destination", exported)
+        self.assertIn("central destination", original.casefold())
+        self.assertNotIn("central destination", exported.casefold())
+        self.assertNotIn("central-destination", exported.casefold())
+        self.assertIn("London King's Cross", original)
+        self.assertNotIn("London King's Cross", exported)
+        self.assertIn("Synthetic recent visit audit", original)
+        self.assertNotIn("Synthetic recent visit audit", exported)
+        self.assertNotIn("walking loop", exported)
         self.assertNotIn("51.51234", exported)
+        self.assertEqual(len(manifest["request_ledger"]), 1)
+        self.assertNotEqual(manifest["request_ledger"][0]["request_id"], LEDGER[0]["request_id"])
+        self.assertRegex(manifest["request_ledger"][0]["request_id"], r"^sha256:[0-9a-f]{64}$")
+        self.assertEqual(manifest["request_ledger"][0]["endpoint"], LEDGER[0]["endpoint"])
         self.assertEqual(profile["search"]["approximate_origin"], {
             "latitude": 51.5, "longitude": -0.1,
             "precision": "rounded to 1 decimal places (about 11 km)",
@@ -105,6 +135,33 @@ class ExportTests(unittest.TestCase):
             self.assertEqual(
                 candidate["rail_summary"]["journeys"][0]["destination_label"], "Destination 1"
             )
+            self.assertEqual(
+                candidate["rail_summary"]["journeys"][0]["london_arrival_station"],
+                "London terminal withheld",
+            )
+            if "street_care_summary" in candidate:
+                self.assertEqual(candidate["street_care_summary"]["basis"], "proxy")
+                self.assertIsNone(candidate["street_care_summary"]["place"]["visit_audit"])
+        welwyn = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
+        self.assertEqual(
+            welwyn["rail_summary"]["journeys"][0]["id"], "welwyn-destination-1-rail"
+        )
+
+    def test_visit_audits_can_be_kept_deliberately(self):
+        with tempfile.TemporaryDirectory() as directory:
+            run = demo_run(Path(directory))
+            output = Path(directory) / "export"
+            with patch("builtins.print") as printed:
+                status = export_main([
+                    "--run-dir", str(run), "--output", str(output),
+                    "--keep-visit-audits", "--execute",
+                ])
+            lines = [call.args[0] for call in printed.call_args_list]
+            self.assertEqual(status, 0)
+            results = json.loads((output / "results.json").read_text(encoding="utf-8"))
+        self.assertTrue(any(line.startswith("Visit audits: retained 2 personal audit(s)") for line in lines))
+        welwyn = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
+        self.assertEqual(welwyn["street_care_summary"]["basis"], "recent_visit_audit")
 
     def test_redaction_helper_is_pure_and_bounded(self):
         profile = {
