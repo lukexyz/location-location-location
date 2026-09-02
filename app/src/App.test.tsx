@@ -23,6 +23,13 @@ describe("viewer", () => {
     expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
   });
 
+  it("marks negative-signal scores independently of desirability", () => {
+    const { container } = render(<App />);
+    expect(container.querySelector(".metric-row.negative-signal .metric-score")).toHaveTextContent(
+      "100.0",
+    );
+  });
+
   it("imports valid result JSON locally without a fetch", async () => {
     const user = userEvent.setup();
     const fetchSpy = vi.fn();

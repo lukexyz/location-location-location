@@ -90,8 +90,9 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
 }
 
 function MetricRow({ metric }: { metric: MetricResult }) {
+  const negativeSignal = metric.metric === "betting_shops";
   return (
-    <details className="metric-row">
+    <details className={`metric-row${negativeSignal ? " negative-signal" : ""}`}>
       <summary>
         <span className="metric-name">{label(metric.metric)}</span>
         <span className="metric-raw">{rawValue(metric.raw_value, metric.unit)}</span>
