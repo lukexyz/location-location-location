@@ -746,3 +746,44 @@ The project is on target with the scope-corrected vision and the build claims ab
 - The adapter parses the portal's `#reportTable` HTML with the standard library, picks the latest period per operator by parsing the period label, and writes `orr-performance.json` with periodic and moving-annual-average figures, both source URLs, licence OGL-3.0, basis `measured`, and its own request ledger. Column changes fail closed with a message naming the expected headers.
 - A rail journey may now carry `operator`; `import_rail.py --performance` fills that journey's punctuality and cancellation from the ORR moving annual average, replaces any input figures, appends a cited performance source, notes it in the journey, records the provider, and merges the ORR ledger into the bundle's provenance. Recorded trimmed extracts of both tables with real values live under `fixtures/orr/` (OGL).
 - Verified against the live portal on 2026-09-03: two calls, then cache hits, latest period Apr 2026 to Mar 2027 (Period 04).
+
+### P13 completion note
+
+- The map is now a stable field. It fits the whole run once per bundle and flies only to a selection the user makes; sorting the register, moving an importance slider, or loading the bundle's own top candidate never moves it, and an end-to-end test pans the map and asserts the pane transform survives every control change. Pins scale with zoom, the selected pin sits on top, and unknown limits draw a dashed ring while breaches draw a strike.
+- Category importance is tunable alongside metric importance. The tune panel groups each category slider above its metrics and says how many were researched; one restore returns both. The what-if preview applies both maps and the parity test derives its weights from the Python reweighted fixture, so the browser preview and the deterministic scorer agree on category weight, contribution, and order.
+- The dossier reads top-down: verdict dial, the constraint / confidence / coverage / evidence / what-if strip, the what-if preview with missing metrics and unmeasured categories, an amber collapsible warning strip with a count, hard limits with their warnings, categories, unmeasured categories, then informational metrics, rail, housing, street care, route boundary, and readouts. A unit test asserts that order.
+- Readouts stop implying clean results. Green Escape says there is no green-space evidence in the run rather than that no green space exists; catchment wording is generated from the metric unit; coordinates render as hemispheres. The import limit rose to 25 MB and its message names the 1,000-candidate cap so the two limits cannot contradict each other; load state is visible at every width and the reset button appears only when the demo is not active.
+- The chrome now has three voices: display, mono with tabular numerals, and a text voice for every note, caveat, warning, and citation. Sorting is a labelled segmented control with pressed state, range inputs have a custom track and thumb, and the panels use an inner-edge shadow and frame line rather than floating cards. A rail journey's ORR operator, when present, is typed, validated, and shown.
+- Verified on 2026-09-03: 58 Vitest tests, a clean TypeScript build, 30 Playwright tests including axe on desktop and mobile, screenshots refreshed.
+
+### P15 completion note
+
+- The shared field validators live in one module and the three importer commands are one preview-first skeleton driven by a small spec, so a new cited input adds a merge and a disclosure rather than a fourth copy of the command. Rail keeps its `--performance` flag through that spec.
+- `.env` files, the virtualenv, and the ruff cache are ignored; stale bytecode for deleted modules is gone; provenance records the Python and jsonschema versions alongside the tool version; CI pins Python 3.12 and guards the committed viewer build. The README gained the install step, the new research flags, the three-state limits, coverage, evidence basis, export flags, and the ORR source.
+- Not done: the lazy imports between validation and the rail, housing, and street-care modules remain, because those modules validate their inputs through the evidence validator and the evidence validator dispatches to them. Breaking that cycle needs the sub-block validators to move out of the merge modules, which is a larger reshuffle than this pass wanted.
+
+## 2026-09-03 — Where the Project Stands After P9–P15
+
+### State
+
+- The live path measures what it says it measures. One isochrone call and one Overpass call collect only the metrics a run weights or constrains, node points of interest are counted, the preview prints the rounded origin that is actually sent, and the manifest records what was skipped and how much of the polygon left the machine.
+- Missing evidence is visible everywhere. Hard limits are pass, fail, or unknown; unmeasured categories stay in the result with a coverage percentage; every observation and imported record carries a basis, and agent-inferred values cannot claim confidence above 0.5.
+- One hand-written input is now measured: ORR punctuality and cancellations flow into rail journeys through the same preview, cap, cache, ledger, and citation path as the research command.
+- Exports are deliberate and private: salted ledger ids, case-insensitive label scrubbing, withheld terminals, and visit audits dropped by default.
+- The viewer is an instrument rather than a dashboard: stable map, category and metric importance, a top-down dossier, honest readouts, three typographic voices, and custom controls, with parity tests binding it to the Python scorer.
+- Verification on 2026-09-03: ruff clean, 72 Python tests, demo bundle reproduces byte-identically, 58 Vitest tests, clean build, 30 Playwright tests with axe.
+
+### Remaining work
+
+- Green-space distance still uses straight-line reach; a network distance to the nearest park entrance would match the walking catchments used for points of interest.
+- Per-destination isochrones are still out of scope under the two-call cap; a second destination reuses the first boundary.
+- Screenshot baselines are refreshed by hand; a pixel-diff gate in CI would catch layout regressions the visual-contract test does not.
+- Housing is the next candidate for a measured adapter: Land Registry price paid data is open and per-postcode, which would move the housing basis from agent-inferred to measured for purchases.
+- Run comparison: two runs of the same profile on different days, or of two profiles, cannot yet be diffed in the viewer or on the command line.
+- The validation import cycle noted under P15.
+
+### Decisions to keep
+
+- The Python scorer owns every number; the viewer previews and never persists.
+- Two live provider calls per run, previewed before they happen, remains the ceiling until a measured need proves otherwise.
+- Every new evidence source enters through the importer skeleton with a basis, a citation, and a disclosure line, or not at all.
