@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 import type { CandidateResult } from "../types";
 
 interface RankedListProps {
@@ -7,6 +9,19 @@ interface RankedListProps {
 }
 
 export function RankedList({ candidates, selectedId, onSelect }: RankedListProps) {
+  const listRef = useRef<HTMLOListElement>(null);
+
+  function moveFocus(index: number, key: string) {
+    const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>(".rank-entry");
+    if (!buttons?.length) return;
+    const target = key === "Home"
+      ? 0
+      : key === "End"
+        ? buttons.length - 1
+        : (index + (key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+    buttons[target].focus();
+  }
+
   return (
     <aside className="rank-panel panel-cut" aria-labelledby="rank-heading">
       <div className="panel-heading">
@@ -16,8 +31,8 @@ export function RankedList({ candidates, selectedId, onSelect }: RankedListProps
         </div>
         <span className="count-readout">{String(candidates.length).padStart(2, "0")}</span>
       </div>
-      <ol className="rank-list">
-        {candidates.map((candidate) => {
+      <ol className="rank-list" ref={listRef}>
+        {candidates.map((candidate, index) => {
           const selected = selectedId === candidate.id;
           return (
             <li key={candidate.id}>
@@ -26,6 +41,12 @@ export function RankedList({ candidates, selectedId, onSelect }: RankedListProps
                 className="rank-entry"
                 aria-pressed={selected}
                 onClick={() => onSelect(candidate.id)}
+                onKeyDown={(event) => {
+                  if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+                    event.preventDefault();
+                    moveFocus(index, event.key);
+                  }
+                }}
               >
                 <span className="rank-number">{String(candidate.rank).padStart(2, "0")}</span>
                 <span className="rank-copy">

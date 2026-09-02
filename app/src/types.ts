@@ -116,6 +116,63 @@ export interface HousingSummary {
   market: HousingMarket;
 }
 
+export interface StreetCareSource {
+  label: string;
+  url: string;
+  retrieved_at: string;
+  source_date: string;
+  licence: string;
+}
+
+export interface StreetCarePlace {
+  id: string;
+  candidate_id: string;
+  local_authority: string;
+  fly_tipping: {
+    current_incidents_per_1000: number;
+    previous_incidents_per_1000: number;
+    current_period: string;
+    previous_period: string;
+    reporting_basis: string;
+    source: StreetCareSource;
+  };
+  local_reports: null | {
+    scope_kind: "lsoa" | "local_authority" | "other_small_area";
+    geographic_scope: string;
+    reports_per_1000: number | null;
+    unresolved_percent: number | null;
+    median_resolution_days: number | null;
+    period_start: string;
+    period_end: string;
+    source: StreetCareSource;
+  };
+  visit_audit: null | {
+    audited_at: string;
+    geographic_scope: string;
+    ratings: Record<string, number>;
+    notes: string;
+  };
+}
+
+export interface StreetCareComponent {
+  key: string;
+  raw_value: number | null;
+  unit: string;
+  normalized_score: number | null;
+  weight: number;
+  included: boolean;
+}
+
+export interface StreetCareSummary {
+  assessment_date: string;
+  score: number;
+  basis: "proxy" | "recent_visit_audit";
+  confidence: number;
+  audit_age_days: number | null;
+  components: StreetCareComponent[];
+  place: StreetCarePlace;
+}
+
 export interface CandidateResult {
   id: string;
   name: string;
@@ -131,6 +188,7 @@ export interface CandidateResult {
   informational_metrics: MetricResult[];
   rail_summary?: RailSummary;
   housing_summary?: HousingSummary;
+  street_care_summary?: StreetCareSummary;
   missing_metrics: string[];
   warnings: string[];
 }

@@ -23,6 +23,17 @@ describe("viewer", () => {
     expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
   });
 
+  it("supports arrow-key navigation across candidate buttons", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const alder = screen.getByRole("button", { name: /Alder Green/ });
+    const northbridge = screen.getByRole("button", { name: /Northbridge/ });
+    alder.focus();
+    await user.keyboard("{ArrowDown}{Enter}");
+    expect(northbridge).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
+  });
+
   it("highlights a favorable raw observation without recoloring its score", () => {
     const { container } = render(<App />);
     expect(container.querySelector(".metric-raw .favorable-observation")).toHaveTextContent(/^0$/);
@@ -44,6 +55,14 @@ describe("viewer", () => {
     expect(screen.getByText("£390,000")).toBeInTheDocument();
     expect(screen.getByText(/live inventory was not checked/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Search current listings/ })).toBeInTheDocument();
+  });
+
+  it("shows a recent visit audit without hiding its proxy evidence", () => {
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "Street care" })).toBeInTheDocument();
+    expect(screen.getByText(/PAVEMENT PRIDE \/ Recent visit audit/i)).toBeInTheDocument();
+    expect(screen.getByText("12/1k")).toBeInTheDocument();
+    expect(screen.getByText(/Synthetic recent visit audit/)).toBeInTheDocument();
   });
 
   it("imports valid result JSON locally without a fetch", async () => {

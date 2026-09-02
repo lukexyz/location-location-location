@@ -80,16 +80,16 @@
             {
               "active": true,
               "category": "environment",
-              "category_contribution": 42.5,
-              "confidence": 0.55,
-              "confidence_notes": "Deliberately lower-confidence proxy",
-              "evidence_id": "alder-care",
+              "category_contribution": 43.75,
+              "confidence": 0.8867,
+              "confidence_notes": "Personal audit is 12 days old",
+              "evidence_id": "alder-street-care-score",
               "metric": "street_care",
-              "normalized_score": 85.0,
-              "raw_value": 85,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 87.5,
+              "raw_value": 87.5,
+              "source": "Private structured visit audit",
+              "source_date": "2026-07-20",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/schemas/street-care-research.schema.json",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -110,8 +110,8 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 27.3,
-          "score": 91.0,
+          "overall_contribution": 27.68,
+          "score": 92.25,
           "weight": 3.0
         },
         {
@@ -155,7 +155,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 81.14,
+      "confidence": 85.73,
       "hard_constraints": {
         "passed": true,
         "results": [
@@ -213,7 +213,7 @@
       },
       "missing_metrics": [],
       "name": "Alder Green",
-      "overall_score": 78.4,
+      "overall_score": 78.77,
       "rail_summary": {
         "fastest_total_minutes": 58,
         "journeys": [
@@ -261,6 +261,111 @@
         "primary_journey_id": "alder-central-rail"
       },
       "rank": 1,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": 12,
+        "basis": "recent_visit_audit",
+        "components": [
+          {
+            "included": true,
+            "key": "litter",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "dog_fouling",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "graffiti",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "weeds_and_detritus",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "overflowing_bins",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "overall_upkeep",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          }
+        ],
+        "confidence": 0.8867,
+        "place": {
+          "candidate_id": "alder-green",
+          "fly_tipping": {
+            "current_incidents_per_1000": 12,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 14,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "alder-street-care",
+          "local_authority": "Alder Borough",
+          "local_reports": {
+            "geographic_scope": "Alder Green example LSOA",
+            "median_resolution_days": 3,
+            "period_end": "2026-07-31",
+            "period_start": "2025-08-01",
+            "reports_per_1000": 8,
+            "scope_kind": "lsoa",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 local-report fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            },
+            "unresolved_percent": 12
+          },
+          "visit_audit": {
+            "audited_at": "2026-07-20",
+            "geographic_scope": "Alder Green centre walking loop",
+            "notes": "Synthetic recent visit audit for the public demonstration.",
+            "ratings": {
+              "dog_fouling": 4,
+              "graffiti": 3,
+              "litter": 4,
+              "overall_upkeep": 4,
+              "overflowing_bins": 3,
+              "weeds_and_detritus": 3
+            }
+          }
+        },
+        "score": 87.5
+      },
       "warnings": [
         "Housing affordability is market evidence, not live inventory"
       ]
@@ -345,16 +450,16 @@
             {
               "active": true,
               "category": "environment",
-              "category_contribution": 36.0,
-              "confidence": 0.55,
-              "confidence_notes": "Deliberately lower-confidence proxy",
-              "evidence_id": "north-care",
+              "category_contribution": 30.67,
+              "confidence": 0.5,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "north-street-care-score",
               "metric": "street_care",
-              "normalized_score": 72.0,
-              "raw_value": 72,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "normalized_score": 61.34,
+              "raw_value": 61.34,
+              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
               "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -375,8 +480,8 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 23.93,
-          "score": 79.75,
+          "overall_contribution": 22.33,
+          "score": 74.42,
           "weight": 3.0
         },
         {
@@ -420,7 +525,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 81.14,
+      "confidence": 80.45,
       "hard_constraints": {
         "passed": true,
         "results": [
@@ -478,7 +583,7 @@
       },
       "missing_metrics": [],
       "name": "Northbridge",
-      "overall_score": 74.78,
+      "overall_score": 73.18,
       "rail_summary": {
         "fastest_total_minutes": 38,
         "journeys": [
@@ -526,8 +631,94 @@
         "primary_journey_id": "north-central-rail"
       },
       "rank": 2,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": null,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 61.0,
+            "raw_value": 30,
+            "unit": "incidents_per_1000",
+            "weight": 0.2
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 40.0,
+            "raw_value": 20.0,
+            "unit": "percent_change",
+            "weight": 0.2
+          },
+          {
+            "included": false,
+            "key": "report_density",
+            "normalized_score": null,
+            "raw_value": 20,
+            "unit": "reports_per_1000",
+            "weight": 0
+          },
+          {
+            "included": true,
+            "key": "unresolved_reports",
+            "normalized_score": 70,
+            "raw_value": 30,
+            "unit": "percent",
+            "weight": 0.3
+          },
+          {
+            "included": true,
+            "key": "median_resolution_time",
+            "normalized_score": 67.14,
+            "raw_value": 8,
+            "unit": "days",
+            "weight": 0.3
+          }
+        ],
+        "confidence": 0.5,
+        "place": {
+          "candidate_id": "northbridge",
+          "fly_tipping": {
+            "current_incidents_per_1000": 30,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 25,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "north-street-care",
+          "local_authority": "North Borough",
+          "local_reports": {
+            "geographic_scope": "North Borough",
+            "median_resolution_days": 8,
+            "period_end": "2026-07-31",
+            "period_start": "2025-08-01",
+            "reports_per_1000": 20,
+            "scope_kind": "local_authority",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 local-report fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            },
+            "unresolved_percent": 30
+          },
+          "visit_audit": null
+        },
+        "score": 61.34
+      },
       "warnings": [
-        "Housing affordability is market evidence, not live inventory"
+        "Housing affordability is market evidence, not live inventory",
+        "Street-care score uses low-resolution proxies; visit audit recommended"
       ]
     },
     {
@@ -610,16 +801,16 @@
             {
               "active": true,
               "category": "environment",
-              "category_contribution": 29.0,
-              "confidence": 0.55,
-              "confidence_notes": "Deliberately lower-confidence proxy",
-              "evidence_id": "mere-care",
+              "category_contribution": 22.27,
+              "confidence": 0.3,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "mere-street-care-score",
               "metric": "street_care",
-              "normalized_score": 58.0,
-              "raw_value": 58,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "normalized_score": 44.55,
+              "raw_value": 44.55,
+              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
               "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -640,8 +831,8 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 19.57,
-          "score": 65.25,
+          "overall_contribution": 17.56,
+          "score": 58.52,
           "weight": 3.0
         },
         {
@@ -685,7 +876,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 75.91,
+      "confidence": 72.5,
       "hard_constraints": {
         "passed": false,
         "results": [
@@ -743,7 +934,7 @@
       },
       "missing_metrics": [],
       "name": "Mereford",
-      "overall_score": 69.1,
+      "overall_score": 67.08,
       "rail_summary": {
         "fastest_total_minutes": 72,
         "journeys": [
@@ -791,9 +982,71 @@
         "primary_journey_id": "mere-central-rail"
       },
       "rank": 3,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": 243,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 49.0,
+            "raw_value": 45,
+            "unit": "incidents_per_1000",
+            "weight": 0.4
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 41.58,
+            "raw_value": 18.421052631578945,
+            "unit": "percent_change",
+            "weight": 0.6
+          }
+        ],
+        "confidence": 0.3,
+        "place": {
+          "candidate_id": "mereford",
+          "fly_tipping": {
+            "current_incidents_per_1000": 45,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 38,
+            "previous_period": "2023/24",
+            "reporting_basis": "customer reported incidents only",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "mere-street-care",
+          "local_authority": "Mere District",
+          "local_reports": null,
+          "visit_audit": {
+            "audited_at": "2025-12-01",
+            "geographic_scope": "Mereford centre walking loop",
+            "notes": "Synthetic stale audit retained for transparency but excluded from scoring.",
+            "ratings": {
+              "dog_fouling": 4,
+              "graffiti": 4,
+              "litter": 4,
+              "overall_upkeep": 4,
+              "overflowing_bins": 4,
+              "weeds_and_detritus": 4
+            }
+          }
+        },
+        "score": 44.55
+      },
       "warnings": [
         "Housing affordability is market evidence, not live inventory",
-        "Purchase comparable sample has fewer than 20 transactions"
+        "Purchase comparable sample has fewer than 20 transactions",
+        "Street-care score uses low-resolution proxies; visit audit recommended",
+        "Local report resolution evidence unavailable",
+        "Fly-tipping source does not report all incidents",
+        "Personal street-care audit is stale and does not override proxies"
       ]
     }
   ],

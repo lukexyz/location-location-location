@@ -36,4 +36,20 @@ describe("parseResultBundle", () => {
     (candidate.housing_summary as Record<string, unknown>).inventory_status = "available";
     expect(() => parseResultBundle(inventoryClaim)).toThrow(/inventory_status must be not_checked/);
   });
+
+  it("rejects street-care components that smuggle report volume into the score", () => {
+    const invalid = structuredClone(demoData);
+    const density = invalid.candidates[0].street_care_summary.components.find(
+      (component) => component.key === "report_density",
+    );
+    expect(density).toBeUndefined();
+
+    const proxy = invalid.candidates.find((candidate) => candidate.id === "northbridge")!;
+    const proxyDensity = proxy.street_care_summary.components.find(
+      (component) => component.key === "report_density",
+    )!;
+    proxyDensity.included = true;
+    proxyDensity.weight = 0.1;
+    expect(() => parseResultBundle(invalid)).toThrow(/included components need score and weight/);
+  });
 });

@@ -1,0 +1,445 @@
+"""Deterministic, cautious street-care assessment for shortlisted places."""
+
+from __future__ import annotations
+
+from copy import deepcopy
+from datetime import date, datetime
+from typing import Any
+from urllib.parse import urlsplit
+
+from .validation import validate_evidence
+
+
+AUDIT_FIELDS = (
+    "litter",
+    "dog_fouling",
+    "graffiti",
+    "weeds_and_detritus",
+    "overflowing_bins",
+    "overall_upkeep",
+)
+REPORT_SCOPES = {"lsoa", "local_authority", "other_small_area"}
+AUDIT_MAX_AGE_DAYS = 180
+AUDIT_METHOD_URL = (
+    "https://github.com/lukexyz/location-location-location/blob/main/"
+    "schemas/street-care-research.schema.json"
+)
+
+
+def merge_street_care_research(
+    evidence: dict[str, Any], street_research: dict[str, Any]
+) -> dict[str, Any]:
+    """Return evidence enriched by derived street-care scores for the shortlist."""
+    validate_evidence(evidence)
+    candidate_ids = {candidate["id"] for candidate in evidence["candidates"]}
+    validate_street_care_research(street_research, candidate_ids)
+    merged = deepcopy(evidence)
+    researched_candidates = {
+        place["candidate_id"] for place in street_research["places"]
+    }
+    merged["observations"] = [
+        observation
+        for observation in merged["observations"]
+        if not (
+            observation["candidate_id"] in researched_candidates
+            and observation["metric"] == "street_care"
+        )
+    ]
+    for place in street_research["places"]:
+        assessment = assess_street_care(place, street_research["assessment_date"])
+        merged["observations"].append(_street_observation(place, assessment))
+    merged["street_care_research"] = deepcopy(street_research)
+    validate_evidence(merged)
+    return merged
+
+
+def validate_street_care_research(
+    street_research: dict[str, Any], allowed_candidate_ids: set[str]
+) -> None:
+    _exact_keys(
+        street_research,
+        {"schema_version", "provider", "assessment_date", "places"},
+        "street-care research",
+    )
+    if street_research.get("schema_version") != "1":
+        raise ValueError("unsupported street-care research schema_version")
+    _nonempty(street_research, "provider")
+    assessment_date = _date(
+        _nonempty(street_research, "assessment_date"), "assessment_date"
+    )
+    places = street_research.get("places")
+    if not isinstance(places, list) or not places:
+        raise ValueError("street-care places must be a non-empty array")
+
+    place_ids: set[str] = set()
+    candidate_ids: set[str] = set()
+    for place in places:
+        if not isinstance(place, dict):
+            raise ValueError("street-care places must be objects")
+        _exact_keys(
+            place,
+            {"id", "candidate_id", "local_authority", "fly_tipping", "local_reports", "visit_audit"},
+            "street-care place",
+        )
+        place_id = _nonempty(place, "id")
+        if place_id in place_ids:
+            raise ValueError(f"duplicate street-care place id: {place_id}")
+        place_ids.add(place_id)
+        candidate_id = _nonempty(place, "candidate_id")
+        if candidate_id not in allowed_candidate_ids:
+            raise ValueError("street-care place is outside the candidate shortlist")
+        if candidate_id in candidate_ids:
+            raise ValueError("each researched candidate must have one street-care place")
+        candidate_ids.add(candidate_id)
+        _nonempty(place, "local_authority")
+        _validate_fly_tipping(place.get("fly_tipping"))
+        _validate_local_reports(place.get("local_reports"))
+        _validate_visit_audit(place.get("visit_audit"), assessment_date)
+        sources = [place["fly_tipping"]["source"]]
+        if place["local_reports"]:
+            sources.append(place["local_reports"]["source"])
+        if any(
+            _date(source["source_date"], "source_date") > assessment_date
+            for source in sources
+        ):
+            raise ValueError("street-care sources cannot be later than assessment_date")
+
+
+def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str, Any]:
+    """Derive the score, basis, confidence, and inspectable components."""
+    assessed = _date(assessment_date, "assessment_date")
+    audit = place["visit_audit"]
+    if audit is not None:
+        age_days = (assessed - _date(audit["audited_at"], "audited_at")).days
+        if age_days <= AUDIT_MAX_AGE_DAYS:
+            components = [
+                {
+                    "key": key,
+                    "raw_value": audit["ratings"][key],
+                    "unit": "rating_0_to_4",
+                    "normalized_score": audit["ratings"][key] * 25,
+                    "weight": round(1 / len(AUDIT_FIELDS), 6),
+                    "included": True,
+                }
+                for key in AUDIT_FIELDS
+            ]
+            score = sum(item["normalized_score"] for item in components) / len(components)
+            confidence = 0.9 - (age_days / AUDIT_MAX_AGE_DAYS) * 0.2
+            return {
+                "score": round(score, 2),
+                "basis": "recent_visit_audit",
+                "confidence": round(confidence, 4),
+                "audit_age_days": age_days,
+                "components": components,
+            }
+
+    fly = place["fly_tipping"]
+    report = place["local_reports"]
+    has_resolution_evidence = report is not None and (
+        report["unresolved_percent"] is not None
+        or report["median_resolution_days"] is not None
+    )
+    rate_component = _component(
+        "fly_tipping_rate",
+        fly["current_incidents_per_1000"],
+        "incidents_per_1000",
+        _piecewise(
+            fly["current_incidents_per_1000"],
+            ((0, 90), (10, 80), (25, 65), (50, 45), (100, 20), (200, 0)),
+        ),
+        0.2 if has_resolution_evidence else 0.4,
+    )
+    trend_percent = _percent_change(
+        fly["previous_incidents_per_1000"], fly["current_incidents_per_1000"]
+    )
+    trend_component = _component(
+        "fly_tipping_trend",
+        trend_percent,
+        "percent_change",
+        _piecewise(
+            trend_percent,
+            ((-50, 90), (-20, 75), (0, 60), (20, 40), (50, 20), (100, 0)),
+        ),
+        0.2 if has_resolution_evidence else 0.6,
+    )
+    components = [rate_component, trend_component]
+    confidence = 0.3
+    if report is not None:
+        unresolved = report["unresolved_percent"]
+        resolution = report["median_resolution_days"]
+        components.append(
+            _component(
+                "report_density",
+                report["reports_per_1000"],
+                "reports_per_1000",
+                None,
+                0,
+                included=False,
+            )
+        )
+        if unresolved is not None:
+            components.append(
+                _component(
+                    "unresolved_reports", unresolved, "percent", 100 - unresolved, 0.3
+                )
+            )
+        if resolution is not None:
+            components.append(
+                _component(
+                    "median_resolution_time",
+                    resolution,
+                    "days",
+                    _piecewise(
+                        resolution,
+                        ((0, 100), (2, 90), (7, 70), (14, 50), (30, 20), (60, 0)),
+                    ),
+                    0.3,
+                )
+            )
+        usable_report_components = int(unresolved is not None) + int(resolution is not None)
+        if usable_report_components:
+            confidence += 0.1 if report["scope_kind"] == "local_authority" else 0.15
+            if usable_report_components == 2:
+                confidence += 0.1
+
+    included = [item for item in components if item["included"]]
+    total_weight = sum(item["weight"] for item in included)
+    score = sum(item["normalized_score"] * item["weight"] for item in included) / total_weight
+    for item in included:
+        item["weight"] = round(item["weight"] / total_weight, 6)
+    return {
+        "score": round(score, 2),
+        "basis": "proxy",
+        "confidence": round(min(confidence, 0.55), 4),
+        "audit_age_days": (
+            None
+            if audit is None
+            else (assessed - _date(audit["audited_at"], "audited_at")).days
+        ),
+        "components": components,
+    }
+
+
+def _street_observation(
+    place: dict[str, Any], assessment: dict[str, Any]
+) -> dict[str, Any]:
+    if assessment["basis"] == "recent_visit_audit":
+        audit = place["visit_audit"]
+        source = {
+            "label": "Private structured visit audit",
+            "url": AUDIT_METHOD_URL,
+            "retrieved_at": f"{audit['audited_at']}T12:00:00+00:00",
+            "source_date": audit["audited_at"],
+            "licence": "Private user observation; not for redistribution",
+        }
+        scope = audit["geographic_scope"]
+        transformation = (
+            "Mean of six structured 0–4 visit ratings; recent audit overrides proxy"
+        )
+        notes = f"Personal audit is {assessment['audit_age_days']} days old"
+    else:
+        source = place["fly_tipping"]["source"]
+        scope = f"{place['local_authority']} proxy applied to candidate"
+        transformation = (
+            "Documented weighted proxy from fly-tipping level/trend and available "
+            "local report resolution; report density is informational only"
+        )
+        notes = (
+            "Low-resolution proxy; incident volume is affected by reporting practice "
+            "and does not directly measure neighbourhood cleanliness"
+        )
+    return {
+        "id": f"{place['id']}-score",
+        "candidate_id": place["candidate_id"],
+        "metric": "street_care",
+        "value": assessment["score"],
+        "unit": "desirability_score",
+        "geographic_scope": scope,
+        "source": source["label"],
+        "source_url": source["url"],
+        "retrieved_at": source["retrieved_at"],
+        "source_date": source["source_date"],
+        "transformation": transformation,
+        "licence": source["licence"],
+        "confidence": assessment["confidence"],
+        "confidence_notes": notes,
+    }
+
+
+def _validate_fly_tipping(value: Any) -> None:
+    if not isinstance(value, dict):
+        raise ValueError("fly_tipping must be an object")
+    _exact_keys(
+        value,
+        {"current_incidents_per_1000", "previous_incidents_per_1000", "current_period", "previous_period", "reporting_basis", "source"},
+        "fly_tipping",
+    )
+    for field in ("current_incidents_per_1000", "previous_incidents_per_1000"):
+        _nonnegative_number(value, field)
+    _nonempty(value, "current_period")
+    _nonempty(value, "previous_period")
+    _nonempty(value, "reporting_basis")
+    _validate_source(value.get("source"), "fly-tipping source")
+
+
+def _validate_local_reports(value: Any) -> None:
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        raise ValueError("local_reports must be null or an object")
+    _exact_keys(
+        value,
+        {"scope_kind", "geographic_scope", "reports_per_1000", "unresolved_percent", "median_resolution_days", "period_start", "period_end", "source"},
+        "local_reports",
+    )
+    if value.get("scope_kind") not in REPORT_SCOPES:
+        raise ValueError("local report scope_kind is unsupported")
+    _nonempty(value, "geographic_scope")
+    _nullable_nonnegative(value, "reports_per_1000")
+    unresolved = value.get("unresolved_percent")
+    if unresolved is not None and (
+        not isinstance(unresolved, (int, float))
+        or isinstance(unresolved, bool)
+        or not 0 <= unresolved <= 100
+    ):
+        raise ValueError("unresolved_percent must be null or between 0 and 100")
+    _nullable_nonnegative(value, "median_resolution_days")
+    start = _date(_nonempty(value, "period_start"), "period_start")
+    end = _date(_nonempty(value, "period_end"), "period_end")
+    if end < start:
+        raise ValueError("local report period_end cannot precede period_start")
+    if all(
+        value[field] is None
+        for field in ("reports_per_1000", "unresolved_percent", "median_resolution_days")
+    ):
+        raise ValueError("local_reports must contain at least one measured value")
+    _validate_source(value.get("source"), "local report source")
+
+
+def _validate_visit_audit(value: Any, assessment_date: date) -> None:
+    if value is None:
+        return
+    if not isinstance(value, dict):
+        raise ValueError("visit_audit must be null or an object")
+    _exact_keys(
+        value,
+        {"audited_at", "geographic_scope", "ratings", "notes"},
+        "visit_audit",
+    )
+    audited_at = _date(_nonempty(value, "audited_at"), "audited_at")
+    if audited_at > assessment_date:
+        raise ValueError("visit audit cannot be later than assessment_date")
+    _nonempty(value, "geographic_scope")
+    _nonempty(value, "notes")
+    ratings = value.get("ratings")
+    if not isinstance(ratings, dict):
+        raise ValueError("visit audit ratings must be an object")
+    _exact_keys(ratings, set(AUDIT_FIELDS), "visit audit ratings")
+    for field in AUDIT_FIELDS:
+        rating = ratings[field]
+        if not isinstance(rating, int) or isinstance(rating, bool) or not 0 <= rating <= 4:
+            raise ValueError("visit audit ratings must be integers from 0 to 4")
+
+
+def _validate_source(value: Any, label: str) -> None:
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be an object")
+    _exact_keys(
+        value,
+        {"label", "url", "retrieved_at", "source_date", "licence"},
+        label,
+    )
+    _nonempty(value, "label")
+    _http_url(_nonempty(value, "url"), "source url")
+    retrieved = _datetime(_nonempty(value, "retrieved_at"), "retrieved_at")
+    source_date = _date(_nonempty(value, "source_date"), "source_date")
+    if source_date > retrieved.date():
+        raise ValueError("street-care source_date cannot be later than retrieved_at")
+    _nonempty(value, "licence")
+
+
+def _component(
+    key: str,
+    raw_value: float | None,
+    unit: str,
+    normalized_score: float | None,
+    weight: float,
+    *,
+    included: bool = True,
+) -> dict[str, Any]:
+    return {
+        "key": key,
+        "raw_value": raw_value,
+        "unit": unit,
+        "normalized_score": (
+            None if normalized_score is None else round(normalized_score, 2)
+        ),
+        "weight": weight,
+        "included": included,
+    }
+
+
+def _percent_change(previous: float, current: float) -> float:
+    if previous == 0:
+        return 0.0 if current == 0 else 100.0
+    return ((current - previous) / previous) * 100
+
+
+def _piecewise(value: float, anchors: tuple[tuple[float, float], ...]) -> float:
+    if value <= anchors[0][0]:
+        return anchors[0][1]
+    if value >= anchors[-1][0]:
+        return anchors[-1][1]
+    for (left_x, left_y), (right_x, right_y) in zip(anchors, anchors[1:]):
+        if left_x <= value <= right_x:
+            fraction = (value - left_x) / (right_x - left_x)
+            return left_y + fraction * (right_y - left_y)
+    raise AssertionError("unreachable")
+
+
+def _exact_keys(container: dict[str, Any], expected: set[str], label: str) -> None:
+    if set(container) != expected:
+        raise ValueError(f"{label} fields do not match the schema")
+
+
+def _nonempty(container: dict[str, Any], key: str) -> str:
+    value = container.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{key} must be a non-empty string")
+    return value
+
+
+def _nonnegative_number(container: dict[str, Any], key: str) -> float:
+    value = container.get(key)
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or value < 0:
+        raise ValueError(f"{key} must be a non-negative number")
+    return float(value)
+
+
+def _nullable_nonnegative(container: dict[str, Any], key: str) -> None:
+    if container.get(key) is not None:
+        _nonnegative_number(container, key)
+
+
+def _http_url(value: str, field: str) -> str:
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError(f"{field} must be an HTTP URL")
+    return value
+
+
+def _date(value: str, field: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError as error:
+        raise ValueError(f"{field} must be an ISO 8601 date") from error
+
+
+def _datetime(value: str, field: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError(f"{field} must be an ISO 8601 date-time") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must include a timezone")
+    return parsed

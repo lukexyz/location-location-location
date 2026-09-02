@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/street-care-research.schema.json",
+  "title": "StreetCareResearch",
+  "type": "object",
+  "required": ["schema_version", "provider", "assessment_date", "places"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "provider": {"type": "string", "minLength": 1},
+    "assessment_date": {"type": "string", "format": "date"},
+    "places": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/place"}}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["label", "url", "retrieved_at", "source_date", "licence"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "source_date": {"type": "string", "format": "date"},
+        "licence": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "flyTipping": {
+      "type": "object",
+      "required": ["current_incidents_per_1000", "previous_incidents_per_1000", "current_period", "previous_period", "reporting_basis", "source"],
+      "properties": {
+        "current_incidents_per_1000": {"type": "number", "minimum": 0},
+        "previous_incidents_per_1000": {"type": "number", "minimum": 0},
+        "current_period": {"type": "string", "minLength": 1},
+        "previous_period": {"type": "string", "minLength": 1},
+        "reporting_basis": {"type": "string", "minLength": 1},
+        "source": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": false
+    },
+    "localReports": {
+      "type": ["object", "null"],
+      "required": ["scope_kind", "geographic_scope", "reports_per_1000", "unresolved_percent", "median_resolution_days", "period_start", "period_end", "source"],
+      "properties": {
+        "scope_kind": {"enum": ["lsoa", "local_authority", "other_small_area"]},
+        "geographic_scope": {"type": "string", "minLength": 1},
+        "reports_per_1000": {"type": ["number", "null"], "minimum": 0},
+        "unresolved_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "median_resolution_days": {"type": ["number", "null"], "minimum": 0},
+        "period_start": {"type": "string", "format": "date"},
+        "period_end": {"type": "string", "format": "date"},
+        "source": {"$ref": "#/$defs/source"}
+      },
+      "additionalProperties": false
+    },
+    "visitAudit": {
+      "type": ["object", "null"],
+      "required": ["audited_at", "geographic_scope", "ratings", "notes"],
+      "properties": {
+        "audited_at": {"type": "string", "format": "date"},
+        "geographic_scope": {"type": "string", "minLength": 1},
+        "ratings": {
+          "type": "object",
+          "required": ["litter", "dog_fouling", "graffiti", "weeds_and_detritus", "overflowing_bins", "overall_upkeep"],
+          "properties": {
+            "litter": {"type": "integer", "minimum": 0, "maximum": 4},
+            "dog_fouling": {"type": "integer", "minimum": 0, "maximum": 4},
+            "graffiti": {"type": "integer", "minimum": 0, "maximum": 4},
+            "weeds_and_detritus": {"type": "integer", "minimum": 0, "maximum": 4},
+            "overflowing_bins": {"type": "integer", "minimum": 0, "maximum": 4},
+            "overall_upkeep": {"type": "integer", "minimum": 0, "maximum": 4}
+          },
+          "additionalProperties": false
+        },
+        "notes": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "place": {
+      "type": "object",
+      "required": ["id", "candidate_id", "local_authority", "fly_tipping", "local_reports", "visit_audit"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "local_authority": {"type": "string", "minLength": 1},
+        "fly_tipping": {"$ref": "#/$defs/flyTipping"},
+        "local_reports": {"$ref": "#/$defs/localReports"},
+        "visit_audit": {"$ref": "#/$defs/visitAudit"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

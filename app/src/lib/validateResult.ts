@@ -77,8 +77,113 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   if (candidate.housing_summary !== undefined) {
     validateHousingSummary(candidate.housing_summary, `${path}.housing_summary`, id);
   }
+  if (candidate.street_care_summary !== undefined) {
+    validateStreetCareSummary(candidate.street_care_summary, `${path}.street_care_summary`, id);
+  }
   stringArray(candidate.missing_metrics, `${path}.missing_metrics`);
   stringArray(candidate.warnings, `${path}.warnings`);
+}
+
+function validateStreetCareSummary(value: unknown, path: string, candidateId: string): void {
+  const summary = record(value, path);
+  const assessmentDate = dateValue(summary.assessment_date, `${path}.assessment_date`);
+  const score = range(summary.score, `${path}.score`, 0, 100);
+  const basis = string(summary.basis, `${path}.basis`);
+  if (basis !== "proxy" && basis !== "recent_visit_audit") {
+    throw new ResultValidationError(`${path}.basis is invalid`);
+  }
+  range(summary.confidence, `${path}.confidence`, 0, 1);
+  if (summary.audit_age_days !== null) integer(summary.audit_age_days, `${path}.audit_age_days`, 0);
+
+  const components = array(summary.components, `${path}.components`);
+  if (components.length < 2) throw new ResultValidationError(`${path}.components needs at least two items`);
+  const componentKeys = new Set<string>();
+  let totalWeight = 0;
+  let weightedScore = 0;
+  components.forEach((value, index) => {
+    const componentPath = `${path}.components[${index}]`;
+    const component = record(value, componentPath);
+    const key = string(component.key, `${componentPath}.key`);
+    if (componentKeys.has(key)) throw new ResultValidationError(`${path} has duplicate component keys`);
+    componentKeys.add(key);
+    if (component.raw_value !== null) finite(component.raw_value, `${componentPath}.raw_value`);
+    string(component.unit, `${componentPath}.unit`);
+    const normalized = component.normalized_score === null
+      ? null
+      : range(component.normalized_score, `${componentPath}.normalized_score`, 0, 100);
+    const weight = range(component.weight, `${componentPath}.weight`, 0, 1);
+    const included = boolean(component.included, `${componentPath}.included`);
+    if (included) {
+      if (normalized === null || weight === 0) {
+        throw new ResultValidationError(`${componentPath} included components need score and weight`);
+      }
+      totalWeight += weight;
+      weightedScore += normalized * weight;
+    } else if (weight !== 0) {
+      throw new ResultValidationError(`${componentPath} informational components must have zero weight`);
+    }
+  });
+  if (Math.abs(totalWeight - 1) > 0.00001 || Math.abs(weightedScore - score) > 0.02) {
+    throw new ResultValidationError(`${path} component weights do not reproduce its score`);
+  }
+
+  const place = record(summary.place, `${path}.place`);
+  string(place.id, `${path}.place.id`);
+  if (string(place.candidate_id, `${path}.place.candidate_id`) !== candidateId) {
+    throw new ResultValidationError(`${path}.place references another candidate`);
+  }
+  string(place.local_authority, `${path}.place.local_authority`);
+  const fly = record(place.fly_tipping, `${path}.place.fly_tipping`);
+  range(fly.current_incidents_per_1000, `${path}.place.fly_tipping.current_incidents_per_1000`, 0, Infinity);
+  range(fly.previous_incidents_per_1000, `${path}.place.fly_tipping.previous_incidents_per_1000`, 0, Infinity);
+  ["current_period", "previous_period", "reporting_basis"]
+    .forEach((field) => string(fly[field], `${path}.place.fly_tipping.${field}`));
+  validateStreetSource(fly.source, `${path}.place.fly_tipping.source`);
+
+  if (place.local_reports !== null) {
+    const reports = record(place.local_reports, `${path}.place.local_reports`);
+    const scope = string(reports.scope_kind, `${path}.place.local_reports.scope_kind`);
+    if (!["lsoa", "local_authority", "other_small_area"].includes(scope)) {
+      throw new ResultValidationError(`${path}.place.local_reports.scope_kind is invalid`);
+    }
+    string(reports.geographic_scope, `${path}.place.local_reports.geographic_scope`);
+    nullableRange(reports.reports_per_1000, `${path}.place.local_reports.reports_per_1000`, 0, Infinity);
+    nullableRange(reports.unresolved_percent, `${path}.place.local_reports.unresolved_percent`, 0, 100);
+    nullableRange(reports.median_resolution_days, `${path}.place.local_reports.median_resolution_days`, 0, Infinity);
+    dateValue(reports.period_start, `${path}.place.local_reports.period_start`);
+    dateValue(reports.period_end, `${path}.place.local_reports.period_end`);
+    validateStreetSource(reports.source, `${path}.place.local_reports.source`);
+  }
+
+  let expectedAge: number | null = null;
+  if (place.visit_audit !== null) {
+    const audit = record(place.visit_audit, `${path}.place.visit_audit`);
+    const auditedAt = dateValue(audit.audited_at, `${path}.place.visit_audit.audited_at`);
+    expectedAge = Math.round((assessmentDate.valueOf() - auditedAt.valueOf()) / 86_400_000);
+    if (expectedAge < 0) throw new ResultValidationError(`${path}.place.visit_audit is in the future`);
+    string(audit.geographic_scope, `${path}.place.visit_audit.geographic_scope`);
+    string(audit.notes, `${path}.place.visit_audit.notes`);
+    const ratings = record(audit.ratings, `${path}.place.visit_audit.ratings`);
+    ["litter", "dog_fouling", "graffiti", "weeds_and_detritus", "overflowing_bins", "overall_upkeep"]
+      .forEach((field) => {
+        const rating = integer(ratings[field], `${path}.place.visit_audit.ratings.${field}`, 0);
+        if (rating > 4) throw new ResultValidationError(`${path}.place.visit_audit rating exceeds 4`);
+      });
+  }
+  if (summary.audit_age_days !== expectedAge) {
+    throw new ResultValidationError(`${path}.audit_age_days is inconsistent`);
+  }
+  const expectedBasis = expectedAge !== null && expectedAge <= 180 ? "recent_visit_audit" : "proxy";
+  if (basis !== expectedBasis) {
+    throw new ResultValidationError(`${path}.basis does not match audit recency`);
+  }
+}
+
+function validateStreetSource(value: unknown, path: string): void {
+  const source = record(value, path);
+  ["label", "retrieved_at", "source_date", "licence"]
+    .forEach((field) => string(source[field], `${path}.${field}`));
+  url(source.url, `${path}.url`);
 }
 
 function validateHousingSummary(value: unknown, path: string, candidateId: string): void {
@@ -293,6 +398,19 @@ function nullableString(value: unknown, path: string): void {
 
 function nullableRange(value: unknown, path: string, minimum: number, maximum: number): void {
   if (value !== null) range(value, path, minimum, maximum);
+}
+
+function dateValue(value: unknown, path: string): Date {
+  const text = string(value, path);
+  const parsed = new Date(`${text}T00:00:00Z`);
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(text)
+    || Number.isNaN(parsed.valueOf())
+    || parsed.toISOString().slice(0, 10) !== text
+  ) {
+    throw new ResultValidationError(`${path} must be an ISO date`);
+  }
+  return parsed;
 }
 
 function stringArray(value: unknown, path: string): void {

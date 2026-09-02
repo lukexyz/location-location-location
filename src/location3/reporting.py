@@ -81,6 +81,12 @@ def _evidence_values(
             for market in housing_research["markets"]
             for source in market["sources"]
         )
+    street_research = evidence.get("street_care_research")
+    if street_research:
+        for place in street_research["places"]:
+            values.add(place["fly_tipping"]["source"][rail_source_key])
+            if place["local_reports"]:
+                values.add(place["local_reports"]["source"][rail_source_key])
     return sorted(values)
 
 

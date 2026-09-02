@@ -1,5 +1,5 @@
 import { compactDate, label, rawValue } from "../lib/format";
-import type { CandidateResult, HousingSummary, MetricResult, RailJourney } from "../types";
+import type { CandidateResult, HousingSummary, MetricResult, RailJourney, StreetCareSummary } from "../types";
 
 export function Dossier({ candidate }: { candidate: CandidateResult }) {
   const constraintStatus = candidate.hard_constraints.passed ? "CLEAR" : "LIMIT BREACH";
@@ -29,7 +29,14 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
         <Readout label="Evidence" value={`${metricCount(candidate)} pts`} />
       </div>
 
-      <div className="confidence-track" aria-label={`Evidence confidence ${candidate.confidence.toFixed(0)} percent`}>
+      <div
+        className="confidence-track"
+        role="progressbar"
+        aria-label="Evidence confidence"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(candidate.confidence)}
+      >
         <span style={{ width: `${candidate.confidence}%` }} />
       </div>
 
@@ -65,6 +72,10 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
 
         {candidate.housing_summary && (
           <HousingReadout housing={candidate.housing_summary} candidateId={candidate.id} />
+        )}
+
+        {candidate.street_care_summary && (
+          <StreetCareReadout streetCare={candidate.street_care_summary} candidateId={candidate.id} />
         )}
 
         {candidate.categories.map((category) => (
@@ -154,6 +165,61 @@ function gbp(value: number): string {
   }).format(value);
 }
 
+function StreetCareReadout({ streetCare, candidateId }: { streetCare: StreetCareSummary; candidateId: string }) {
+  const place = streetCare.place;
+  const reports = place.local_reports;
+  const audit = place.visit_audit;
+  const basis = streetCare.basis === "recent_visit_audit" ? "Recent visit audit" : "Cautious proxy";
+  return (
+    <section className="street-care-block" aria-labelledby={`street-care-${candidateId}`}>
+      <header>
+        <div>
+          <span className="eyebrow">PAVEMENT PRIDE / {basis}</span>
+          <h3 id={`street-care-${candidateId}`}>Street care</h3>
+        </div>
+        <strong>{streetCare.score.toFixed(1)}</strong>
+      </header>
+      <dl className="street-care-grid">
+        <div><dt>Local authority</dt><dd>{place.local_authority}</dd></div>
+        <div><dt>Confidence</dt><dd>{Math.round(streetCare.confidence * 100)}%</dd></div>
+        <div><dt>Fly-tipping</dt><dd>{place.fly_tipping.current_incidents_per_1000}/1k</dd></div>
+        <div><dt>Prior period</dt><dd>{place.fly_tipping.previous_incidents_per_1000}/1k</dd></div>
+        <div><dt>Reporting basis</dt><dd>{place.fly_tipping.reporting_basis}</dd></div>
+        <div><dt>Report density</dt><dd>{reports?.reports_per_1000 == null ? "unavailable" : `${reports.reports_per_1000}/1k`}</dd></div>
+        <div><dt>Unresolved</dt><dd>{reports?.unresolved_percent == null ? "unavailable" : `${reports.unresolved_percent}%`}</dd></div>
+        <div><dt>Median resolution</dt><dd>{reports?.median_resolution_days == null ? "unavailable" : `${reports.median_resolution_days} days`}</dd></div>
+      </dl>
+      <div className="street-components">
+        {streetCare.components.map((component) => (
+          <div key={component.key}>
+            <span>{label(component.key)}</span>
+            <b>{component.included ? component.normalized_score?.toFixed(1) : "info only"}</b>
+          </div>
+        ))}
+      </div>
+      {audit && (
+        <p className="street-note">
+          Visit {compactDate(audit.audited_at)}: {audit.notes}
+          {streetCare.basis === "proxy" ? " This audit is too old to override the proxy." : ""}
+        </p>
+      )}
+      {streetCare.basis === "proxy" && (
+        <p className="proxy-note">Low-resolution proxy — incident volume also reflects reporting practice. A recent visit audit is recommended.</p>
+      )}
+      <div className="street-sources">
+        <a href={place.fly_tipping.source.url} rel="noreferrer" target="_blank">
+          Fly-tipping: {place.fly_tipping.source.label} ({compactDate(place.fly_tipping.source.source_date)})
+        </a>
+        {reports && (
+          <a href={reports.source.url} rel="noreferrer" target="_blank">
+            Local reports: {reports.source.label} ({compactDate(reports.source.source_date)})
+          </a>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function RailJourneyReadout({ journey }: { journey: RailJourney }) {
   const lastTrain = journey.last_useful_departure
     ? journey.last_useful_departure.slice(11, 16)
@@ -228,5 +294,6 @@ function metricCount(candidate: CandidateResult): number {
   return candidate.categories.reduce((total, category) => total + category.metrics.length, 0)
     + candidate.informational_metrics.length
     + (candidate.rail_summary?.journeys.length ?? 0)
-    + (candidate.housing_summary ? 1 : 0);
+    + (candidate.housing_summary ? 1 : 0)
+    + (candidate.street_care_summary ? 1 : 0);
 }

@@ -20,7 +20,7 @@ html, body, #root { width: 100%; min-width: 320px; height: 100%; margin: 0; }
 body { overflow: hidden; }
 button, input { font: inherit; }
 button, label { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, label:focus-within, summary:focus-visible, .leaflet-marker-icon:focus-visible {
+button:focus-visible, summary:focus-visible, a:focus-visible, .leaflet-marker-icon:focus-visible {
   outline: 2px solid var(--acid);
   outline-offset: 3px;
 }
@@ -40,6 +40,7 @@ button:focus-visible, label:focus-within, summary:focus-visible, .leaflet-marker
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 1000; left: 1rem; top: -5rem; padding: .7rem 1rem; color: #071006; background: var(--acid); }
 .skip-link:focus { top: 1rem; }
+.workspace:focus { outline: none; }
 
 .map-field, .map-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .map-field { z-index: 0; background: radial-gradient(circle at 50% 40%, #283430, #090d0d 70%); }
@@ -70,7 +71,7 @@ button:focus-visible, label:focus-within, summary:focus-visible, .leaflet-marker
 .load-state i, .status-light { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--acid); box-shadow: 0 0 12px var(--acid); }
 .load-state.error { color: var(--danger); }.load-state.error i { background: var(--danger); box-shadow: 0 0 12px var(--danger); }
 .header-actions { display: flex; align-items: stretch; gap: .45rem; }
-.import-button, .utility-button { min-height: 46px; display: flex; justify-content: center; flex-direction: column; padding: .5rem .9rem; cursor: pointer; text-transform: uppercase; border: 1px solid var(--line-hot); color: var(--acid); background: linear-gradient(180deg, rgba(183, 255, 117, .1), rgba(183, 255, 117, .025)); }
+.import-button, .utility-button { min-height: 46px; display: flex; justify-content: center; flex-direction: column; padding: .5rem .9rem; cursor: pointer; text-align: left; text-transform: uppercase; border: 1px solid var(--line-hot); color: var(--acid); background: linear-gradient(180deg, rgba(183, 255, 117, .1), rgba(183, 255, 117, .025)); }
 .import-button span { color: var(--muted); font-size: .54rem; letter-spacing: .17em; }.import-button strong { font-size: .7rem; letter-spacing: .08em; }
 .utility-button { color: var(--muted); border-color: var(--line); font-size: .58rem; letter-spacing: .1em; }
 .import-button:hover, .utility-button:hover { background-color: rgba(189, 255, 120, .12); color: #fff; }
@@ -103,7 +104,7 @@ button:focus-visible, label:focus-within, summary:focus-visible, .leaflet-marker
 .confidence-track, .category-bar, .metric-track { overflow: hidden; background: rgba(166, 195, 174, .12); }
 .confidence-track { height: 2px; margin: .65rem 0; }.confidence-track span, .category-bar span, .metric-track span { display: block; height: 100%; background: var(--acid); box-shadow: 0 0 8px rgba(189, 255, 120, .45); }
 .dossier-scroll { min-height: 0; overflow: auto; padding-right: .2rem; scrollbar-width: thin; scrollbar-color: #4b5c50 transparent; }
-.constraint-block, .category-block, .rail-block, .housing-block, .warning-block { margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); }
+.constraint-block, .category-block, .rail-block, .housing-block, .street-care-block, .warning-block { margin-top: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); }
 .constraint-block h3, .warning-block h3 { margin: 0 0 .55rem; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
 .constraint-row { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); font: .65rem Consolas, monospace; }.constraint-row strong { color: var(--ink); }.text-good { color: var(--acid) !important; }.text-bad { color: var(--danger) !important; }
 .category-block > header { display: flex; align-items: flex-end; justify-content: space-between; }.category-block h3 { margin: .2rem 0 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; }.category-block > header > strong { font: 1rem Consolas, monospace; color: var(--acid); }
@@ -134,6 +135,14 @@ button:focus-visible, label:focus-within, summary:focus-visible, .leaflet-marker
 .inventory-note { color: var(--amber); }
 .listing-action { display: inline-block; margin: .65rem; padding: .45rem .55rem; color: var(--acid); border: 1px solid var(--line-hot); font: .56rem Consolas, monospace; text-decoration: none; text-transform: uppercase; letter-spacing: .06em; }
 .housing-sources { display: grid; gap: .3rem; padding: 0 .65rem .65rem; }.housing-sources a { color: var(--ink); font: .52rem/1.35 Consolas, monospace; overflow-wrap: anywhere; text-underline-offset: 2px; }
+.street-care-block > header { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.street-care-block h3 { margin: .2rem 0 0; font-size: .78rem; text-transform: uppercase; letter-spacing: .09em; }
+.street-care-block > header > strong { color: var(--acid); font: 1rem Consolas, monospace; }
+.street-care-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; margin: .55rem 0 0; padding: .65rem; border: 1px solid var(--line); background: rgba(0, 0, 0, .14); }
+.street-care-grid dt { color: var(--muted); font-size: .48rem; letter-spacing: .08em; text-transform: uppercase; }.street-care-grid dd { margin: .12rem 0 0; font: .61rem/1.35 Consolas, monospace; overflow-wrap: anywhere; }
+.street-components { display: grid; gap: .3rem; margin: .55rem .65rem; }.street-components div { display: flex; justify-content: space-between; gap: .8rem; color: var(--muted); font: .54rem Consolas, monospace; }.street-components b { color: var(--ink); font-weight: normal; }
+.street-note, .proxy-note { margin: 0; padding: .65rem; color: var(--muted); font: .56rem/1.45 Consolas, monospace; }.proxy-note { color: var(--amber); }
+.street-sources { display: grid; gap: .3rem; padding: 0 .65rem .65rem; }.street-sources a { color: var(--ink); font: .52rem/1.35 Consolas, monospace; overflow-wrap: anywhere; text-underline-offset: 2px; }
 .warning-block { color: var(--amber); }.warning-block ul { margin: 0; padding-left: 1.2rem; font: .62rem/1.5 Consolas, monospace; }
 
 .status-rail { position: absolute; z-index: 550; left: 0; right: 0; bottom: 0; height: 30px; display: flex; align-items: center; gap: 1.5rem; padding: 0 1rem; color: var(--muted); background: rgba(5, 9, 8, .94); border-top: 1px solid var(--line); font: .54rem Consolas, monospace; letter-spacing: .1em; }

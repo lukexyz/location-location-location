@@ -511,5 +511,7 @@ Do not introduce a national ETL warehouse, published H3 catalogue, Cloudflare ro
 - Research now previews before execution, caps live calls at two, reuses an ignored expiring cache, and validates redacted request provenance, citations, licences, dates, and checksums.
 - Rail enrichment is a separate zero-network shortlist step: component times must equal the door-to-door total, reliability may remain unknown, and every displayed fact retains its citation.
 - Housing enrichment follows the same boundary: code derives cost-to-budget ratios from cited shortlist evidence, buy comparables retain radius and sample size, rent retains its coarser published geography, and aggregate evidence never becomes a live-inventory claim.
+- Street care is now derived rather than agent-scored: report volume stays informational, resolution evidence can strengthen a cautious proxy, and only a structured audit no more than 180 days old overrides it.
+- Accessibility now has axe and keyboard coverage; stable visual contracts check responsive geometry, theme tokens, and reduced motion. Pages deployment remains a manual, public-demo-only action.
 - Real desktop/mobile browser tests caught issues unit tests did not, including hidden import errors, obscured map state, fixed chrome covering evidence, and accidental reuse of another project's Vite port.
 - `experiments/MUSINGS.md` is a frozen clean-room brief for an independent rebuild and should not inherit this implementation's output or later notes.

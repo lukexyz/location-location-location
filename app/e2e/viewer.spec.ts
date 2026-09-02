@@ -10,7 +10,7 @@ test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await expect(page.locator(".score-marker")).toHaveCount(3);
   await page.getByRole("button", { name: /Northbridge/ }).click();
   await expect(page.getByRole("heading", { name: "Northbridge" })).toBeVisible();
-  await expect(page.locator(".score-marker.selected b")).toHaveText("75");
+  await expect(page.locator(".score-marker.selected b")).toHaveText("73");
 });
 
 test("a local result can be imported and rejected without navigation", async ({ page }) => {
@@ -35,4 +35,10 @@ test("housing evidence is explicit about its market-only scope", async ({ page }
   await expect(page.getByRole("heading", { name: "Housing affordability" })).toBeVisible();
   await expect(page.getByText(/live inventory was not checked/i)).toBeVisible();
   await expect(page.getByRole("link", { name: /Search current listings/ })).toBeVisible();
+});
+
+test("street-care evidence exposes its basis and raw prior", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Street care" })).toBeVisible();
+  await expect(page.getByText(/PAVEMENT PRIDE \/ Recent visit audit/i)).toBeVisible();
+  await expect(page.getByText("12/1k")).toBeVisible();
 });

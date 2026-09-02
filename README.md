@@ -45,6 +45,18 @@ per researched shortlist candidate. The importer computes affordability; it
 does not check live inventory, and any property-portal URL remains an external
 search action.
 
+Preview cited street-care evidence for the latest enriched run, then add
+`--execute` after reviewing its limitations:
+
+```powershell
+python scripts/import_street_care.py --run-dir research-runs/NAME-rail-housing --input street-care.json
+```
+
+The private input must match `schemas/street-care-research.schema.json`.
+Fly-tipping remains a low-confidence local-authority prior, raw report volume is
+informational, and only a structured visit audit no more than 180 days old
+overrides the proxy score.
+
 ```powershell
 npm install
 npm run dev
@@ -53,3 +65,16 @@ npm run dev
 The viewer starts with fictional data. Importing a `results.json` reads it only
 inside the current browser tab; it is not uploaded or stored. Map tiles remain an
 external network request.
+
+Run the viewer checks with:
+
+```powershell
+npm run test:web
+npm run test:e2e
+npm run build
+```
+
+The Pages deployment is deliberately manual. After selecting **GitHub Actions**
+as the repository's Pages source, run **Deploy viewer to Pages** from the Actions
+tab. The workflow tests the viewer and deploys only `app/dist`, which contains
+the fictional public demo—not ignored preferences or private research runs.

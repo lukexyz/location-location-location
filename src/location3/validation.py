@@ -119,6 +119,32 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
                     "housing affordability observation does not match market and budget"
                 )
 
+    street_research = bundle.get("street_care_research")
+    if street_research is not None:
+        if not isinstance(street_research, dict):
+            raise ValueError("evidence street_care_research must be an object")
+        from .street_care import assess_street_care, validate_street_care_research
+
+        validate_street_care_research(street_research, candidate_ids)
+        for place in street_research["places"]:
+            matching = [
+                observation
+                for observation in observations
+                if observation["candidate_id"] == place["candidate_id"]
+                and observation["metric"] == "street_care"
+            ]
+            if len(matching) != 1:
+                raise ValueError(
+                    "each street-care place requires one derived observation"
+                )
+            expected = assess_street_care(
+                place, street_research["assessment_date"]
+            )["score"]
+            if abs(matching[0]["value"] - expected) > 0.000001:
+                raise ValueError(
+                    "street-care observation does not match its raw components"
+                )
+
 
 def validate_manifest(
     manifest: dict[str, Any], artifacts: Mapping[str, bytes] | None = None
@@ -201,6 +227,14 @@ def validate_provenance(
         for market in housing_research["markets"]:
             sources.update(source["url"] for source in market["sources"])
             licences.update(source["licence"] for source in market["sources"])
+    street_research = evidence.get("street_care_research")
+    if street_research:
+        for place in street_research["places"]:
+            sources.add(place["fly_tipping"]["source"]["url"])
+            licences.add(place["fly_tipping"]["source"]["licence"])
+            if place["local_reports"]:
+                sources.add(place["local_reports"]["source"]["url"])
+                licences.add(place["local_reports"]["source"]["licence"])
     sources = sorted(sources)
     licences = sorted(licences)
     if manifest["sources"] != sources:

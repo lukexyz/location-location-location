@@ -51,7 +51,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <a className="skip-link" href="#candidate-register">Skip to candidates</a>
+      <a className="skip-link" href="#candidate-register">Skip to candidate results</a>
       <MapView candidates={candidates} selectedId={selected.id} onSelect={setSelectedId} />
 
       <header className="instrument-header panel-cut">
@@ -70,26 +70,45 @@ export default function App() {
           {loadState.kind !== "demo" && (
             <button className="utility-button" type="button" onClick={restoreDemo}>RESET DEMO</button>
           )}
-          <label className="import-button" htmlFor="result-import">
+          <button
+            className="import-button"
+            type="button"
+            aria-describedby="local-import-note"
+            onClick={() => fileInput.current?.click()}
+          >
             <span>IMPORT</span>
             <strong>RESULT.JSON</strong>
-          </label>
+          </button>
+          <span id="local-import-note" className="visually-hidden">
+            Opens a local JSON file. The result remains in this browser tab.
+          </span>
           <input
             ref={fileInput}
             id="result-import"
             className="visually-hidden"
             data-testid="result-import"
             type="file"
+            tabIndex={-1}
+            aria-label="Choose result JSON file"
             accept="application/json,.json"
             onChange={(event) => void importResult(event.currentTarget.files?.[0])}
           />
         </div>
       </header>
 
-      <div id="candidate-register">
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        Selected candidate: {selected.name}, rank {selected.rank}, score {selected.overall_score.toFixed(1)}.
+      </p>
+
+      <main
+        id="candidate-register"
+        className="workspace"
+        tabIndex={-1}
+        aria-label="Candidate results and evidence"
+      >
         <RankedList candidates={candidates} selectedId={selected.id} onSelect={setSelectedId} />
-      </div>
-      <Dossier candidate={selected} />
+        <Dossier candidate={selected} />
+      </main>
 
       <footer className="status-rail">
         <span><i className="status-light" /> VIEWER READY</span>

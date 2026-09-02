@@ -39,12 +39,21 @@ def score_research(
             market["candidate_id"]: market for market in housing_research["markets"]
         }
 
+    street_by_candidate: dict[str, dict[str, Any]] = {}
+    street_research = evidence.get("street_care_research")
+    if street_research:
+        street_by_candidate = {
+            place["candidate_id"]: place for place in street_research["places"]
+        }
+
     scored = [
         _score_candidate(
             candidate,
             by_candidate[candidate["id"]],
             rail_by_candidate[candidate["id"]],
             housing_by_candidate.get(candidate["id"]),
+            street_by_candidate.get(candidate["id"]),
+            street_research["assessment_date"] if street_research else None,
             profile,
         )
         for candidate in evidence["candidates"]
@@ -73,6 +82,8 @@ def _score_candidate(
     observations: dict[str, dict[str, Any]],
     rail_journeys: list[dict[str, Any]],
     housing_market: dict[str, Any] | None,
+    street_place: dict[str, Any] | None,
+    street_assessment_date: str | None,
     profile: dict[str, Any],
 ) -> dict[str, Any]:
     weights = profile["weights"]
@@ -171,6 +182,32 @@ def _score_candidate(
         if mode == "rent":
             geography = housing_market["geography"]["kind"].replace("_", " ")
             warnings.append(f"Rent evidence uses coarse {geography} geography")
+    street_assessment = None
+    if street_place and street_assessment_date:
+        from .street_care import AUDIT_MAX_AGE_DAYS, assess_street_care
+
+        street_assessment = assess_street_care(
+            street_place, street_assessment_date
+        )
+        if street_assessment["basis"] == "proxy":
+            warnings.append(
+                "Street-care score uses low-resolution proxies; visit audit recommended"
+            )
+            local_reports = street_place["local_reports"]
+            if local_reports is None or (
+                local_reports["unresolved_percent"] is None
+                and local_reports["median_resolution_days"] is None
+            ):
+                warnings.append("Local report resolution evidence unavailable")
+            if street_place["fly_tipping"]["reporting_basis"].casefold() != "all incidents":
+                warnings.append("Fly-tipping source does not report all incidents")
+            if (
+                street_assessment["audit_age_days"] is not None
+                and street_assessment["audit_age_days"] > AUDIT_MAX_AGE_DAYS
+            ):
+                warnings.append(
+                    "Personal street-care audit is stale and does not override proxies"
+                )
     informational_metrics = [
         metric
         for category in sorted(metric_results)
@@ -220,6 +257,16 @@ def _score_candidate(
             ),
             "inventory_status": "not_checked",
             "market": deepcopy(housing_market),
+        }
+    if street_place and street_assessment_date and street_assessment:
+        result["street_care_summary"] = {
+            "assessment_date": street_assessment_date,
+            "score": street_assessment["score"],
+            "basis": street_assessment["basis"],
+            "confidence": street_assessment["confidence"],
+            "audit_age_days": street_assessment["audit_age_days"],
+            "components": deepcopy(street_assessment["components"]),
+            "place": deepcopy(street_place),
         }
     return result
 

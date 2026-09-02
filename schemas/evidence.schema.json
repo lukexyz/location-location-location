@@ -37,6 +37,9 @@
     },
     "housing_research": {
       "$ref": "housing-research.schema.json"
+    },
+    "street_care_research": {
+      "$ref": "street-care-research.schema.json"
     }
   },
   "$defs": {

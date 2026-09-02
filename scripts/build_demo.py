@@ -13,6 +13,7 @@ from location3.config import load_preferences  # noqa: E402
 from location3.housing import merge_housing_research  # noqa: E402
 from location3.rail import merge_rail_research  # noqa: E402
 from location3.scoring import score_research  # noqa: E402
+from location3.street_care import merge_street_care_research  # noqa: E402
 
 
 def main() -> int:
@@ -20,8 +21,10 @@ def main() -> int:
     evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
     rail_research = json.loads((ROOT / "fixtures/demo/rail.json").read_text(encoding="utf-8"))
     housing_research = json.loads((ROOT / "fixtures/demo/housing.json").read_text(encoding="utf-8"))
+    street_research = json.loads((ROOT / "fixtures/demo/street-care.json").read_text(encoding="utf-8"))
     evidence = merge_rail_research(evidence, rail_research)
     evidence = merge_housing_research(profile, evidence, housing_research)
+    evidence = merge_street_care_research(evidence, street_research)
     preferences = load_preferences(ROOT, include_local=False)
     profile["weights"] = preferences["weights"]
     profile["category_weights"] = preferences["category_weights"]
