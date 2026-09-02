@@ -648,9 +648,9 @@ The audited gaps from the 2026-09-01 brief are now closed except the deferred it
 - **Redaction must be re-scored, not edited.** Removing housing evidence by hand would leave contributions and warnings inconsistent. Applying redactions to profile and evidence and re-running `write_bundle` keeps every export schema-valid.
 - **Labels leak into prose.** The rail merge stamps destination labels into commute observations' `geographic_scope`; anonymisation has to rewrite free-text fields, not just the label field.
 - **Renaming demo places by text replacement breaks identifiers.** A slug with a hyphen became a TypeScript variable name. Rename data first, then check test files separately.
-- **Windows heredocs and `write_text` both bite.** Long multi-line shell heredocs failed to parse; patch scripts written to a scratch file were reliable. `Path.write_text` produced CRLF files that git then warned about; pass `newline="
-"` when generating committed text.
+- **Windows heredocs and `write_text` both bite.** Long multi-line shell heredocs failed to parse; patch scripts written to a scratch file were reliable. `Path.write_text` produced CRLF files that git then warned about; pass `newline="\n"` when generating committed text.
 - **Screenshots need a repeatable capture path.** A Playwright spec skipped unless `CAPTURE_SCREENSHOTS=1` gives identical framing every time and avoids hand-cropped images drifting from the product.
+- **A parent-directory `node_modules` can hide a missing dependency.** The viewer built locally because TypeScript walked up to a stray `D:\python\node_modules\@types\node`, while CI's clean `npm ci` had no Node types and the build failed on the schema-parity test. Every ambient type the code relies on now has to be an explicit, pinned devDependency named in `tsconfig.json`.
 
 ### Remaining work
 
