@@ -89,6 +89,7 @@ def _score_candidate(
                 "confidence": observation["confidence"],
                 "evidence_id": observation["id"],
                 "source": observation["source"],
+                "source_url": observation["source_url"],
                 "source_date": observation["source_date"],
                 "confidence_notes": observation["confidence_notes"],
             }

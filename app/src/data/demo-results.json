@@ -17,6 +17,7 @@
               "raw_value": 0,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -32,6 +33,7 @@
               "raw_value": 4,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -47,6 +49,7 @@
               "raw_value": 1,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             },
@@ -62,6 +65,7 @@
               "raw_value": 1,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             }
@@ -85,6 +89,7 @@
               "raw_value": 85,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -100,6 +105,7 @@
               "raw_value": 3,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "walk_minutes",
               "weight": 3.0
             }
@@ -123,6 +129,7 @@
               "raw_value": 58,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
               "weight": 5.0
             },
@@ -138,6 +145,7 @@
               "raw_value": 0.78,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "budget_ratio",
               "weight": 5.0
             }
@@ -189,6 +197,7 @@
               "raw_value": 1,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -204,6 +213,7 @@
               "raw_value": 8,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -219,6 +229,7 @@
               "raw_value": 2,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             },
@@ -234,6 +245,7 @@
               "raw_value": 1,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             }
@@ -257,6 +269,7 @@
               "raw_value": 72,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -272,6 +285,7 @@
               "raw_value": 8,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "walk_minutes",
               "weight": 3.0
             }
@@ -295,6 +309,7 @@
               "raw_value": 38,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
               "weight": 5.0
             },
@@ -310,6 +325,7 @@
               "raw_value": 0.95,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "budget_ratio",
               "weight": 5.0
             }
@@ -361,6 +377,7 @@
               "raw_value": 3,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -376,6 +393,7 @@
               "raw_value": 11,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 2.0
             },
@@ -391,6 +409,7 @@
               "raw_value": 4,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             },
@@ -406,6 +425,7 @@
               "raw_value": 3,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "count_15_min_walk",
               "weight": 1.0
             }
@@ -429,6 +449,7 @@
               "raw_value": 58,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "desirability_score",
               "weight": 3.0
             },
@@ -444,6 +465,7 @@
               "raw_value": 14,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "walk_minutes",
               "weight": 3.0
             }
@@ -467,6 +489,7 @@
               "raw_value": 72,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
               "weight": 5.0
             },
@@ -482,6 +505,7 @@
               "raw_value": 0.66,
               "source": "Synthetic LOCATION\u00b3 fixture",
               "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "budget_ratio",
               "weight": 5.0
             }

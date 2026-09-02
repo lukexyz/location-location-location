@@ -13,6 +13,15 @@ The demo writes a private, gitignored report to `research-runs/demo/report.html`
 Public defaults live in `preferences.toml`; optional local overrides live in the
 gitignored `preferences.local.toml`.
 
+Preview a bounded café research run (no network or writes):
+
+```powershell
+python scripts/research_location.py --latitude LAT --longitude LON --minutes 30
+```
+
+Set a local `ORS_API_KEY`, review the preview, then add `--execute`.
+Codex users can invoke the same workflow with `$location-research`.
+
 ```powershell
 npm install
 npm run dev

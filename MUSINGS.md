@@ -501,3 +501,13 @@ Do not introduce a national ETL warehouse, published H3 catalogue, Cloudflare ro
 - A drive-time polygon is provider- and traffic-model-dependent. Display the assumed departure time, traffic treatment, model, retrieval date, and uncertainty.
 - The user-run approach reduces central infrastructure and privacy risk but does not eliminate data work: robust schemas, source adapters, validation, scoring tests, and graceful failure remain essential.
 - The public viewer is a demonstration and local-result renderer. It neither conducts research nor exposes a bridge to a skill running on someone's computer.
+
+## 2026-09-02 — V1 Build Learnings
+
+- The contract boundary works: deterministic Python owns scoring and emits versioned bundles; React remains a read-only renderer. Generate public demo results from the same scorer to prevent drift.
+- Public defaults layer beneath an ignored local profile. Research runs, caches, build output, and imported personal results stay untracked; browser imports remain in memory, with remote map tiles disclosed separately.
+- Raw observations and desirability scores have different semantics. Keep normalized scores visually consistent; use contextual colour on the observation itself (for example, zero betting shops is positive).
+- The first live slice uses one bounded OpenRouteService isochrone and one combined Overpass query. Café reach is explicitly lower-confidence until the 1.2 km proxy is replaced by walking-network catchments.
+- Research now previews before execution, caps live calls at two, reuses an ignored expiring cache, and validates redacted request provenance, citations, licences, dates, and checksums.
+- Real desktop/mobile browser tests caught issues unit tests did not, including hidden import errors, obscured map state, and fixed chrome covering evidence.
+- `experiments/MUSINGS.md` is a frozen clean-room brief for an independent rebuild and should not inherit this implementation's output or later notes.

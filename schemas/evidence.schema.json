@@ -35,7 +35,7 @@
   "$defs": {
     "observation": {
       "type": "object",
-      "required": ["id", "candidate_id", "metric", "value", "unit", "geographic_scope", "source", "retrieved_at", "source_date", "transformation", "licence", "confidence", "confidence_notes"],
+      "required": ["id", "candidate_id", "metric", "value", "unit", "geographic_scope", "source", "source_url", "retrieved_at", "source_date", "transformation", "licence", "confidence", "confidence_notes"],
       "properties": {
         "id": {"type": "string"},
         "candidate_id": {"type": "string"},
@@ -44,6 +44,7 @@
         "unit": {"type": "string"},
         "geographic_scope": {"type": "string"},
         "source": {"type": "string"},
+        "source_url": {"type": "string", "format": "uri"},
         "retrieved_at": {"type": "string", "format": "date-time"},
         "source_date": {"type": "string", "format": "date"},
         "transformation": {"type": "string"},

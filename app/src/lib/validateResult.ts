@@ -87,6 +87,7 @@ function validateMetric(value: unknown, path: string): void {
   range(metric.confidence, `${path}.confidence`, 0, 1);
   string(metric.evidence_id, `${path}.evidence_id`);
   string(metric.source, `${path}.source`);
+  url(metric.source_url, `${path}.source_url`);
   string(metric.source_date, `${path}.source_date`);
   string(metric.confidence_notes, `${path}.confidence_notes`);
 }
@@ -108,6 +109,17 @@ function string(value: unknown, path: string): string {
     throw new ResultValidationError(`${path} must be a non-empty string`);
   }
   return value;
+}
+
+function url(value: unknown, path: string): string {
+  const text = string(value, path);
+  try {
+    const parsed = new URL(text);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") throw new Error();
+  } catch {
+    throw new ResultValidationError(`${path} must be an HTTP URL`);
+  }
+  return text;
 }
 
 function boolean(value: unknown, path: string): boolean {

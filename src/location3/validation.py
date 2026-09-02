@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
+from datetime import date, datetime
+from hashlib import sha256
+from typing import Any, Mapping
+from urllib.parse import urlsplit
 
 from .catalog import METRICS
 
 
 def validate_profile(profile: dict[str, Any]) -> None:
-    _require(profile, "schema_version", str)
+    if _require(profile, "schema_version", str) != "1":
+        raise ValueError("unsupported profile schema_version")
     _require(profile, "run_id", str)
     _require(profile, "search", dict)
     weights = _require(profile, "weights", dict)
@@ -30,7 +34,8 @@ def validate_profile(profile: dict[str, Any]) -> None:
 
 
 def validate_evidence(bundle: dict[str, Any]) -> None:
-    _require(bundle, "schema_version", str)
+    if _require(bundle, "schema_version", str) != "1":
+        raise ValueError("unsupported evidence schema_version")
     candidates = _require(bundle, "candidates", list)
     observations = _require(bundle, "observations", list)
     candidate_ids: set[str] = set()
@@ -38,8 +43,10 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
         candidate_id = _require(candidate, "id", str)
         _require(candidate, "name", str)
         location = _require(candidate, "location", dict)
-        _require(location, "latitude", (int, float))
-        _require(location, "longitude", (int, float))
+        latitude = _require(location, "latitude", (int, float))
+        longitude = _require(location, "longitude", (int, float))
+        if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+            raise ValueError("candidate location is out of range")
         if candidate_id in candidate_ids:
             raise ValueError(f"duplicate candidate id: {candidate_id}")
         candidate_ids.add(candidate_id)
@@ -62,10 +69,93 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
         if not 0 <= confidence <= 1:
             raise ValueError("observation confidence must be between 0 and 1")
         for key in (
-            "geographic_scope", "source", "retrieved_at", "source_date",
-            "transformation", "licence", "confidence_notes",
+            "geographic_scope", "source", "transformation", "licence", "confidence_notes",
         ):
-            _require(observation, key, str)
+            _nonempty(observation, key)
+        _http_url(_nonempty(observation, "source_url"), "source_url")
+        retrieved_at = _datetime(_nonempty(observation, "retrieved_at"), "retrieved_at")
+        source_date = _date(_nonempty(observation, "source_date"), "source_date")
+        if source_date > retrieved_at.date():
+            raise ValueError("source_date cannot be later than retrieved_at")
+
+
+def validate_manifest(
+    manifest: dict[str, Any], artifacts: Mapping[str, bytes] | None = None
+) -> None:
+    if _require(manifest, "schema_version", str) != "1":
+        raise ValueError("unsupported manifest schema_version")
+    _nonempty(manifest, "run_id")
+    _datetime(_nonempty(manifest, "generated_at"), "generated_at")
+    _nonempty(manifest, "scoring_version")
+    tool_versions = _require(manifest, "tool_versions", dict)
+    if not tool_versions or any(
+        not isinstance(key, str) or not isinstance(value, str) or not key or not value
+        for key, value in tool_versions.items()
+    ):
+        raise ValueError("tool_versions must contain non-empty string entries")
+    _require(manifest, "geographic_coverage", dict)
+    ledger = _require(manifest, "request_ledger", list)
+    cache_used = _require(manifest, "cache_used", bool)
+    _string_list(manifest, "sources")
+    _string_list(manifest, "licences")
+    _string_list(manifest, "warnings")
+    for entry in ledger:
+        if not isinstance(entry, dict):
+            raise ValueError("request ledger entries must be objects")
+        allowed = {
+            "provider", "request_id", "endpoint", "requested_at", "cache", "status",
+            "cache_expires_at",
+        }
+        if set(entry) - allowed:
+            raise ValueError("request ledger contains unapproved fields")
+        _nonempty(entry, "provider")
+        request_id = _nonempty(entry, "request_id")
+        if not _checksum_value(request_id):
+            raise ValueError("request_id must be a SHA-256 identifier")
+        endpoint = _http_url(_nonempty(entry, "endpoint"), "endpoint")
+        parsed_endpoint = urlsplit(endpoint)
+        if parsed_endpoint.query or parsed_endpoint.fragment or parsed_endpoint.username:
+            raise ValueError("request ledger endpoints must not contain sensitive URL parts")
+        _datetime(_nonempty(entry, "requested_at"), "requested_at")
+        if entry.get("cache") not in {"hit", "miss"}:
+            raise ValueError("request ledger cache must be hit or miss")
+        status = _require(entry, "status", int)
+        if not 0 <= status <= 599:
+            raise ValueError("request ledger status is out of range")
+        if "cache_expires_at" in entry:
+            _datetime(_nonempty(entry, "cache_expires_at"), "cache_expires_at")
+    if cache_used != any(entry["cache"] == "hit" for entry in ledger):
+        raise ValueError("cache_used does not match the request ledger")
+
+    checksums = _require(manifest, "checksums", dict)
+    expected = {"profile.json", "evidence.json", "results.json"}
+    if set(checksums) != expected:
+        raise ValueError("manifest checksums must cover the three bundle contracts")
+    for name, checksum in checksums.items():
+        if not isinstance(checksum, str) or not _checksum_value(checksum):
+            raise ValueError(f"invalid checksum for {name}")
+    if artifacts is not None:
+        if set(artifacts) != expected:
+            raise ValueError("artifact bytes must cover the three bundle contracts")
+        for name, content in artifacts.items():
+            actual = f"sha256:{sha256(content).hexdigest()}"
+            if checksums[name] != actual:
+                raise ValueError(f"checksum mismatch for {name}")
+
+
+def validate_provenance(
+    evidence: dict[str, Any],
+    manifest: dict[str, Any],
+    artifacts: Mapping[str, bytes] | None = None,
+) -> None:
+    validate_evidence(evidence)
+    validate_manifest(manifest, artifacts)
+    sources = sorted({item["source_url"] for item in evidence["observations"]})
+    licences = sorted({item["licence"] for item in evidence["observations"]})
+    if manifest["sources"] != sources:
+        raise ValueError("manifest sources do not match evidence citations")
+    if manifest["licences"] != licences:
+        raise ValueError("manifest licences do not match evidence")
 
 
 def _require(container: dict[str, Any], key: str, expected_type: Any) -> Any:
@@ -75,3 +165,51 @@ def _require(container: dict[str, Any], key: str, expected_type: Any) -> Any:
     if not isinstance(value, expected_type):
         raise ValueError(f"{key} has the wrong type or is missing")
     return value
+
+
+def _nonempty(container: dict[str, Any], key: str) -> str:
+    value = _require(container, key, str)
+    if not value.strip():
+        raise ValueError(f"{key} cannot be empty")
+    return value
+
+
+def _datetime(value: str, field: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise ValueError(f"{field} must be an ISO 8601 date-time") from error
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError(f"{field} must include a timezone")
+    return parsed
+
+
+def _date(value: str, field: str) -> date:
+    try:
+        return date.fromisoformat(value)
+    except ValueError as error:
+        raise ValueError(f"{field} must be an ISO 8601 date") from error
+
+
+def _http_url(value: str, field: str) -> str:
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError(f"{field} must be an HTTP URL")
+    return value
+
+
+def _string_list(container: dict[str, Any], key: str) -> list[str]:
+    values = _require(container, key, list)
+    if any(not isinstance(value, str) or not value.strip() for value in values):
+        raise ValueError(f"{key} must contain non-empty strings")
+    return values
+
+
+def _checksum_value(value: str) -> bool:
+    if not value.startswith("sha256:") or len(value) != 71:
+        return False
+    try:
+        int(value[7:], 16)
+    except ValueError:
+        return False
+    return True

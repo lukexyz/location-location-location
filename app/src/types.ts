@@ -23,6 +23,7 @@ export interface MetricResult {
   confidence: number;
   evidence_id: string;
   source: string;
+  source_url: string;
   source_date: string;
   confidence_notes: string;
   category_contribution: number;

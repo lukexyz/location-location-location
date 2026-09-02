@@ -11,10 +11,26 @@
     "scoring_version": {"type": "string"},
     "tool_versions": {"type": "object", "additionalProperties": {"type": "string"}},
     "geographic_coverage": {"type": "object"},
-    "request_ledger": {"type": "array"},
+    "request_ledger": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["provider", "request_id", "endpoint", "requested_at", "cache", "status"],
+        "properties": {
+          "provider": {"type": "string", "minLength": 1},
+          "request_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+          "endpoint": {"type": "string", "format": "uri"},
+          "requested_at": {"type": "string", "format": "date-time"},
+          "cache": {"enum": ["hit", "miss"]},
+          "status": {"type": "integer", "minimum": 0, "maximum": 599},
+          "cache_expires_at": {"type": "string", "format": "date-time"}
+        },
+        "additionalProperties": false
+      }
+    },
     "cache_used": {"type": "boolean"},
-    "sources": {"type": "array", "items": {"type": "string"}},
-    "licences": {"type": "array", "items": {"type": "string"}},
+    "sources": {"type": "array", "uniqueItems": true, "items": {"type": "string", "format": "uri"}},
+    "licences": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
     "warnings": {"type": "array", "items": {"type": "string"}},
     "checksums": {
       "type": "object",

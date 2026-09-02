@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
+from .validation import validate_provenance
 
 
 def write_bundle(
@@ -16,6 +17,8 @@ def write_bundle(
     profile: dict[str, Any],
     evidence: dict[str, Any],
     results: dict[str, Any],
+    *,
+    request_ledger: list[dict[str, object]] | None = None,
 ) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     profile_bytes = _json_bytes(profile)
@@ -28,9 +31,11 @@ def write_bundle(
         "scoring_version": results["scoring_version"],
         "tool_versions": {"location3": __version__},
         "geographic_coverage": profile["search"]["route_boundary"],
-        "request_ledger": [],
-        "cache_used": False,
-        "sources": sorted({item["source"] for item in evidence["observations"]}),
+        "request_ledger": request_ledger or [],
+        "cache_used": any(
+            entry.get("cache") == "hit" for entry in (request_ledger or [])
+        ),
+        "sources": sorted({item["source_url"] for item in evidence["observations"]}),
         "licences": sorted({item["licence"] for item in evidence["observations"]}),
         "warnings": sorted(
             {warning for candidate in results["candidates"] for warning in candidate["warnings"]}
@@ -41,6 +46,12 @@ def write_bundle(
             "results.json": _checksum(result_bytes),
         },
     }
+    artifacts = {
+        "profile.json": profile_bytes,
+        "evidence.json": evidence_bytes,
+        "results.json": result_bytes,
+    }
+    validate_provenance(evidence, manifest, artifacts)
     (output / "profile.json").write_bytes(profile_bytes)
     (output / "evidence.json").write_bytes(evidence_bytes)
     (output / "results.json").write_bytes(result_bytes)
@@ -68,7 +79,8 @@ def _render_html(results: dict[str, Any]) -> str:
                 f"<td>{metric['raw_value']} {escape(metric['unit'])}</td>"
                 f"<td>{metric['normalized_score']:.1f}</td>"
                 f"<td>{metric['weight']:g}</td>"
-                f"<td>{escape(metric['source'])} ({escape(metric['source_date'])})</td>"
+                f'<td><a href="{escape(metric["source_url"])}">'
+                f"{escape(metric['source'])}</a> ({escape(metric['source_date'])})</td>"
                 "</tr>"
                 for metric in category["metrics"]
             )

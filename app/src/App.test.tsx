@@ -23,11 +23,11 @@ describe("viewer", () => {
     expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
   });
 
-  it("marks negative-signal scores independently of desirability", () => {
+  it("highlights a favorable raw observation without recoloring its score", () => {
     const { container } = render(<App />);
-    expect(container.querySelector(".metric-row.negative-signal .metric-score")).toHaveTextContent(
-      "100.0",
-    );
+    expect(container.querySelector(".metric-raw .favorable-observation")).toHaveTextContent(/^0$/);
+    expect(container.querySelector(".metric-raw")).toHaveTextContent("0 in 15 min");
+    expect(container.querySelector(".metric-raw + .metric-score")).toHaveTextContent("100.0");
   });
 
   it("imports valid result JSON locally without a fetch", async () => {

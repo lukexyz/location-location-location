@@ -90,12 +90,16 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
 }
 
 function MetricRow({ metric }: { metric: MetricResult }) {
-  const negativeSignal = metric.metric === "betting_shops";
+  const favorableObservation = metric.metric === "betting_shops" && metric.raw_value === 0;
   return (
-    <details className={`metric-row${negativeSignal ? " negative-signal" : ""}`}>
+    <details className="metric-row">
       <summary>
         <span className="metric-name">{label(metric.metric)}</span>
-        <span className="metric-raw">{rawValue(metric.raw_value, metric.unit)}</span>
+        <span className="metric-raw">
+          {favorableObservation ? (
+            <><span className="favorable-observation">0</span> in 15 min</>
+          ) : rawValue(metric.raw_value, metric.unit)}
+        </span>
         <span className="metric-score">{metric.normalized_score.toFixed(1)}</span>
       </summary>
       <div className="metric-detail">
@@ -104,7 +108,7 @@ function MetricRow({ metric }: { metric: MetricResult }) {
           <div><dt>Weight</dt><dd>{metric.active ? metric.weight : "informational"}</dd></div>
           <div><dt>Confidence</dt><dd>{Math.round(metric.confidence * 100)}%</dd></div>
           <div><dt>Source date</dt><dd>{compactDate(metric.source_date)}</dd></div>
-          <div><dt>Evidence</dt><dd>{metric.source}</dd></div>
+          <div><dt>Evidence</dt><dd><a href={metric.source_url} rel="noreferrer" target="_blank">{metric.source}</a></dd></div>
         </dl>
         <p>{metric.confidence_notes}</p>
       </div>
