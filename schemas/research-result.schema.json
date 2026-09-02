@@ -18,6 +18,9 @@
         "properties": {
           "id": {"type": "string"},
           "name": {"type": "string"},
+          "place_kind": {
+            "enum": ["city", "town", "suburb", "village", "neighbourhood"]
+          },
           "location": {"type": "object"},
           "rank": {"type": "integer", "minimum": 1},
           "overall_score": {"type": "number", "minimum": 0, "maximum": 100},

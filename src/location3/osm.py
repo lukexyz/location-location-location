@@ -1,4 +1,4 @@
-"""One-pass bounded OpenStreetMap candidate and café collection."""
+"""One-pass bounded OpenStreetMap candidate discovery and amenity collection."""
 
 from __future__ import annotations
 
@@ -6,68 +6,156 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from math import asin, cos, radians, sin, sqrt
 import json
-from typing import Any, Iterable
+import re
+from typing import Any, Iterable, Sequence
 from urllib.parse import urlencode
 
+from .catalog import PLACE_KINDS
 from .net import HttpTransport, UrllibTransport
 from .routing import RouteBoundary
 from .validation import validate_evidence
 
 
 DEFAULT_OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter"
+OSM_SOURCE = "OpenStreetMap contributors via Overpass API"
+OSM_SOURCE_URL = "https://www.openstreetmap.org/copyright"
+OSM_LICENCE = "ODbL-1.0"
+
+# When two anchors sit within `dedupe_metres` of each other the more significant
+# PLACE_KINDS entry is kept.
+WALK_METRES_PER_MINUTE = 80
+GREEN_SPACE_CUTOFF_MINUTES = 45
+GREEN_SPACE_TAGS = {
+    "leisure": ("park", "nature_reserve", "recreation_ground", "common", "dog_park"),
+    "landuse": ("recreation_ground", "village_green"),
+}
+_SAFE_PATTERN = re.compile(r"^[A-Za-z0-9 &'._\-]+$")
+_ERE_SPECIALS = set(".^$*+?()[]{}|\\")
 
 
 @dataclass(frozen=True)
-class OsmCafeResearch:
+class BrandGroup:
+    """Literal brand/name fragments matched case-insensitively within shop types."""
+
+    patterns: tuple[str, ...]
+    shop_types: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        if not self.patterns or not self.shop_types:
+            raise ValueError("brand group needs patterns and shop_types")
+        for value in (*self.patterns, *self.shop_types):
+            if not isinstance(value, str) or not _SAFE_PATTERN.fullmatch(value):
+                raise ValueError(f"unsafe brand configuration value: {value!r}")
+        if any(" " in shop_type for shop_type in self.shop_types):
+            raise ValueError("shop_types must be single OSM shop values")
+
+    def overpass_regex(self) -> str:
+        return "(" + "|".join(_ere_escape(pattern) for pattern in self.patterns) + ")"
+
+    def shop_regex(self) -> str:
+        return "^(" + "|".join(_ere_escape(value) for value in self.shop_types) + ")$"
+
+    def matches(self, tags: dict[str, Any]) -> bool:
+        if tags.get("shop") not in self.shop_types:
+            return False
+        names = [tags.get("brand"), tags.get("name")]
+        return any(
+            isinstance(name, str)
+            and any(pattern.casefold() in name.casefold() for pattern in self.patterns)
+            for name in names
+        )
+
+
+def _ere_escape(value: str) -> str:
+    """Escape POSIX ERE metacharacters only; spaces and & stay literal."""
+    return "".join(f"\\{char}" if char in _ERE_SPECIALS else char for char in value)
+
+
+@dataclass(frozen=True)
+class OsmResearch:
     evidence: dict[str, Any]
     query: str
     provider: str
 
 
-class OverpassCafeCollector:
-    """Discover settlements and count nearby cafés from one Overpass response."""
+class OverpassAmenityCollector:
+    """Discover settlements and measure walkable amenities from one Overpass call."""
 
     def __init__(
         self,
         *,
+        premium_grocers: BrandGroup,
         transport: HttpTransport | None = None,
         endpoint: str = DEFAULT_OVERPASS_ENDPOINT,
-        timeout: float = 45.0,
-        query_timeout_seconds: int = 25,
-        cafe_radius_metres: int = 1200,
+        timeout: float = 90.0,
+        query_timeout_seconds: int = 60,
+        walk_radius_metres: int = 1200,
         max_polygon_vertices: int = 80,
+        dedupe_metres: int = 400,
+        place_kinds: Sequence[str] = PLACE_KINDS,
     ) -> None:
-        if not 100 <= cafe_radius_metres <= 5000:
-            raise ValueError("cafe_radius_metres must be between 100 and 5000")
+        if not 100 <= walk_radius_metres <= 5000:
+            raise ValueError("walk_radius_metres must be between 100 and 5000")
         if not 8 <= max_polygon_vertices <= 200:
             raise ValueError("max_polygon_vertices must be between 8 and 200")
+        if not 0 <= dedupe_metres <= 2000:
+            raise ValueError("dedupe_metres must be between 0 and 2000")
+        if not place_kinds or any(kind not in PLACE_KINDS for kind in place_kinds):
+            raise ValueError("place_kinds must be drawn from the supported OSM place kinds")
+        self._premium_grocers = premium_grocers
         self._transport = transport or UrllibTransport()
         self._endpoint = endpoint
         self._timeout = timeout
         self._query_timeout_seconds = query_timeout_seconds
-        self._cafe_radius_metres = cafe_radius_metres
+        self._walk_radius_metres = walk_radius_metres
         self._max_polygon_vertices = max_polygon_vertices
+        self._dedupe_metres = dedupe_metres
+        self._place_kinds = tuple(kind for kind in PLACE_KINDS if kind in place_kinds)
+
+    @property
+    def metrics(self) -> tuple[str, ...]:
+        return ("cafes", "betting_shops", "yoga_studios", "premium_grocers", "green_space")
+
+    def build_query(self, boundary: RouteBoundary) -> str:
+        ring = _limit_vertices(_outer_ring(boundary.geometry), self._max_polygon_vertices)
+        polygon = " ".join(f"{latitude:.6f} {longitude:.6f}" for longitude, latitude in ring)
+        poi_box = _bbox(_buffered_bounds(ring, self._walk_radius_metres))
+        green_box = _bbox(
+            _buffered_bounds(ring, GREEN_SPACE_CUTOFF_MINUTES * WALK_METRES_PER_MINUTE)
+        )
+        kinds = "|".join(self._place_kinds)
+        grocers = self._premium_grocers
+        shop_filter = f'["shop"~"{grocers.shop_regex()}"]'
+        leisure = "|".join(GREEN_SPACE_TAGS["leisure"])
+        landuse = "|".join(GREEN_SPACE_TAGS["landuse"])
+        return (
+            f"[out:json][timeout:{self._query_timeout_seconds}];\n"
+            "(\n"
+            f'  node["place"~"^({kinds})$"]["name"](poly:"{polygon}");\n'
+            f'  nwr["amenity"="cafe"]({poi_box});\n'
+            f'  nwr["shop"="bookmaker"]({poi_box});\n'
+            f'  nwr["amenity"="gambling"]({poi_box});\n'
+            f'  nwr["sport"~"(^|;)yoga(;|$)",i]({poi_box});\n'
+            f'  nwr{shop_filter}["brand"~"{grocers.overpass_regex()}",i]({poi_box});\n'
+            f'  nwr{shop_filter}["name"~"{grocers.overpass_regex()}",i]({poi_box});\n'
+            ")->.pois;\n"
+            ".pois out center tags qt;\n"
+            "(\n"
+            f'  nwr["leisure"~"^({leisure})$"]["access"!="private"]({green_box});\n'
+            f'  nwr["landuse"~"^({landuse})$"]["access"!="private"]({green_box});\n'
+            ")->.green;\n"
+            ".green out bb tags qt;"
+        )
 
     def collect(
         self,
         boundary: RouteBoundary,
         *,
         retrieved_at: str | None = None,
-    ) -> OsmCafeResearch:
+    ) -> OsmResearch:
         requested_retrieval_time = retrieved_at
         retrieved_at = retrieved_at or datetime.now(timezone.utc).isoformat()
-        ring = _outer_ring(boundary.geometry)
-        ring = _limit_vertices(ring, self._max_polygon_vertices)
-        polygon = " ".join(f"{latitude:.6f} {longitude:.6f}" for longitude, latitude in ring)
-        south, west, north, east = _buffered_bounds(ring, self._cafe_radius_metres)
-        query = (
-            f"[out:json][timeout:{self._query_timeout_seconds}];\n"
-            "(\n"
-            f'  node["place"~"^(town|village)$"]["name"](poly:"{polygon}");\n'
-            f'  nwr["amenity"="cafe"]({south:.6f},{west:.6f},{north:.6f},{east:.6f});\n'
-            ");\n"
-            "out center tags qt;"
-        )
+        query = self.build_query(boundary)
         response = self._transport.request(
             "POST",
             self._endpoint,
@@ -88,26 +176,36 @@ class OverpassCafeCollector:
         if not isinstance(elements, list):
             raise ValueError("Overpass response has no elements array")
 
-        candidates = _candidates(elements)
-        cafes = _cafes(elements)
+        candidates = _dedupe_candidates(
+            _candidates(elements, self._place_kinds), self._dedupe_metres
+        )
+        features = _classify(elements, self._premium_grocers)
         source_date = _source_date(payload, retrieved_at)
-        observations = [
-            _cafe_observation(
-                candidate,
-                cafes,
-                radius_metres=self._cafe_radius_metres,
-                retrieved_at=retrieved_at,
-                source_date=source_date,
+        observations: list[dict[str, Any]] = []
+        for candidate in candidates:
+            for metric in ("cafes", "betting_shops", "yoga_studios", "premium_grocers"):
+                observations.append(
+                    _count_observation(
+                        candidate,
+                        metric,
+                        features[metric],
+                        radius_metres=self._walk_radius_metres,
+                        retrieved_at=retrieved_at,
+                        source_date=source_date,
+                    )
+                )
+            green = _green_space_observation(
+                candidate, features["green_space"], retrieved_at, source_date
             )
-            for candidate in candidates
-        ]
+            if green is not None:
+                observations.append(green)
         evidence = {
             "schema_version": "1",
             "candidates": candidates,
             "observations": observations,
         }
         validate_evidence(evidence)
-        return OsmCafeResearch(evidence=evidence, query=query, provider="overpass")
+        return OsmResearch(evidence=evidence, query=query, provider="overpass")
 
 
 def _outer_ring(geometry: dict[str, Any]) -> list[list[float]]:
@@ -168,13 +266,18 @@ def _buffered_bounds(
     )
 
 
-def _candidates(elements: Iterable[Any]) -> list[dict[str, Any]]:
+def _bbox(bounds: tuple[float, float, float, float]) -> str:
+    south, west, north, east = bounds
+    return f"{south:.6f},{west:.6f},{north:.6f},{east:.6f}"
+
+
+def _candidates(elements: Iterable[Any], kinds: Sequence[str]) -> list[dict[str, Any]]:
     found: list[dict[str, Any]] = []
     for element in elements:
         if not isinstance(element, dict) or element.get("type") != "node":
             continue
         tags = element.get("tags")
-        if not isinstance(tags, dict) or tags.get("place") not in {"town", "village"}:
+        if not isinstance(tags, dict) or tags.get("place") not in kinds:
             continue
         name = tags.get("name")
         osm_id = element.get("id")
@@ -185,13 +288,48 @@ def _candidates(elements: Iterable[Any]) -> list[dict[str, Any]]:
         found.append({
             "id": f"osm-node-{osm_id}",
             "name": name.strip(),
+            "place_kind": tags["place"],
             "location": {"latitude": latitude, "longitude": longitude},
         })
     return sorted(found, key=lambda candidate: (candidate["name"].casefold(), candidate["id"]))
 
 
-def _cafes(elements: Iterable[Any]) -> list[tuple[str, float, float]]:
-    found: dict[str, tuple[str, float, float]] = {}
+def _dedupe_candidates(
+    candidates: list[dict[str, Any]], dedupe_metres: int
+) -> list[dict[str, Any]]:
+    """Keep the most significant anchor when several sit within dedupe_metres."""
+    by_significance = sorted(
+        candidates,
+        key=lambda item: (
+            PLACE_KINDS.index(item["place_kind"]), item["name"].casefold(), item["id"]
+        ),
+    )
+    kept: list[dict[str, Any]] = []
+    for candidate in by_significance:
+        location = candidate["location"]
+        if any(
+            _distance_metres(
+                location["latitude"], location["longitude"],
+                other["location"]["latitude"], other["location"]["longitude"],
+            ) < dedupe_metres
+            for other in kept
+        ):
+            continue
+        kept.append(candidate)
+    return sorted(kept, key=lambda candidate: (candidate["name"].casefold(), candidate["id"]))
+
+
+def _classify(
+    elements: Iterable[Any], premium_grocers: BrandGroup
+) -> dict[str, list[tuple[str, dict[str, float]]]]:
+    """Group returned features by metric, deduplicated by OSM type/id."""
+    groups: dict[str, dict[str, dict[str, float]]] = {
+        "cafes": {},
+        "betting_shops": {},
+        "yoga_studios": {},
+        "premium_grocers": {},
+        "green_space": {},
+    }
     for element in elements:
         if not isinstance(element, dict):
             continue
@@ -200,17 +338,58 @@ def _cafes(elements: Iterable[Any]) -> list[tuple[str, float, float]]:
         osm_id = element.get("id")
         if (
             not isinstance(tags, dict)
-            or tags.get("amenity") != "cafe"
             or osm_type not in {"node", "way", "relation"}
             or not _osm_id(osm_id)
         ):
             continue
-        point = _element_point(element)
-        if point is not None:
-            latitude, longitude = point
-            key = f"{osm_type}/{osm_id}"
-            found[key] = (key, latitude, longitude)
-    return list(found.values())
+        key = f"{osm_type}/{osm_id}"
+        extent = _element_extent(element)
+        if extent is None:
+            continue
+        if tags.get("amenity") == "cafe":
+            groups["cafes"][key] = extent
+        if tags.get("shop") == "bookmaker" or tags.get("amenity") == "gambling":
+            groups["betting_shops"][key] = extent
+        sport = tags.get("sport")
+        if isinstance(sport, str) and "yoga" in {
+            value.strip().casefold() for value in sport.split(";")
+        }:
+            groups["yoga_studios"][key] = extent
+        if premium_grocers.matches(tags):
+            groups["premium_grocers"][key] = extent
+        if _is_green_space(tags):
+            groups["green_space"][key] = extent
+    return {metric: list(found.items()) for metric, found in groups.items()}
+
+
+def _is_green_space(tags: dict[str, Any]) -> bool:
+    if tags.get("access") == "private":
+        return False
+    return any(
+        tags.get(tag) in values for tag, values in GREEN_SPACE_TAGS.items()
+    )
+
+
+def _element_extent(element: dict[str, Any]) -> dict[str, float] | None:
+    """Return a point or a bounding box usable for distance measurement."""
+    bounds = element.get("bounds")
+    if isinstance(bounds, dict):
+        values = [bounds.get(key) for key in ("minlat", "minlon", "maxlat", "maxlon")]
+        if all(
+            isinstance(value, (int, float)) and not isinstance(value, bool)
+            for value in values
+        ):
+            box = dict(zip(("minlat", "minlon", "maxlat", "maxlon"), map(float, values)))
+            if (
+                -90 <= box["minlat"] <= box["maxlat"] <= 90
+                and -180 <= box["minlon"] <= box["maxlon"] <= 180
+            ):
+                return box
+    point = _element_point(element)
+    if point is None:
+        return None
+    latitude, longitude = point
+    return {"minlat": latitude, "minlon": longitude, "maxlat": latitude, "maxlon": longitude}
 
 
 def _element_point(element: dict[str, Any]) -> tuple[float, float] | None:
@@ -234,9 +413,36 @@ def _osm_id(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
-def _cafe_observation(
+def _extent_distance_metres(
+    latitude: float, longitude: float, extent: dict[str, float]
+) -> float:
+    """Distance to the nearest point of a bounding box (zero when inside)."""
+    nearest_latitude = min(max(latitude, extent["minlat"]), extent["maxlat"])
+    nearest_longitude = min(max(longitude, extent["minlon"]), extent["maxlon"])
+    return _distance_metres(latitude, longitude, nearest_latitude, nearest_longitude)
+
+
+_COUNT_METRIC_NOTES = {
+    "cafes": ("OSM amenity=cafe", 0.65, "café completeness varies by area"),
+    "betting_shops": (
+        "OSM shop=bookmaker or amenity=gambling", 0.6,
+        "bookmakers are usually mapped; adult gaming centres less consistently",
+    ),
+    "yoga_studios": (
+        "OSM features tagged sport=yoga", 0.5,
+        "yoga classes inside gyms or halls are often untagged",
+    ),
+    "premium_grocers": (
+        "OSM shops whose brand or name matches the configured premium grocer group", 0.7,
+        "brand tags are usually present for national chains",
+    ),
+}
+
+
+def _count_observation(
     candidate: dict[str, Any],
-    cafes: Iterable[tuple[str, float, float]],
+    metric: str,
+    features: list[tuple[str, dict[str, float]]],
     *,
     radius_metres: int,
     retrieved_at: str,
@@ -244,30 +450,76 @@ def _cafe_observation(
 ) -> dict[str, Any]:
     location = candidate["location"]
     count = sum(
-        _distance_metres(location["latitude"], location["longitude"], latitude, longitude)
+        _extent_distance_metres(location["latitude"], location["longitude"], extent)
         <= radius_metres
-        for _, latitude, longitude in cafes
+        for _, extent in features
     )
+    description, confidence, coverage_note = _COUNT_METRIC_NOTES[metric]
     return {
-        "id": f'{candidate["id"]}-cafes',
+        "id": f'{candidate["id"]}-{metric.replace("_", "-")}',
         "candidate_id": candidate["id"],
-        "metric": "cafes",
+        "metric": metric,
         "value": count,
         "unit": "count_15_min_walk",
         "geographic_scope": f"{radius_metres} m straight-line catchment around OSM place node",
-        "source": "OpenStreetMap contributors via Overpass API",
-        "source_url": "https://www.openstreetmap.org/copyright",
+        "source": OSM_SOURCE,
+        "source_url": OSM_SOURCE_URL,
         "retrieved_at": retrieved_at,
         "source_date": source_date,
         "transformation": (
-            "Distinct OSM amenity=cafe features within a straight-line radius; "
+            f"Distinct {description} within a straight-line radius; "
             "a bounded proxy, not a pedestrian-network isochrone"
         ),
-        "licence": "ODbL-1.0",
-        "confidence": 0.65,
+        "licence": OSM_LICENCE,
+        "confidence": confidence,
         "confidence_notes": (
-            "OSM completeness varies by area; catchment uses a straight-line proxy for a "
-            "15-minute walk"
+            f"OSM {coverage_note}; catchment uses a straight-line proxy for a 15-minute walk"
+        ),
+    }
+
+
+def _green_space_observation(
+    candidate: dict[str, Any],
+    features: list[tuple[str, dict[str, float]]],
+    retrieved_at: str,
+    source_date: str,
+) -> dict[str, Any] | None:
+    location = candidate["location"]
+    distances = [
+        _extent_distance_metres(location["latitude"], location["longitude"], extent)
+        for _, extent in features
+    ]
+    if not distances:
+        return None
+    nearest_metres = min(distances)
+    walk_minutes = round(nearest_metres / WALK_METRES_PER_MINUTE, 1)
+    if walk_minutes > GREEN_SPACE_CUTOFF_MINUTES:
+        # The query extent only guarantees coverage up to the cutoff distance.
+        return None
+    return {
+        "id": f'{candidate["id"]}-green-space',
+        "candidate_id": candidate["id"],
+        "metric": "green_space",
+        "value": walk_minutes,
+        "unit": "walk_minutes",
+        "geographic_scope": (
+            f"Nearest public green space within {GREEN_SPACE_CUTOFF_MINUTES} walking minutes "
+            "of the OSM place node"
+        ),
+        "source": OSM_SOURCE,
+        "source_url": OSM_SOURCE_URL,
+        "retrieved_at": retrieved_at,
+        "source_date": source_date,
+        "transformation": (
+            "Straight-line distance to the nearest edge of the bounding box of an OSM park, "
+            f"nature reserve, recreation ground, common, or village green, at "
+            f"{WALK_METRES_PER_MINUTE} m per minute; a proxy, not a pedestrian-network route"
+        ),
+        "licence": OSM_LICENCE,
+        "confidence": 0.6,
+        "confidence_notes": (
+            "Bounding-box distance can understate the walk to a park entrance; informal "
+            "countryside access and footpaths are not counted"
         ),
     }
 

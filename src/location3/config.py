@@ -8,6 +8,10 @@ from typing import Any
 import tomllib
 
 from .catalog import CATEGORIES, METRICS
+from .osm import BrandGroup
+
+
+BRAND_GROUPS = {"premium_grocers"}
 
 
 def load_preferences(root: Path, include_local: bool = True) -> dict[str, Any]:
@@ -59,8 +63,32 @@ def validate_preferences(preferences: dict[str, Any]) -> None:
     if policy != "warn":
         raise ValueError('Only unknown_data_policy = "warn" is supported in v1')
 
+    brand_groups = preferences.get("brand_groups")
+    if not isinstance(brand_groups, dict) or set(brand_groups) != BRAND_GROUPS:
+        raise ValueError("brand_groups must define exactly: " + ", ".join(sorted(BRAND_GROUPS)))
+    for name in BRAND_GROUPS:
+        try:
+            brand_group(preferences, name)
+        except (TypeError, ValueError) as error:
+            raise ValueError(f"brand_groups.{name} is invalid: {error}") from error
+
+
+def brand_group(preferences: dict[str, Any], name: str) -> BrandGroup:
+    """Build the named editable brand group from validated preferences."""
+    group = preferences["brand_groups"][name]
+    if not isinstance(group, dict) or set(group) != {"patterns", "shop_types"}:
+        raise ValueError("expected patterns and shop_types")
+    patterns, shop_types = group["patterns"], group["shop_types"]
+    if not isinstance(patterns, list) or not isinstance(shop_types, list):
+        raise ValueError("patterns and shop_types must be arrays of strings")
+    return BrandGroup(patterns=tuple(patterns), shop_types=tuple(shop_types))
+
 
 def _validate_weights(weights: dict[str, Any], label: str) -> None:
     for key, value in weights.items():
-        if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
-            raise ValueError(f"{label} weight {key} must be a non-negative number")
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not 0 <= value <= 5
+        ):
+            raise ValueError(f"{label} weight {key} must be a number from 0 to 5")

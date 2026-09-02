@@ -3,9 +3,26 @@
   "run_id": "demo-three-places",
   "search": {
     "approximate_origin": {"latitude": 51.5, "longitude": -0.1, "precision": "demo"},
-    "route_boundary": {"type": "fixture_polygon", "description": "Synthetic 65-minute commute boundary"},
+    "route_boundary": {
+      "type": "fixture_polygon",
+      "description": "Synthetic 65-minute commute boundary drawn by hand for the demo",
+      "provider": "fixture",
+      "departure_time": null,
+      "traffic_treatment": "not modelled; fictional boundary",
+      "retrieved_at": "2026-08-01T12:00:00+00:00",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-0.42, 51.44], [-0.30, 51.40], [-0.10, 51.38], [0.08, 51.41], [0.14, 51.50],
+          [0.10, 51.60], [-0.02, 51.68], [-0.20, 51.76], [-0.36, 51.77], [-0.44, 51.70],
+          [-0.47, 51.58], [-0.42, 51.44]
+        ]]
+      }
+    },
     "housing": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat", "bedrooms": 2},
-    "destinations": [{"label": "Central destination", "travel_mode": "public_transport", "arrival": "Tuesday 09:00"}],
+    "destinations": [
+      {"label": "Central destination", "travel_mode": "public_transport", "arrival": "Tuesday 09:00", "max_minutes": 65}
+    ],
     "providers": {"routing": "fixture", "housing": "fixture", "places": "fixture"}
   },
   "weights": {

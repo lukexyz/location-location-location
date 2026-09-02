@@ -65,6 +65,49 @@ class RailResearchTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "require a performance source"):
             merge_rail_research(evidence, uncited_reliability)
 
+    def test_destination_limits_are_checked_against_the_matching_journey(self):
+        profile, evidence, rail = fixtures()
+        profile["search"]["destinations"].append({
+            "label": "Client office", "travel_mode": "public_transport",
+            "arrival": "Friday 10:00", "max_minutes": 60,
+        })
+        profile["hard_constraints"] = [
+            {
+                "metric": "door_to_door_commute", "operator": "<=", "value": 65,
+                "destination_label": "Central destination",
+            },
+            {
+                "metric": "door_to_door_commute", "operator": "<=", "value": 60,
+                "destination_label": "Client office",
+            },
+        ]
+        extra_journeys = []
+        for journey in rail["journeys"]:
+            extra = deepcopy(journey)
+            extra["id"] += "-client"
+            extra["destination_label"] = "Client office"
+            extra["primary"] = False
+            extra["london_last_mile_minutes"] += 12
+            extra["total_minutes"] += 12
+            extra_journeys.append(extra)
+        rail["journeys"].extend(extra_journeys)
+
+        merged = merge_rail_research(
+            evidence,
+            rail,
+            destination_labels=["Central destination", "Client office"],
+        )
+        results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
+        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        by_destination = {
+            item["destination_label"]: item
+            for item in alder["hard_constraints"]["results"]
+        }
+        self.assertTrue(by_destination["Central destination"]["passed"])
+        self.assertEqual(by_destination["Central destination"]["actual"], 58)
+        self.assertFalse(by_destination["Client office"]["passed"])
+        self.assertEqual(by_destination["Client office"]["actual"], 70)
+
     def test_manifest_includes_rail_citations(self):
         profile, evidence, rail = fixtures()
         merged = merge_rail_research(evidence, rail)

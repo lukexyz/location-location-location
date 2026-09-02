@@ -7,30 +7,159 @@ from hashlib import sha256
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
-from .catalog import METRICS
+from .catalog import METRICS, PLACE_KINDS
+
+
+TRAVEL_MODES = {"public_transport", "driving", "cycling", "walking"}
+BOUNDARY_TYPES = {"isochrone", "fixture_polygon"}
 
 
 def validate_profile(profile: dict[str, Any]) -> None:
     if _require(profile, "schema_version", str) != "1":
         raise ValueError("unsupported profile schema_version")
     _require(profile, "run_id", str)
-    _require(profile, "search", dict)
+    search = _require(profile, "search", dict)
+    _validate_search(search)
     weights = _require(profile, "weights", dict)
     category_weights = _require(profile, "category_weights", dict)
     if set(weights) != set(METRICS):
         raise ValueError("profile weights do not match the metric catalogue")
     if not category_weights:
         raise ValueError("profile category_weights cannot be empty")
+    for label, values in (("metric", weights), ("category", category_weights)):
+        for key, value in values.items():
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not 0 <= value <= 5
+            ):
+                raise ValueError(f"profile {label} weight {key} must be from 0 to 5")
     constraints = profile.get("hard_constraints", [])
     if not isinstance(constraints, list):
         raise ValueError("profile hard_constraints must be an array")
+    destination_labels = {
+        destination["label"].casefold() for destination in search["destinations"]
+    }
+    constraint_keys: list[tuple[str, str]] = []
     for constraint in constraints:
+        if not isinstance(constraint, dict):
+            raise ValueError("hard constraints must be objects")
+        if set(constraint) - {"metric", "operator", "value", "destination_label"}:
+            raise ValueError("hard constraint contains unsupported fields")
         if constraint.get("metric") not in METRICS:
             raise ValueError("hard constraint references an unknown metric")
         if constraint.get("operator") not in {"<=", ">="}:
             raise ValueError("hard constraint operator must be <= or >=")
-        if not isinstance(constraint.get("value"), (int, float)):
+        if isinstance(constraint.get("value"), bool) or not isinstance(
+            constraint.get("value"), (int, float)
+        ):
             raise ValueError("hard constraint value must be numeric")
+        destination_label = constraint.get("destination_label")
+        if destination_label is not None:
+            if constraint["metric"] != "door_to_door_commute":
+                raise ValueError("only commute constraints may name a destination")
+            if not isinstance(destination_label, str) or not destination_label.strip():
+                raise ValueError("hard constraint destination_label must be non-empty")
+            if destination_label.casefold() not in destination_labels:
+                raise ValueError("hard constraint destination is not in the search profile")
+        constraint_keys.append(
+            (constraint["metric"], (destination_label or "").casefold())
+        )
+    if len(set(constraint_keys)) != len(constraint_keys):
+        raise ValueError("each metric and destination may carry at most one hard constraint")
+
+
+def _validate_search(search: dict[str, Any]) -> None:
+    origin = _require(search, "approximate_origin", dict)
+    latitude = _require(origin, "latitude", (int, float))
+    longitude = _require(origin, "longitude", (int, float))
+    if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
+        raise ValueError("approximate_origin is out of range")
+    _nonempty(origin, "precision")
+
+    boundary = _require(search, "route_boundary", dict)
+    if boundary.get("type") not in BOUNDARY_TYPES:
+        raise ValueError("route_boundary type is unsupported")
+    _nonempty(boundary, "provider")
+    _nonempty(boundary, "traffic_treatment")
+    _datetime(_nonempty(boundary, "retrieved_at"), "route_boundary.retrieved_at")
+    if boundary.get("departure_time") is not None:
+        _datetime(boundary["departure_time"], "route_boundary.departure_time")
+    if "duration_minutes" in boundary:
+        minutes = _require(boundary, "duration_minutes", int)
+        if not 1 <= minutes <= 300:
+            raise ValueError("route_boundary duration_minutes is out of range")
+    validate_polygon_geometry(_require(boundary, "geometry", dict))
+
+    housing = _require(search, "housing", dict)
+    if housing:
+        if set(housing) != {"mode", "budget_gbp", "property_type", "bedrooms"}:
+            raise ValueError("housing requirements fields do not match the schema")
+        if housing["mode"] not in {"buy", "rent"}:
+            raise ValueError("housing mode must be buy or rent")
+        budget = _require(housing, "budget_gbp", (int, float))
+        if budget <= 0:
+            raise ValueError("housing budget_gbp must be positive")
+        _nonempty(housing, "property_type")
+        bedrooms = housing["bedrooms"]
+        if bedrooms is not None and (
+            not isinstance(bedrooms, int) or isinstance(bedrooms, bool) or bedrooms < 0
+        ):
+            raise ValueError("housing bedrooms must be null or a non-negative integer")
+
+    labels: set[str] = set()
+    for destination in _require(search, "destinations", list):
+        if not isinstance(destination, dict):
+            raise ValueError("destinations must be objects")
+        label = _nonempty(destination, "label").casefold()
+        if label in labels:
+            raise ValueError("destination labels must be unique")
+        labels.add(label)
+        if destination.get("travel_mode") not in TRAVEL_MODES:
+            raise ValueError("destination travel_mode is unsupported")
+        _nonempty(destination, "arrival")
+        max_minutes = destination.get("max_minutes")
+        if max_minutes is not None and (
+            not isinstance(max_minutes, int) or isinstance(max_minutes, bool)
+            or not 1 <= max_minutes <= 300
+        ):
+            raise ValueError("destination max_minutes must be null or 1-300")
+
+    providers = _require(search, "providers", dict)
+    if any(
+        not isinstance(key, str) or not key or not isinstance(value, str) or not value
+        for key, value in providers.items()
+    ):
+        raise ValueError("providers must map names to non-empty strings")
+
+
+def validate_polygon_geometry(geometry: dict[str, Any]) -> None:
+    """Check a GeoJSON Polygon or MultiPolygon has well-formed, in-range rings."""
+    kind = geometry.get("type")
+    if kind not in {"Polygon", "MultiPolygon"}:
+        raise ValueError("route boundary geometry must be a Polygon or MultiPolygon")
+    coordinates = geometry.get("coordinates")
+    polygons = coordinates if kind == "MultiPolygon" else [coordinates]
+    if not isinstance(polygons, list) or not polygons:
+        raise ValueError("route boundary geometry has no coordinates")
+    for polygon in polygons:
+        if not isinstance(polygon, list) or not polygon:
+            raise ValueError("route boundary polygon has no rings")
+        for ring in polygon:
+            if not isinstance(ring, list) or len(ring) < 4:
+                raise ValueError("route boundary ring needs at least four positions")
+            for position in ring:
+                if (
+                    not isinstance(position, list) or len(position) < 2
+                    or any(
+                        isinstance(value, bool) or not isinstance(value, (int, float))
+                        for value in position[:2]
+                    )
+                    or not -180 <= position[0] <= 180 or not -90 <= position[1] <= 90
+                ):
+                    raise ValueError("route boundary contains an invalid position")
+            if ring[0][:2] != ring[-1][:2]:
+                raise ValueError("route boundary rings must be closed")
 
 
 def validate_evidence(bundle: dict[str, Any]) -> None:
@@ -47,6 +176,8 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
         longitude = _require(location, "longitude", (int, float))
         if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
             raise ValueError("candidate location is out of range")
+        if "place_kind" in candidate and candidate["place_kind"] not in PLACE_KINDS:
+            raise ValueError("candidate place_kind is unsupported")
         if candidate_id in candidate_ids:
             raise ValueError(f"duplicate candidate id: {candidate_id}")
         candidate_ids.add(candidate_id)

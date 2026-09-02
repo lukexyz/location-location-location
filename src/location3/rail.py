@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Iterable
 from urllib.parse import urlsplit
 
 from .validation import validate_evidence
@@ -19,12 +19,27 @@ COMPONENT_FIELDS = (
 
 
 def merge_rail_research(
-    evidence: dict[str, Any], rail_research: dict[str, Any]
+    evidence: dict[str, Any],
+    rail_research: dict[str, Any],
+    *,
+    destination_labels: Iterable[str] | None = None,
 ) -> dict[str, Any]:
-    """Return evidence enriched by cited rail facts for existing candidates only."""
+    """Return evidence enriched by cited rail facts for existing candidates only.
+
+    When the run profile names destinations, every journey must be for one of them
+    so a journey cannot quietly describe a place the user never asked about.
+    """
     validate_evidence(evidence)
     candidate_ids = {candidate["id"] for candidate in evidence["candidates"]}
     validate_rail_research(rail_research, candidate_ids)
+    allowed = {label.casefold() for label in destination_labels or ()}
+    if allowed:
+        for journey in rail_research["journeys"]:
+            if journey["destination_label"].casefold() not in allowed:
+                raise ValueError(
+                    f"rail journey destination is not in the run profile: "
+                    f"{journey['destination_label']}"
+                )
 
     merged = deepcopy(evidence)
     journeys = deepcopy(rail_research["journeys"])

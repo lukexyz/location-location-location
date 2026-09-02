@@ -44,6 +44,13 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   if (ids.has(id)) throw new ResultValidationError(`Duplicate candidate id: ${id}`);
   ids.add(id);
   string(candidate.name, `${path}.name`);
+  if (candidate.place_kind !== undefined) {
+    oneOf(
+      candidate.place_kind,
+      ["city", "town", "suburb", "village", "neighbourhood"],
+      `${path}.place_kind`,
+    );
+  }
   finite(candidate.rank, `${path}.rank`);
   range(candidate.overall_score, `${path}.overall_score`, 0, 100);
   range(candidate.confidence, `${path}.confidence`, 0, 100);
@@ -56,6 +63,9 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   array(constraints.results, `${path}.hard_constraints.results`).forEach((item, itemIndex) => {
     const constraint = record(item, `${path}.hard_constraints.results[${itemIndex}]`);
     string(constraint.metric, `${path}.constraint.metric`);
+    if (constraint.destination_label !== undefined) {
+      string(constraint.destination_label, `${path}.constraint.destination_label`);
+    }
     boolean(constraint.passed, `${path}.constraint.passed`);
   });
 
@@ -351,6 +361,14 @@ function string(value: unknown, path: string): string {
     throw new ResultValidationError(`${path} must be a non-empty string`);
   }
   return value;
+}
+
+function oneOf(value: unknown, choices: readonly string[], path: string): string {
+  const text = string(value, path);
+  if (!choices.includes(text)) {
+    throw new ResultValidationError(`${path} must be one of ${choices.join(", ")}`);
+  }
+  return text;
 }
 
 function url(value: unknown, path: string): string {

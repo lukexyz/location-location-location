@@ -159,7 +159,9 @@ def _score_candidate(
         )
 
     confidence = available_confidence / possible_confidence if possible_confidence else 1.0
-    constraints = _evaluate_constraints(profile.get("hard_constraints", []), observations)
+    constraints = _evaluate_constraints(
+        profile.get("hard_constraints", []), observations, rail_journeys
+    )
     warnings = [f"Missing weighted metric: {metric}" for metric in sorted(missing)]
     warnings.extend(item["warning"] for item in constraints if item.get("warning"))
     for journey in rail_journeys:
@@ -219,6 +221,7 @@ def _score_candidate(
     result = {
         "id": candidate["id"],
         "name": candidate["name"],
+        **({"place_kind": candidate["place_kind"]} if "place_kind" in candidate else {}),
         "location": candidate["location"],
         "overall_score": round(overall, 2),
         "confidence": round(confidence * 100, 2),
@@ -272,19 +275,33 @@ def _score_candidate(
 
 
 def _evaluate_constraints(
-    constraints: list[dict[str, Any]], observations: dict[str, dict[str, Any]]
+    constraints: list[dict[str, Any]],
+    observations: dict[str, dict[str, Any]],
+    rail_journeys: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     results = []
     for constraint in constraints:
         metric = constraint["metric"]
-        observation = observations.get(metric)
-        if observation is None:
+        destination_label = constraint.get("destination_label")
+        if destination_label:
+            journey = next(
+                (
+                    item for item in rail_journeys
+                    if item["destination_label"].casefold() == destination_label.casefold()
+                ),
+                None,
+            )
+            actual = journey["total_minutes"] if journey else None
+        else:
+            observation = observations.get(metric)
+            actual = observation["value"] if observation else None
+        if actual is None:
+            subject = f"{metric} for {destination_label}" if destination_label else metric
             results.append({
                 **constraint, "actual": None, "passed": True,
-                "warning": f"Unknown hard constraint: {metric}",
+                "warning": f"Unknown hard constraint: {subject}",
             })
             continue
-        actual = observation["value"]
         passed = (
             actual <= constraint["value"]
             if constraint["operator"] == "<=" else actual >= constraint["value"]

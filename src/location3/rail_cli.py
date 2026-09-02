@@ -34,7 +34,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         for name in ("profile.json", "evidence.json", "results.json")
     }
     validate_provenance(evidence, manifest, artifacts)
-    merged = merge_rail_research(evidence, rail_research)
+    merged = merge_rail_research(
+        evidence,
+        rail_research,
+        destination_labels=[
+            item["label"] for item in profile["search"]["destinations"]
+        ],
+    )
     output = args.output or args.run_dir.with_name(f"{args.run_dir.name}-rail")
 
     print(

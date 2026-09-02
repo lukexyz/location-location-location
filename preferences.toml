@@ -17,3 +17,10 @@ betting_shops = 2
 cafes = 2
 yoga_studios = 1
 premium_grocers = 1
+
+# Brand groups are data, not code. Patterns are case-insensitive literal fragments
+# matched against an OpenStreetMap feature's brand or name, restricted to the
+# listed shop types. They are sent to Overpass as part of the research query.
+[brand_groups.premium_grocers]
+patterns = ["Waitrose", "Marks & Spencer", "M&S"]
+shop_types = ["supermarket", "convenience", "food", "deli", "department_store"]

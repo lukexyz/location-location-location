@@ -14,6 +14,9 @@
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "name": {"type": "string", "minLength": 1},
+          "place_kind": {
+            "enum": ["city", "town", "suburb", "village", "neighbourhood"]
+          },
           "location": {
             "type": "object",
             "required": ["latitude", "longitude"],

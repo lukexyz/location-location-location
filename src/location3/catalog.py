@@ -8,6 +8,9 @@ from math import log1p
 
 SCORING_VERSION = "1"
 
+# Recognisable settlement anchor kinds, most significant first.
+PLACE_KINDS: tuple[str, ...] = ("city", "town", "suburb", "village", "neighbourhood")
+
 
 @dataclass(frozen=True)
 class MetricDefinition:

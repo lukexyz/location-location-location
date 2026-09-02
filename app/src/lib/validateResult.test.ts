@@ -20,6 +20,13 @@ describe("parseResultBundle", () => {
     expect(() => parseResultBundle(duplicate)).toThrow(/Duplicate candidate id/);
   });
 
+  it("rejects unsupported candidate place kinds", () => {
+    const invalid = structuredClone(demoData) as unknown as Record<string, unknown>;
+    const candidate = (invalid.candidates as Array<Record<string, unknown>>)[0];
+    candidate.place_kind = "planet";
+    expect(() => parseResultBundle(invalid)).toThrow(/place_kind must be one of/);
+  });
+
   it("rejects rail totals that hide missing journey components", () => {
     const invalid = structuredClone(demoData);
     invalid.candidates[0].rail_summary.journeys[0].total_minutes += 1;

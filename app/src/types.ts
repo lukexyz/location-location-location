@@ -5,6 +5,7 @@ export interface LocationPoint {
 
 export interface ConstraintResult {
   metric: string;
+  destination_label?: string;
   operator: "<=" | ">=";
   value: number;
   actual: number | null;
@@ -176,6 +177,7 @@ export interface StreetCareSummary {
 export interface CandidateResult {
   id: string;
   name: string;
+  place_kind?: "city" | "town" | "suburb" | "village" | "neighbourhood";
   location: LocationPoint;
   rank: number;
   overall_score: number;

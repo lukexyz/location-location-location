@@ -29,7 +29,8 @@
         "properties": {
           "metric": {"type": "string"},
           "operator": {"enum": ["<=", ">="]},
-          "value": {"type": "number"}
+          "value": {"type": "number"},
+          "destination_label": {"type": "string", "minLength": 1}
         },
         "additionalProperties": false
       }
@@ -39,7 +40,7 @@
     "weights": {
       "type": "object",
       "minProperties": 1,
-      "additionalProperties": {"type": "number", "minimum": 0}
+      "additionalProperties": {"type": "number", "minimum": 0, "maximum": 5}
     }
   },
   "additionalProperties": false

@@ -13,12 +13,16 @@ The demo writes a private, gitignored report to `research-runs/demo/report.html`
 Public defaults live in `preferences.toml`; optional local overrides live in the
 gitignored `preferences.local.toml`.
 
-Preview a bounded café research run (no network or writes):
+Preview a bounded location research run (no network or writes):
 
 ```powershell
 python scripts/research_location.py --latitude LAT --longitude LON --minutes 30
 ```
 
+Optional repeatable flags include `--destination
+"LABEL|MODE|ARRIVAL|MAX_MINUTES"`, `--constraint "METRIC<=VALUE"`, and `--weight
+"METRIC=VALUE"`; housing flags are also available. The preview discloses those
+choices, the configurable premium-grocer fragments, and the two-call ceiling.
 Set a local `ORS_API_KEY`, review the preview, then add `--execute`.
 Codex users can invoke the same workflow with `$location-research`.
 

@@ -7,6 +7,7 @@ import json
 from typing import Any
 
 from .net import HttpTransport, UrllibTransport
+from .validation import validate_polygon_geometry
 
 
 DEFAULT_ORS_ENDPOINT = "https://api.openrouteservice.org"
@@ -18,6 +19,7 @@ class RouteBoundary:
     provider: str
     profile: str
     duration_minutes: int
+    retrieved_at: str | None = None
 
 
 class OpenRouteServiceIsochrones:
@@ -81,12 +83,15 @@ class OpenRouteServiceIsochrones:
             raise ValueError("OpenRouteService response must contain one isochrone feature")
         feature = features[0]
         geometry = feature.get("geometry") if isinstance(feature, dict) else None
-        _validate_polygon_geometry(geometry)
+        if not isinstance(geometry, dict):
+            raise ValueError("OpenRouteService response has no polygon geometry")
+        validate_polygon_geometry(geometry)
         return RouteBoundary(
             geometry=geometry,
             provider="openrouteservice",
             profile=profile,
             duration_minutes=duration_minutes,
+            retrieved_at=response.headers.get("X-Location3-Retrieved-At"),
         )
 
 
@@ -107,11 +112,3 @@ def _json_object(body: bytes, provider: str) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"{provider} response must be an object")
     return payload
-
-
-def _validate_polygon_geometry(geometry: Any) -> None:
-    if not isinstance(geometry, dict) or geometry.get("type") not in {"Polygon", "MultiPolygon"}:
-        raise ValueError("OpenRouteService response has no polygon geometry")
-    coordinates = geometry.get("coordinates")
-    if not isinstance(coordinates, list) or not coordinates:
-        raise ValueError("OpenRouteService polygon has no coordinates")

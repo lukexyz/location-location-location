@@ -515,3 +515,38 @@ Do not introduce a national ETL warehouse, published H3 catalogue, Cloudflare ro
 - Accessibility now has axe and keyboard coverage; stable visual contracts check responsive geometry, theme tokens, and reduced motion. Pages deployment remains a manual, public-demo-only action.
 - Real desktop/mobile browser tests caught issues unit tests did not, including hidden import errors, obscured map state, fixed chrome covering evidence, and accidental reuse of another project's Vite port.
 - `experiments/MUSINGS.md` is a frozen clean-room brief for an independent rebuild and should not inherit this implementation's output or later notes.
+
+## 2026-09-02 — Development Gameplan After Build Audit
+
+The public `main` branch remains a verified working checkpoint. A later local pass began the next bounded-research milestone but stopped mid-refactor, leaving a large uncommitted change set and one failing Python assertion. Preserve that work, but stabilise and review it before starting another feature or publishing it.
+
+### P1 — Make a real bounded run useful
+
+- Complete the single combined Overpass collection for cafés, betting shops, yoga, configurable premium grocers, and nearby green space without increasing the two-call cap.
+- Widen candidate discovery to city, town, suburb, village, and neighbourhood anchors, with deterministic nearby-anchor deduplication.
+- Make destinations, door-to-door limits, housing requirements, metric weights, and hard constraints reachable through the research CLI and visible in its pre-execution disclosure.
+- Resolve the remaining green-space distance contract, review brand matching and query-safety semantics, and deliberately retire or retain the superseded café-only entry points.
+- Run the complete Python, viewer, browser, accessibility, production-build, and deterministic-demo checks before making a milestone commit.
+
+### P2 — Close contract and explanation gaps
+
+- Make the repository JSON Schemas authoritative. Validate generated profile, evidence, manifest, and result files with `jsonschema`; keep cross-file and mathematical invariants in deterministic Python; prevent the browser validator from drifting from the same contracts.
+- Carry route-boundary geometry and its provider, retrieval time, departure-time, and traffic assumptions into the result contract the viewer actually imports, then render them on the map and in the dossier.
+- Show weighted contributions, add useful result sorting, and preserve missing-data and confidence explanations without requiring mental arithmetic.
+
+### P3 — Finish the product surface and project hygiene
+
+- Replace idle looping motion with state-driven feedback, improve very small evidence text, and keep reset/import recovery available on mobile.
+- Add Python tests and linting to CI, add the optional Claude skill pointer, and update documentation after the behaviour settles.
+- Commit by coherent milestone. Routine local progress need not be pushed; suggest a push at a substantial working checkpoint and otherwise wait for an explicit request.
+
+### Definition of done and deferred work
+
+Each milestone must leave the tree clean, generated demo output reproducible, private research artifacts untracked, provider calls previewed and capped, and the public viewer unable to upload imported results. Walking-network catchments, further playful readouts, and official-source adapters remain later modules. Do not revive the superseded national warehouse, hosted routing proxy, FastAPI companion, or central result store without evidence that the bounded local workflow needs them.
+
+### P1 completion note
+
+- The combined two-call run now discovers five settlement kinds and measures cafés, betting shops, yoga, configurable premium grocers, and green-space proximity in one bounded Overpass request. Straight-line catchments and green-space bounding-box distance remain explicit lower-confidence proxies.
+- Premium-grocer patterns are safe literal fragments matched within configured OSM shop types; yoga is matched as a semicolon-delimited OSM sport value. Nearby anchors are deduplicated deterministically by place significance.
+- CLI destinations, housing requirements, 0–5 metric importance, and hard limits now reach the validated profile. Each destination commute limit is checked against its matching researched journey rather than being collapsed into a misleading global minimum; missing journey evidence remains unknown with a warning under the v1 policy.
+- The older café-only command has been retired in favour of the preview-first research command. The fictional demo remains byte-identical after regeneration, and the milestone passes the complete Python, viewer, production-build, desktop/mobile browser, and accessibility checks.
