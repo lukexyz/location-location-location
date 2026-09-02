@@ -1051,6 +1051,69 @@
     }
   ],
   "generated_at": "2026-08-01T12:00:00+00:00",
+  "route_boundary": {
+    "departure_time": null,
+    "description": "Synthetic 65-minute commute boundary drawn by hand for the demo",
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            -0.42,
+            51.44
+          ],
+          [
+            -0.3,
+            51.4
+          ],
+          [
+            -0.1,
+            51.38
+          ],
+          [
+            0.08,
+            51.41
+          ],
+          [
+            0.14,
+            51.5
+          ],
+          [
+            0.1,
+            51.6
+          ],
+          [
+            -0.02,
+            51.68
+          ],
+          [
+            -0.2,
+            51.76
+          ],
+          [
+            -0.36,
+            51.77
+          ],
+          [
+            -0.44,
+            51.7
+          ],
+          [
+            -0.47,
+            51.58
+          ],
+          [
+            -0.42,
+            51.44
+          ]
+        ]
+      ],
+      "type": "Polygon"
+    },
+    "provider": "fixture",
+    "retrieved_at": "2026-08-01T12:00:00+00:00",
+    "traffic_treatment": "not modelled; fictional boundary",
+    "type": "fixture_polygon"
+  },
   "run_id": "demo-three-places",
   "schema_version": "1",
   "scoring_version": "1",

@@ -1,17 +1,18 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
-import { MapContainer, Marker, TileLayer, ZoomControl, useMap } from "react-leaflet";
+import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import type { CandidateResult } from "../types";
+import type { CandidateResult, RouteBoundary } from "../types";
 
 interface MapViewProps {
   candidates: CandidateResult[];
+  routeBoundary?: RouteBoundary;
   selectedId: string;
   onSelect: (id: string) => void;
 }
 
-export function MapView({ candidates, selectedId, onSelect }: MapViewProps) {
+export function MapView({ candidates, routeBoundary, selectedId, onSelect }: MapViewProps) {
   const first = candidates[0].location;
   return (
     <section className="map-field" aria-label="Candidate map">
@@ -26,7 +27,15 @@ export function MapView({ candidates, selectedId, onSelect }: MapViewProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="bottomright" />
-        <BoundsController candidates={candidates} />
+        {routeBoundary && (
+          <GeoJSON
+            key={routeBoundary.retrieved_at}
+            data={routeBoundary.geometry}
+            interactive={false}
+            style={{ color: "#b6ff73", weight: 2, opacity: 0.72, fillOpacity: 0.045, dashArray: "7 6" }}
+          />
+        )}
+        <BoundsController candidates={candidates} routeBoundary={routeBoundary} />
         <SelectionController candidates={candidates} selectedId={selectedId} />
         {candidates.map((candidate) => (
           <Marker
@@ -42,20 +51,27 @@ export function MapView({ candidates, selectedId, onSelect }: MapViewProps) {
       <div className="map-vignette" aria-hidden="true" />
       <div className="scan-line" aria-hidden="true" />
       <div className="map-feed-label" aria-hidden="true">
-        MAP FEED / OSM
+        MAP FEED / OSM {routeBoundary ? `/ LIMIT ${routeBoundary.provider.toUpperCase()}` : ""}
       </div>
     </section>
   );
 }
 
-function BoundsController({ candidates }: { candidates: CandidateResult[] }) {
+function BoundsController({
+  candidates,
+  routeBoundary,
+}: {
+  candidates: CandidateResult[];
+  routeBoundary?: RouteBoundary;
+}) {
   const map = useMap();
   useEffect(() => {
     const bounds = L.latLngBounds(
       candidates.map(({ location }) => [location.latitude, location.longitude]),
     );
+    if (routeBoundary) bounds.extend(L.geoJSON(routeBoundary.geometry).getBounds());
     map.fitBounds(bounds, { padding: [90, 90], maxZoom: 11, animate: false });
-  }, [candidates, map]);
+  }, [candidates, map, routeBoundary]);
   return null;
 }
 

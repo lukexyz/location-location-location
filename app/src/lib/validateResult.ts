@@ -11,6 +11,11 @@ export class ResultValidationError extends Error {
 
 export function parseResultBundle(input: unknown): ResearchResult {
   const result = record(input, "result bundle");
+  exactKeys(
+    result,
+    ["schema_version", "scoring_version", "run_id", "generated_at", "unknown_data_policy", "route_boundary", "candidates"],
+    "result bundle",
+  );
   if (result.schema_version !== "1") {
     throw new ResultValidationError(
       `Incompatible schema ${String(result.schema_version)}. This viewer requires schema 1.`,
@@ -18,9 +23,12 @@ export function parseResultBundle(input: unknown): ResearchResult {
   }
   string(result.scoring_version, "scoring_version");
   string(result.run_id, "run_id");
-  string(result.generated_at, "generated_at");
+  dateTime(result.generated_at, "generated_at");
   if (result.unknown_data_policy !== "warn") {
     throw new ResultValidationError("unknown_data_policy must be warn");
+  }
+  if (result.route_boundary !== undefined) {
+    validateRouteBoundary(result.route_boundary, "route_boundary");
   }
   const candidates = array(result.candidates, "candidates");
   if (candidates.length === 0) {
@@ -40,6 +48,15 @@ export function parseResultBundle(input: unknown): ResearchResult {
 function validateCandidate(value: unknown, index: number, ids: Set<string>): void {
   const path = `candidates[${index}]`;
   const candidate = record(value, path);
+  exactKeys(
+    candidate,
+    [
+      "id", "name", "place_kind", "location", "rank", "overall_score", "confidence",
+      "hard_constraints", "categories", "informational_metrics", "rail_summary",
+      "housing_summary", "street_care_summary", "missing_metrics", "warnings",
+    ],
+    path,
+  );
   const id = string(candidate.id, `${path}.id`);
   if (ids.has(id)) throw new ResultValidationError(`Duplicate candidate id: ${id}`);
   ids.add(id);
@@ -51,7 +68,7 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
       `${path}.place_kind`,
     );
   }
-  finite(candidate.rank, `${path}.rank`);
+  integer(candidate.rank, `${path}.rank`, 1);
   range(candidate.overall_score, `${path}.overall_score`, 0, 100);
   range(candidate.confidence, `${path}.confidence`, 0, 100);
   const location = record(candidate.location, `${path}.location`);
@@ -59,21 +76,37 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   range(location.longitude, `${path}.location.longitude`, -180, 180);
 
   const constraints = record(candidate.hard_constraints, `${path}.hard_constraints`);
+  exactKeys(constraints, ["passed", "results"], `${path}.hard_constraints`);
   boolean(constraints.passed, `${path}.hard_constraints.passed`);
   array(constraints.results, `${path}.hard_constraints.results`).forEach((item, itemIndex) => {
     const constraint = record(item, `${path}.hard_constraints.results[${itemIndex}]`);
+    exactKeys(
+      constraint,
+      ["metric", "destination_label", "operator", "value", "actual", "passed", "warning"],
+      `${path}.hard_constraints.results[${itemIndex}]`,
+    );
     string(constraint.metric, `${path}.constraint.metric`);
     if (constraint.destination_label !== undefined) {
       string(constraint.destination_label, `${path}.constraint.destination_label`);
     }
+    oneOf(constraint.operator, ["<=", ">="], `${path}.constraint.operator`);
+    finite(constraint.value, `${path}.constraint.value`);
+    if (constraint.actual !== null) finite(constraint.actual, `${path}.constraint.actual`);
     boolean(constraint.passed, `${path}.constraint.passed`);
+    if (constraint.warning !== undefined) string(constraint.warning, `${path}.constraint.warning`);
   });
 
   array(candidate.categories, `${path}.categories`).forEach((item, categoryIndex) => {
     const category = record(item, `${path}.categories[${categoryIndex}]`);
+    exactKeys(
+      category,
+      ["category", "score", "weight", "overall_contribution", "metrics"],
+      `${path}.categories[${categoryIndex}]`,
+    );
     string(category.category, `${path}.category.name`);
     range(category.score, `${path}.category.score`, 0, 100);
-    finite(category.weight, `${path}.category.weight`);
+    range(category.weight, `${path}.category.weight`, 0, 5);
+    range(category.overall_contribution, `${path}.category.overall_contribution`, 0, 100);
     array(category.metrics, `${path}.category.metrics`).forEach((metric, metricIndex) =>
       validateMetric(metric, `${path}.categories[${categoryIndex}].metrics[${metricIndex}]`),
     );
@@ -329,12 +362,21 @@ function validateRailSummary(value: unknown, path: string, candidateId: string):
 
 function validateMetric(value: unknown, path: string): void {
   const metric = record(value, path);
+  exactKeys(
+    metric,
+    [
+      "metric", "category", "raw_value", "unit", "normalized_score", "weight", "active",
+      "confidence", "evidence_id", "source", "source_url", "source_date",
+      "confidence_notes", "category_contribution",
+    ],
+    path,
+  );
   string(metric.metric, `${path}.metric`);
   string(metric.category, `${path}.category`);
   finite(metric.raw_value, `${path}.raw_value`);
   string(metric.unit, `${path}.unit`);
   range(metric.normalized_score, `${path}.normalized_score`, 0, 100);
-  finite(metric.weight, `${path}.weight`);
+  range(metric.weight, `${path}.weight`, 0, 5);
   boolean(metric.active, `${path}.active`);
   range(metric.confidence, `${path}.confidence`, 0, 1);
   string(metric.evidence_id, `${path}.evidence_id`);
@@ -342,6 +384,55 @@ function validateMetric(value: unknown, path: string): void {
   url(metric.source_url, `${path}.source_url`);
   string(metric.source_date, `${path}.source_date`);
   string(metric.confidence_notes, `${path}.confidence_notes`);
+  range(metric.category_contribution, `${path}.category_contribution`, 0, 100);
+}
+
+function validateRouteBoundary(value: unknown, path: string): void {
+  const boundary = record(value, path);
+  exactKeys(
+    boundary,
+    [
+      "type", "description", "duration_minutes", "travel_profile", "provider",
+      "departure_time", "traffic_treatment", "retrieved_at", "geometry_file", "geometry",
+    ],
+    path,
+  );
+  oneOf(boundary.type, ["isochrone", "fixture_polygon"], `${path}.type`);
+  if (boundary.description !== undefined) string(boundary.description, `${path}.description`);
+  if (boundary.duration_minutes !== undefined) {
+    const minutes = integer(boundary.duration_minutes, `${path}.duration_minutes`, 1);
+    if (minutes > 300) throw new ResultValidationError(`${path}.duration_minutes must be at most 300`);
+  }
+  if (boundary.travel_profile !== undefined) string(boundary.travel_profile, `${path}.travel_profile`);
+  string(boundary.provider, `${path}.provider`);
+  if (boundary.departure_time !== null) dateTime(boundary.departure_time, `${path}.departure_time`);
+  string(boundary.traffic_treatment, `${path}.traffic_treatment`);
+  dateTime(boundary.retrieved_at, `${path}.retrieved_at`);
+  if (boundary.geometry_file !== undefined) string(boundary.geometry_file, `${path}.geometry_file`);
+  validateBoundaryGeometry(boundary.geometry, `${path}.geometry`);
+}
+
+function validateBoundaryGeometry(value: unknown, path: string): void {
+  const geometry = record(value, path);
+  exactKeys(geometry, ["type", "coordinates"], path);
+  const kind = oneOf(geometry.type, ["Polygon", "MultiPolygon"], `${path}.type`);
+  const polygons = kind === "Polygon" ? [array(geometry.coordinates, `${path}.coordinates`)]
+    : array(geometry.coordinates, `${path}.coordinates`);
+  if (polygons.length === 0) throw new ResultValidationError(`${path} has no polygons`);
+  polygons.forEach((polygonValue, polygonIndex) => {
+    const polygon = array(polygonValue, `${path}.coordinates[${polygonIndex}]`);
+    if (polygon.length === 0) throw new ResultValidationError(`${path} polygon has no rings`);
+    polygon.forEach((ringValue, ringIndex) => {
+      const ring = array(ringValue, `${path}.ring[${ringIndex}]`);
+      if (ring.length < 4) throw new ResultValidationError(`${path} ring needs four positions`);
+      ring.forEach((positionValue, positionIndex) => {
+        const position = array(positionValue, `${path}.position[${positionIndex}]`);
+        if (position.length < 2) throw new ResultValidationError(`${path} position needs two numbers`);
+        range(position[0], `${path}.longitude`, -180, 180);
+        range(position[1], `${path}.latitude`, -90, 90);
+      });
+    });
+  });
 }
 
 function record(value: unknown, path: string): Record<string, unknown> {
@@ -349,6 +440,13 @@ function record(value: unknown, path: string): Record<string, unknown> {
     throw new ResultValidationError(`${path} must be an object`);
   }
   return value as Record<string, unknown>;
+}
+
+function exactKeys(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
+  const extras = Object.keys(value).filter((key) => !allowed.includes(key));
+  if (extras.length) {
+    throw new ResultValidationError(`${path} contains unsupported fields: ${extras.join(", ")}`);
+  }
 }
 
 function array(value: unknown, path: string): unknown[] {
@@ -416,6 +514,17 @@ function nullableString(value: unknown, path: string): void {
 
 function nullableRange(value: unknown, path: string, minimum: number, maximum: number): void {
   if (value !== null) range(value, path, minimum, maximum);
+}
+
+function dateTime(value: unknown, path: string): string {
+  const text = string(value, path);
+  if (
+    !/(Z|[+-]\d{2}:\d{2})$/.test(text)
+    || Number.isNaN(Date.parse(text))
+  ) {
+    throw new ResultValidationError(`${path} must be an ISO date-time with a timezone`);
+  }
+  return text;
 }
 
 function dateValue(value: unknown, path: string): Date {

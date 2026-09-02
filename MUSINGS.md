@@ -550,3 +550,10 @@ Each milestone must leave the tree clean, generated demo output reproducible, pr
 - Premium-grocer patterns are safe literal fragments matched within configured OSM shop types; yoga is matched as a semicolon-delimited OSM sport value. Nearby anchors are deduplicated deterministically by place significance.
 - CLI destinations, housing requirements, 0–5 metric importance, and hard limits now reach the validated profile. Each destination commute limit is checked against its matching researched journey rather than being collapsed into a misleading global minimum; missing journey evidence remains unknown with a warning under the v1 policy.
 - The older café-only command has been retired in favour of the preview-first research command. The fictional demo remains byte-identical after regeneration, and the milestone passes the complete Python, viewer, production-build, desktop/mobile browser, and accessibility checks.
+
+### P2 completion note
+
+- Draft 2020-12 JSON Schemas now gate every profile, evidence bundle, result, and provenance manifest before files are written. Local `$ref` resolution and date/URI format checks are deterministic; Python still owns cross-file provenance and mathematical invariants.
+- AJV runs only in the test toolchain to keep the browser's lightweight import validator aligned with the result schema. Parity coverage includes integer ranks, constraint operators, place kinds, contribution fields, and rejection of unexpected candidate data; AJV is absent from the production bundle.
+- Results now carry the route boundary that the viewer imports. The map draws it, fits it with the candidates, and the dossier exposes its provider, retrieval date, travel profile, departure assumption, and traffic treatment.
+- Category and metric contribution points are visible alongside scores. The register can be sorted by authoritative rank, suitability, confidence, or name while retaining the original rank numbers and hard-limit status.

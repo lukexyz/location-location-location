@@ -10,7 +10,7 @@
     "generated_at": {"type": "string", "format": "date-time"},
     "scoring_version": {"type": "string"},
     "tool_versions": {"type": "object", "additionalProperties": {"type": "string"}},
-    "geographic_coverage": {"type": "object"},
+    "geographic_coverage": {"$ref": "research-profile.schema.json#/$defs/route_boundary"},
     "request_ledger": {
       "type": "array",
       "items": {

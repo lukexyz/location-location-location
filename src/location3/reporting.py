@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__
+from .schema_validation import validate_schema_document
 from .validation import validate_provenance
 
 
@@ -51,6 +52,10 @@ def write_bundle(
         "evidence.json": evidence_bytes,
         "results.json": result_bytes,
     }
+    validate_schema_document(profile, "research-profile.schema.json")
+    validate_schema_document(evidence, "evidence.schema.json")
+    validate_schema_document(results, "research-result.schema.json")
+    validate_schema_document(manifest, "research-manifest.schema.json")
     validate_provenance(evidence, manifest, artifacts)
     (output / "profile.json").write_bytes(profile_bytes)
     (output / "evidence.json").write_bytes(evidence_bytes)

@@ -68,7 +68,15 @@ npm run dev
 
 The viewer starts with fictional data. Importing a `results.json` reads it only
 inside the current browser tab; it is not uploaded or stored. Map tiles remain an
-external network request.
+external network request. Compatible results include their route boundary and
+provider assumptions; the viewer draws that boundary, exposes weighted score
+contributions, and can sort the register without changing authoritative ranks.
+
+Every generated profile, evidence bundle, result, and provenance manifest is
+validated against the Draft 2020-12 contracts in `schemas/` before it is written.
+Python retains the cross-file and mathematical checks that JSON Schema cannot
+express. Browser contract-parity tests use AJV only during development; it is not
+included in the public viewer bundle.
 
 Run the viewer checks with:
 

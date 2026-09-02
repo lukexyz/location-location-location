@@ -4,6 +4,7 @@ import demoData from "./data/demo-results.json";
 import { Dossier } from "./components/Dossier";
 import { MapView } from "./components/MapView";
 import { RankedList } from "./components/RankedList";
+import type { SortMode } from "./components/RankedList";
 import { compactDate } from "./lib/format";
 import { parseResultBundle, ResultValidationError } from "./lib/validateResult";
 import type { LoadState, ResearchResult } from "./types";
@@ -14,14 +15,24 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 export default function App() {
   const [result, setResult] = useState<ResearchResult>(demoResult);
   const [selectedId, setSelectedId] = useState(demoResult.candidates[0].id);
+  const [sortMode, setSortMode] = useState<SortMode>("rank");
   const [loadState, setLoadState] = useState<LoadState>({
     kind: "demo",
     message: "Fictional demonstration data active",
   });
   const fileInput = useRef<HTMLInputElement>(null);
   const candidates = useMemo(
-    () => [...result.candidates].sort((left, right) => left.rank - right.rank),
-    [result],
+    () => [...result.candidates].sort((left, right) => {
+      if (sortMode === "name") return left.name.localeCompare(right.name);
+      if (sortMode === "score") {
+        return right.overall_score - left.overall_score || left.rank - right.rank;
+      }
+      if (sortMode === "confidence") {
+        return right.confidence - left.confidence || left.rank - right.rank;
+      }
+      return left.rank - right.rank;
+    }),
+    [result, sortMode],
   );
   const selected = candidates.find((candidate) => candidate.id === selectedId) ?? candidates[0];
 
@@ -52,7 +63,12 @@ export default function App() {
   return (
     <div className="app-shell">
       <a className="skip-link" href="#candidate-register">Skip to candidate results</a>
-      <MapView candidates={candidates} selectedId={selected.id} onSelect={setSelectedId} />
+      <MapView
+        candidates={candidates}
+        routeBoundary={result.route_boundary}
+        selectedId={selected.id}
+        onSelect={setSelectedId}
+      />
 
       <header className="instrument-header panel-cut">
         <div className="wordmark" aria-label="Location cubed">
@@ -106,8 +122,14 @@ export default function App() {
         tabIndex={-1}
         aria-label="Candidate results and evidence"
       >
-        <RankedList candidates={candidates} selectedId={selected.id} onSelect={setSelectedId} />
-        <Dossier candidate={selected} />
+        <RankedList
+          candidates={candidates}
+          selectedId={selected.id}
+          sortMode={sortMode}
+          onSort={setSortMode}
+          onSelect={setSelectedId}
+        />
+        <Dossier candidate={selected} routeBoundary={result.route_boundary} />
       </main>
 
       <footer className="status-rail">

@@ -11,6 +11,15 @@ test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await page.getByRole("button", { name: /Northbridge/ }).click();
   await expect(page.getByRole("heading", { name: "Northbridge" })).toBeVisible();
   await expect(page.locator(".score-marker.selected b")).toHaveText("73");
+  await expect(page.locator(".leaflet-overlay-pane path")).toHaveCount(1);
+});
+
+test("route assumptions and contribution points are inspectable", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Route boundary" })).toBeVisible();
+  await expect(page.getByText(/not modelled; fictional boundary/i)).toBeVisible();
+  await expect(page.getByText(/overall/i).first()).toBeVisible();
+  await page.locator(".metric-row").first().click();
+  await expect(page.getByText("Category points").first()).toBeVisible();
 });
 
 test("a local result can be imported and rejected without navigation", async ({ page }) => {

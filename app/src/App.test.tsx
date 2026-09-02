@@ -49,6 +49,24 @@ describe("viewer", () => {
     expect(screen.getByText("London last mile")).toBeInTheDocument();
   });
 
+  it("shows route assumptions and score contributions", () => {
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "Route boundary" })).toBeInTheDocument();
+    expect(screen.getByText(/not modelled; fictional boundary/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/overall/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Category points").length).toBeGreaterThan(0);
+  });
+
+  it("sorts the register without changing authoritative ranks", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByRole("combobox", { name: "Sort candidates" }), "name");
+    const candidates = screen.getAllByRole("button", { name: /within limits|outside hard limit/ });
+    expect(candidates[0]).toHaveAccessibleName(/Alder Green/);
+    expect(candidates[1]).toHaveAccessibleName(/Mereford/);
+    expect(candidates[1]).toHaveTextContent("03");
+  });
+
   it("labels market affordability separately from live listings", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Housing affordability" })).toBeInTheDocument();

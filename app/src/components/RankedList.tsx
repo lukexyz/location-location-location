@@ -5,10 +5,14 @@ import type { CandidateResult } from "../types";
 interface RankedListProps {
   candidates: CandidateResult[];
   selectedId: string;
+  sortMode: SortMode;
+  onSort: (mode: SortMode) => void;
   onSelect: (id: string) => void;
 }
 
-export function RankedList({ candidates, selectedId, onSelect }: RankedListProps) {
+export type SortMode = "rank" | "score" | "confidence" | "name";
+
+export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect }: RankedListProps) {
   const listRef = useRef<HTMLOListElement>(null);
 
   function moveFocus(index: number, key: string) {
@@ -29,7 +33,22 @@ export function RankedList({ candidates, selectedId, onSelect }: RankedListProps
           <span className="eyebrow">RESOLVED FIELD</span>
           <h2 id="rank-heading">Candidate register</h2>
         </div>
-        <span className="count-readout">{String(candidates.length).padStart(2, "0")}</span>
+        <div className="rank-controls">
+          <span className="count-readout">{String(candidates.length).padStart(2, "0")}</span>
+          <label>
+            <span>Sort</span>
+            <select
+              aria-label="Sort candidates"
+              value={sortMode}
+              onChange={(event) => onSort(event.currentTarget.value as SortMode)}
+            >
+              <option value="rank">Recommended</option>
+              <option value="score">Suitability</option>
+              <option value="confidence">Confidence</option>
+              <option value="name">Name</option>
+            </select>
+          </label>
+        </div>
       </div>
       <ol className="rank-list" ref={listRef}>
         {candidates.map((candidate, index) => {
@@ -62,7 +81,7 @@ export function RankedList({ candidates, selectedId, onSelect }: RankedListProps
         })}
       </ol>
       <div className="panel-footnote">
-        Ranked by hard-limit status, suitability, then confidence.
+        Original rank always reflects hard-limit status, suitability, then confidence.
       </div>
     </aside>
   );

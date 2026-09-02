@@ -3,6 +3,23 @@ export interface LocationPoint {
   longitude: number;
 }
 
+export type BoundaryGeometry =
+  | { type: "Polygon"; coordinates: number[][][] }
+  | { type: "MultiPolygon"; coordinates: number[][][][] };
+
+export interface RouteBoundary {
+  type: "isochrone" | "fixture_polygon";
+  description?: string;
+  duration_minutes?: number;
+  travel_profile?: string;
+  provider: string;
+  departure_time: string | null;
+  traffic_treatment: string;
+  retrieved_at: string;
+  geometry_file?: string;
+  geometry: BoundaryGeometry;
+}
+
 export interface ConstraintResult {
   metric: string;
   destination_label?: string;
@@ -201,6 +218,7 @@ export interface ResearchResult {
   run_id: string;
   generated_at: string;
   unknown_data_policy: "warn";
+  route_boundary?: RouteBoundary;
   candidates: CandidateResult[];
 }
 

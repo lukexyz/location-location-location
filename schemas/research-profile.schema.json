@@ -11,15 +11,24 @@
       "type": "object",
       "required": ["approximate_origin", "route_boundary", "housing", "destinations", "providers"],
       "properties": {
-        "approximate_origin": {"type": "object"},
-        "route_boundary": {"type": "object"},
-        "housing": {"type": "object"},
-        "destinations": {"type": "array"},
-        "providers": {"type": "object"}
-      }
+        "approximate_origin": {"$ref": "#/$defs/location"},
+        "route_boundary": {"$ref": "#/$defs/route_boundary"},
+        "housing": {"$ref": "#/$defs/housing"},
+        "destinations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/destination"}
+        },
+        "providers": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"minLength": 1},
+          "additionalProperties": {"type": "string", "minLength": 1}
+        }
+      },
+      "additionalProperties": false
     },
-    "weights": {"$ref": "#/$defs/weights"},
-    "category_weights": {"$ref": "#/$defs/weights"},
+    "weights": {"$ref": "#/$defs/metric_weights"},
+    "category_weights": {"$ref": "#/$defs/category_weights"},
     "unknown_data_policy": {"const": "warn"},
     "hard_constraints": {
       "type": "array",
@@ -27,7 +36,9 @@
         "type": "object",
         "required": ["metric", "operator", "value"],
         "properties": {
-          "metric": {"type": "string"},
+          "metric": {
+            "enum": ["door_to_door_commute", "housing_affordability", "street_care", "green_space", "betting_shops", "cafes", "yoga_studios", "premium_grocers"]
+          },
           "operator": {"enum": ["<=", ">="]},
           "value": {"type": "number"},
           "destination_label": {"type": "string", "minLength": 1}
@@ -37,10 +48,98 @@
     }
   },
   "$defs": {
-    "weights": {
+    "location": {
       "type": "object",
-      "minProperties": 1,
-      "additionalProperties": {"type": "number", "minimum": 0, "maximum": 5}
+      "required": ["latitude", "longitude", "precision"],
+      "properties": {
+        "latitude": {"type": "number", "minimum": -90, "maximum": 90},
+        "longitude": {"type": "number", "minimum": -180, "maximum": 180},
+        "precision": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {"enum": ["Polygon", "MultiPolygon"]},
+        "coordinates": {"type": "array", "minItems": 1}
+      },
+      "additionalProperties": false
+    },
+    "route_boundary": {
+      "type": "object",
+      "required": ["type", "provider", "departure_time", "traffic_treatment", "retrieved_at", "geometry"],
+      "properties": {
+        "type": {"enum": ["isochrone", "fixture_polygon"]},
+        "description": {"type": "string", "minLength": 1},
+        "duration_minutes": {"type": "integer", "minimum": 1, "maximum": 300},
+        "travel_profile": {"type": "string", "minLength": 1},
+        "provider": {"type": "string", "minLength": 1},
+        "departure_time": {"type": ["string", "null"], "format": "date-time"},
+        "traffic_treatment": {"type": "string", "minLength": 1},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "geometry_file": {"type": "string", "minLength": 1},
+        "geometry": {"$ref": "#/$defs/geometry"}
+      },
+      "additionalProperties": false
+    },
+    "housing": {
+      "oneOf": [
+        {"type": "object", "maxProperties": 0},
+        {
+          "type": "object",
+          "required": ["mode", "budget_gbp", "property_type", "bedrooms"],
+          "properties": {
+            "mode": {"enum": ["buy", "rent"]},
+            "budget_gbp": {"type": "number", "exclusiveMinimum": 0},
+            "property_type": {"type": "string", "minLength": 1},
+            "bedrooms": {"type": ["integer", "null"], "minimum": 0}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "destination": {
+      "type": "object",
+      "required": ["label", "travel_mode", "arrival", "max_minutes"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "travel_mode": {"enum": ["public_transport", "driving", "cycling", "walking"]},
+        "arrival": {"type": "string", "minLength": 1},
+        "max_minutes": {"type": ["integer", "null"], "minimum": 1, "maximum": 300}
+      },
+      "additionalProperties": false
+    },
+    "metric_weights": {
+      "type": "object",
+      "required": ["door_to_door_commute", "housing_affordability", "street_care", "green_space", "betting_shops", "cafes", "yoga_studios", "premium_grocers"],
+      "properties": {
+        "door_to_door_commute": {"$ref": "#/$defs/importance"},
+        "housing_affordability": {"$ref": "#/$defs/importance"},
+        "street_care": {"$ref": "#/$defs/importance"},
+        "green_space": {"$ref": "#/$defs/importance"},
+        "betting_shops": {"$ref": "#/$defs/importance"},
+        "cafes": {"$ref": "#/$defs/importance"},
+        "yoga_studios": {"$ref": "#/$defs/importance"},
+        "premium_grocers": {"$ref": "#/$defs/importance"}
+      },
+      "additionalProperties": false
+    },
+    "category_weights": {
+      "type": "object",
+      "required": ["essentials", "environment", "amenities"],
+      "properties": {
+        "essentials": {"$ref": "#/$defs/importance"},
+        "environment": {"$ref": "#/$defs/importance"},
+        "amenities": {"$ref": "#/$defs/importance"}
+      },
+      "additionalProperties": false
+    },
+    "importance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
     }
   },
   "additionalProperties": false

@@ -1,7 +1,13 @@
 import { compactDate, label, rawValue } from "../lib/format";
-import type { CandidateResult, HousingSummary, MetricResult, RailJourney, StreetCareSummary } from "../types";
+import type { CandidateResult, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
 
-export function Dossier({ candidate }: { candidate: CandidateResult }) {
+export function Dossier({
+  candidate,
+  routeBoundary,
+}: {
+  candidate: CandidateResult;
+  routeBoundary?: RouteBoundary;
+}) {
   const constraintStatus = candidate.hard_constraints.passed ? "CLEAR" : "LIMIT BREACH";
   return (
     <aside className="dossier panel-cut" aria-labelledby="dossier-heading">
@@ -41,12 +47,20 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
       </div>
 
       <div className="dossier-scroll">
+        {routeBoundary && <RouteBoundaryReadout boundary={routeBoundary} />}
+
         {candidate.hard_constraints.results.length > 0 && (
           <section className="constraint-block" aria-labelledby="constraints-heading">
             <h3 id="constraints-heading">Hard limits</h3>
             {candidate.hard_constraints.results.map((constraint) => (
-              <div className="constraint-row" key={constraint.metric}>
-                <span>{label(constraint.metric)}</span>
+              <div
+                className="constraint-row"
+                key={`${constraint.metric}:${constraint.destination_label ?? "all"}`}
+              >
+                <span>
+                  {label(constraint.metric)}
+                  {constraint.destination_label ? ` / ${constraint.destination_label}` : ""}
+                </span>
                 <strong className={constraint.passed ? "text-good" : "text-bad"}>
                   {constraint.actual ?? "unknown"} {constraint.operator} {constraint.value}
                 </strong>
@@ -85,7 +99,10 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
                 <span className="eyebrow">CATEGORY / WEIGHT {category.weight}</span>
                 <h3>{label(category.category)}</h3>
               </div>
-              <strong>{category.score.toFixed(1)}</strong>
+              <div className="category-result">
+                <strong>{category.score.toFixed(1)}</strong>
+                <span>+{category.overall_contribution.toFixed(2)} overall</span>
+              </div>
             </header>
             <div className="category-bar" aria-hidden="true">
               <span style={{ width: `${category.score}%` }} />
@@ -116,6 +133,27 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
         )}
       </div>
     </aside>
+  );
+}
+
+function RouteBoundaryReadout({ boundary }: { boundary: RouteBoundary }) {
+  return (
+    <section className="route-context" aria-labelledby="route-context-heading">
+      <header>
+        <div>
+          <span className="eyebrow">SEARCH ENVELOPE / {boundary.type.replaceAll("_", " ")}</span>
+          <h3 id="route-context-heading">Route boundary</h3>
+        </div>
+        <strong>{boundary.duration_minutes ? `${boundary.duration_minutes} min` : "FIXTURE"}</strong>
+      </header>
+      <dl>
+        <div><dt>Provider</dt><dd>{boundary.provider}</dd></div>
+        <div><dt>Retrieved</dt><dd>{compactDate(boundary.retrieved_at)}</dd></div>
+        <div><dt>Travel profile</dt><dd>{boundary.travel_profile ?? "not supplied"}</dd></div>
+        <div><dt>Departure</dt><dd>{boundary.departure_time ? compactDate(boundary.departure_time) : "not supplied"}</dd></div>
+      </dl>
+      <p>{boundary.traffic_treatment}</p>
+    </section>
   );
 }
 
@@ -276,6 +314,7 @@ function MetricRow({ metric }: { metric: MetricResult }) {
         <div className="metric-track"><span style={{ width: `${metric.normalized_score}%` }} /></div>
         <dl>
           <div><dt>Weight</dt><dd>{metric.active ? metric.weight : "informational"}</dd></div>
+          <div><dt>Category points</dt><dd>{metric.category_contribution.toFixed(2)}</dd></div>
           <div><dt>Confidence</dt><dd>{Math.round(metric.confidence * 100)}%</dd></div>
           <div><dt>Source date</dt><dd>{compactDate(metric.source_date)}</dd></div>
           <div><dt>Evidence</dt><dd><a href={metric.source_url} rel="noreferrer" target="_blank">{metric.source}</a></dd></div>

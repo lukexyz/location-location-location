@@ -73,6 +73,7 @@ def score_research(
         "run_id": profile["run_id"],
         "generated_at": generated_at,
         "unknown_data_policy": profile.get("unknown_data_policy", "warn"),
+        "route_boundary": deepcopy(profile["search"]["route_boundary"]),
         "candidates": scored,
     }
 
