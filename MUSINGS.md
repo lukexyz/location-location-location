@@ -557,3 +557,11 @@ Each milestone must leave the tree clean, generated demo output reproducible, pr
 - AJV runs only in the test toolchain to keep the browser's lightweight import validator aligned with the result schema. Parity coverage includes integer ranks, constraint operators, place kinds, contribution fields, and rejection of unexpected candidate data; AJV is absent from the production bundle.
 - Results now carry the route boundary that the viewer imports. The map draws it, fits it with the candidates, and the dossier exposes its provider, retrieval date, travel profile, departure assumption, and traffic treatment.
 - Category and metric contribution points are visible alongside scores. The register can be sorted by authoritative rank, suitability, confidence, or name while retaining the original rank numbers and hard-limit status.
+
+### P3 completion note
+
+- Idle motion is gone: the map scan line now runs once when the selected candidate or route boundary changes, stays invisible otherwise, and remains covered by the reduced-motion and single-pulse browser checks. Evidence, rail, housing, and street-care text no longer drops below roughly 0.6 rem, and the reset/import recovery control stays visible and clickable at mobile widths with a browser test for the recovery outcome.
+- A `Verify` workflow now runs on pushes and pull requests to `main`: ruff lint, the unittest suite, byte-identical demo regeneration, viewer unit tests, Playwright browser and accessibility tests, and the production build. Pages deployment stays manual and separate.
+- Ruff runs with its default rule set. Tests and entry-point scripts keep their intentional `sys.path` imports through per-file ignores, and formatting is deliberately not enforced because it would reformat most Python files without changing behaviour; adopt it as its own change if wanted.
+- Claude Code gets the same thin pointer as Codex at `.claude/skills/location-research/SKILL.md`; both defer to `skills/location-research/SKILL.md` so the research logic exists once.
+- Verified at this checkpoint: 43 Python tests, 23 viewer tests, 24 desktop and mobile browser tests, clean lint, reproducible demo, and the production build.

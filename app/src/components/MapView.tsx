@@ -49,7 +49,11 @@ export function MapView({ candidates, routeBoundary, selectedId, onSelect }: Map
         ))}
       </MapContainer>
       <div className="map-vignette" aria-hidden="true" />
-      <div className="scan-line" aria-hidden="true" />
+      <div
+        key={`${selectedId}:${routeBoundary?.retrieved_at ?? "no-boundary"}`}
+        className="scan-line active"
+        aria-hidden="true"
+      />
       <div className="map-feed-label" aria-hidden="true">
         MAP FEED / OSM {routeBoundary ? `/ LIMIT ${routeBoundary.provider.toUpperCase()}` : ""}
       </div>

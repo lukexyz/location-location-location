@@ -376,7 +376,7 @@ def validate_provenance(
 
 def _require(container: dict[str, Any], key: str, expected_type: Any) -> Any:
     value = container.get(key)
-    if isinstance(value, bool) and expected_type != bool:
+    if isinstance(value, bool) and expected_type is not bool:
         raise ValueError(f"{key} has the wrong type")
     if not isinstance(value, expected_type):
         raise ValueError(f"{key} has the wrong type or is missing")

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
@@ -30,6 +32,18 @@ test("a local result can be imported and rejected without navigation", async ({ 
   });
   await expect(page.getByRole("status")).toContainText("Incompatible schema 7");
   await expect(page).toHaveURL(/127\.0\.0\.1:43117/);
+});
+
+test("an imported result can be reset on desktop and mobile", async ({ page }) => {
+  await page.getByTestId("result-import").setInputFiles({
+    name: "local-results.json",
+    mimeType: "application/json",
+    buffer: readFileSync("src/data/demo-results.json"),
+  });
+  await expect(page.getByRole("button", { name: "RESET DEMO" })).toBeVisible();
+  await page.getByRole("button", { name: "RESET DEMO" }).click();
+  await expect(page.getByRole("button", { name: "RESET DEMO" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Alder Green" })).toBeVisible();
 });
 
 test("the instrument reflows without horizontal overflow", async ({ page }) => {

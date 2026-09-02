@@ -1,0 +1,57 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python scoring and research checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.6"
+      - name: Install locked dependencies
+        run: uv sync --frozen
+      - name: Lint
+        run: uvx ruff@0.15.0 check src scripts tests
+      - name: Run unit tests
+        run: uv run python -m unittest discover -s tests
+      - name: Confirm the public demo is reproducible
+        run: |
+          uv run python scripts/build_demo.py
+          git diff --exit-code -- app/src/data/demo-results.json
+
+  viewer:
+    name: Viewer unit, browser, and build checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run viewer unit tests
+        run: npm run test:web
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser and accessibility tests
+        run: npm run test:e2e
+      - name: Build public viewer
+        run: npm run build

@@ -7,6 +7,7 @@ Requires Python 3.11 or newer.
 ```powershell
 python scripts/run_fixture.py
 python -m unittest discover -s tests
+uvx ruff@0.15.0 check src scripts tests
 ```
 
 The demo writes a private, gitignored report to `research-runs/demo/report.html`.
@@ -24,7 +25,9 @@ Optional repeatable flags include `--destination
 "METRIC=VALUE"`; housing flags are also available. The preview discloses those
 choices, the configurable premium-grocer fragments, and the two-call ceiling.
 Set a local `ORS_API_KEY`, review the preview, then add `--execute`.
-Codex users can invoke the same workflow with `$location-research`.
+Codex users can invoke the same workflow with `$location-research`; Claude Code
+users can invoke it with `/location-research`. Both entry points defer to the
+single workflow in `skills/location-research/SKILL.md`.
 
 Preview a cited rail import for that run (no network or writes), then add
 `--execute` after review:
@@ -85,6 +88,10 @@ npm run test:web
 npm run test:e2e
 npm run build
 ```
+
+Pushes and pull requests to `main` run the **Verify** workflow: Python lint and
+unit tests, demo reproducibility, viewer unit tests, browser and accessibility
+tests, and the production build.
 
 The Pages deployment is deliberately manual. After selecting **GitHub Actions**
 as the repository's Pages source, run **Deploy viewer to Pages** from the Actions

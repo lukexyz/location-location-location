@@ -53,3 +53,10 @@ test("honours reduced-motion preferences", async ({ page }) => {
   );
   expect(durationMs).toBeLessThanOrEqual(0.01);
 });
+
+test("runs the scan as a single state pulse instead of an idle loop", async ({ page }) => {
+  const iterations = await page.locator(".scan-line").evaluate(
+    (element) => getComputedStyle(element).animationIterationCount,
+  );
+  expect(iterations).toBe("1");
+});
