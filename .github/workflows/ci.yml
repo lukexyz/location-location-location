@@ -32,7 +32,7 @@ jobs:
       - name: Confirm the public demo is reproducible
         run: |
           uv run python scripts/build_demo.py
-          git diff --exit-code -- app/src/data/demo-results.json
+          git diff --exit-code -- app/src/data/
 
   viewer:
     name: Viewer unit, browser, and build checks

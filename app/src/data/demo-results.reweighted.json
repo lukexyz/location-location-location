@@ -1,0 +1,1127 @@
+{
+  "candidates": [
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 26.15,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "welwyn-cafes",
+              "metric": "cafes",
+              "normalized_score": 62.75,
+              "raw_value": 4,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 12.9,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "welwyn-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 38.69,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 4.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 10.77,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "welwyn-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 9.96,
+          "score": 49.81,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 43.75,
+              "confidence": 0.8867,
+              "confidence_notes": "Personal audit is 12 days old",
+              "evidence_id": "welwyn-street-care-score",
+              "metric": "street_care",
+              "normalized_score": 87.5,
+              "raw_value": 87.5,
+              "source": "Private structured visit audit",
+              "source_date": "2026-07-20",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/schemas/street-care-research.schema.json",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 48.5,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "welwyn-garden-city",
+              "metric": "green_space",
+              "normalized_score": 97.0,
+              "raw_value": 3,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 27.68,
+          "score": 92.25,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 9.97,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "welwyn-central-rail-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 59.83,
+              "raw_value": 58,
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "minutes",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 75.21,
+              "confidence": 0.85,
+              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+              "evidence_id": "welwyn-housing-market-affordability",
+              "metric": "housing_affordability",
+              "normalized_score": 90.25,
+              "raw_value": 0.78,
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 42.59,
+          "score": 85.18,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 82.96,
+      "hard_constraints": {
+        "passed": true,
+        "results": [
+          {
+            "actual": 58,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": true,
+            "value": 65
+          }
+        ]
+      },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.78,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "welwyn-garden-city",
+          "confidence": 0.85,
+          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "2 km around Welwyn Garden City",
+            "radius_km": 2
+          },
+          "id": "welwyn-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 28,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 390000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 390000
+      },
+      "id": "welwyn-garden-city",
+      "informational_metrics": [
+        {
+          "active": false,
+          "category": "amenities",
+          "category_contribution": 0.0,
+          "confidence": 0.8,
+          "confidence_notes": "Synthetic POI example",
+          "evidence_id": "welwyn-betting",
+          "metric": "betting_shops",
+          "normalized_score": 100.0,
+          "raw_value": 0,
+          "source": "Synthetic LOCATION\u00b3 fixture",
+          "source_date": "2026-08-01",
+          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "unit": "count_15_min_walk",
+          "weight": 0.0
+        }
+      ],
+      "location": {
+        "latitude": 51.8032,
+        "longitude": -0.2077
+      },
+      "missing_metrics": [],
+      "name": "Welwyn Garden City",
+      "overall_score": 80.23,
+      "place_kind": "town",
+      "rail_summary": {
+        "fastest_total_minutes": 58,
+        "journeys": [
+          {
+            "access_minutes": 8,
+            "cancellation_percent": 2.0,
+            "candidate_id": "welwyn-garden-city",
+            "changes": 0,
+            "confidence": 0.9,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 7,
+            "id": "welwyn-central-rail",
+            "last_useful_departure": "2026-08-01T23:18:00+01:00",
+            "london_arrival_station": "London King's Cross",
+            "london_last_mile_minutes": 8,
+            "origin_station": "Welwyn Garden City",
+            "origin_station_crs": "WGC",
+            "primary": true,
+            "punctuality_percent": 90.1,
+            "scheduled_rail_minutes": 35,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 4,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 58
+          }
+        ],
+        "primary_journey_id": "welwyn-central-rail"
+      },
+      "rank": 1,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": 12,
+        "basis": "recent_visit_audit",
+        "components": [
+          {
+            "included": true,
+            "key": "litter",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "dog_fouling",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "graffiti",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "weeds_and_detritus",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "overflowing_bins",
+            "normalized_score": 75,
+            "raw_value": 3,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          },
+          {
+            "included": true,
+            "key": "overall_upkeep",
+            "normalized_score": 100,
+            "raw_value": 4,
+            "unit": "rating_0_to_4",
+            "weight": 0.166667
+          }
+        ],
+        "confidence": 0.8867,
+        "place": {
+          "candidate_id": "welwyn-garden-city",
+          "fly_tipping": {
+            "current_incidents_per_1000": 12,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 14,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "welwyn-street-care",
+          "local_authority": "Welwyn Hatfield",
+          "local_reports": {
+            "geographic_scope": "Welwyn Garden City example LSOA",
+            "median_resolution_days": 3,
+            "period_end": "2026-07-31",
+            "period_start": "2025-08-01",
+            "reports_per_1000": 8,
+            "scope_kind": "lsoa",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 local-report fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            },
+            "unresolved_percent": 12
+          },
+          "visit_audit": {
+            "audited_at": "2026-07-20",
+            "geographic_scope": "Welwyn Garden City centre walking loop",
+            "notes": "Synthetic recent visit audit for the public demonstration.",
+            "ratings": {
+              "dog_fouling": 4,
+              "graffiti": 3,
+              "litter": 4,
+              "overall_upkeep": 4,
+              "overflowing_bins": 3,
+              "weeds_and_detritus": 3
+            }
+          }
+        },
+        "score": 87.5
+      },
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory"
+      ]
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 35.69,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "hemel-cafes",
+              "metric": "cafes",
+              "normalized_score": 85.66,
+              "raw_value": 8,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 20.44,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "hemel-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 61.31,
+              "raw_value": 2,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 4.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 10.77,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "hemel-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 13.38,
+          "score": 66.9,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 30.67,
+              "confidence": 0.5,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "hemel-street-care-score",
+              "metric": "street_care",
+              "normalized_score": 61.34,
+              "raw_value": 61.34,
+              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 43.75,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "hemel-green",
+              "metric": "green_space",
+              "normalized_score": 87.5,
+              "raw_value": 8,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 22.33,
+          "score": 74.42,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 13.67,
+              "confidence": 0.93,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "hemel-central-rail-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 82.0,
+              "raw_value": 38,
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "minutes",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 56.94,
+              "confidence": 0.82,
+              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+              "evidence_id": "hemel-housing-market-affordability",
+              "metric": "housing_affordability",
+              "normalized_score": 68.33,
+              "raw_value": 0.95,
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 35.3,
+          "score": 70.61,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 77.63,
+      "hard_constraints": {
+        "passed": true,
+        "results": [
+          {
+            "actual": 38,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": true,
+            "value": 65
+          }
+        ]
+      },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.95,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "hemel-hempstead",
+          "confidence": 0.82,
+          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "2 km around Hemel Hempstead",
+            "radius_km": 2
+          },
+          "id": "hemel-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 22,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 475000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 475000
+      },
+      "id": "hemel-hempstead",
+      "informational_metrics": [
+        {
+          "active": false,
+          "category": "amenities",
+          "category_contribution": 0.0,
+          "confidence": 0.8,
+          "confidence_notes": "Synthetic POI example",
+          "evidence_id": "hemel-betting",
+          "metric": "betting_shops",
+          "normalized_score": 61.31,
+          "raw_value": 1,
+          "source": "Synthetic LOCATION\u00b3 fixture",
+          "source_date": "2026-08-01",
+          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "unit": "count_15_min_walk",
+          "weight": 0.0
+        }
+      ],
+      "location": {
+        "latitude": 51.7526,
+        "longitude": -0.4692
+      },
+      "missing_metrics": [],
+      "name": "Hemel Hempstead",
+      "overall_score": 71.01,
+      "place_kind": "town",
+      "rail_summary": {
+        "fastest_total_minutes": 38,
+        "journeys": [
+          {
+            "access_minutes": 5,
+            "cancellation_percent": 1.5,
+            "candidate_id": "hemel-hempstead",
+            "changes": 0,
+            "confidence": 0.93,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 5,
+            "id": "hemel-central-rail",
+            "last_useful_departure": "2026-08-01T23:42:00+01:00",
+            "london_arrival_station": "London Euston",
+            "london_last_mile_minutes": 6,
+            "origin_station": "Hemel Hempstead",
+            "origin_station_crs": "HML",
+            "primary": true,
+            "punctuality_percent": 92.4,
+            "scheduled_rail_minutes": 22,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 6,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 38
+          }
+        ],
+        "primary_journey_id": "hemel-central-rail"
+      },
+      "rank": 2,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": null,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 61.0,
+            "raw_value": 30,
+            "unit": "incidents_per_1000",
+            "weight": 0.2
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 40.0,
+            "raw_value": 20.0,
+            "unit": "percent_change",
+            "weight": 0.2
+          },
+          {
+            "included": false,
+            "key": "report_density",
+            "normalized_score": null,
+            "raw_value": 20,
+            "unit": "reports_per_1000",
+            "weight": 0
+          },
+          {
+            "included": true,
+            "key": "unresolved_reports",
+            "normalized_score": 70,
+            "raw_value": 30,
+            "unit": "percent",
+            "weight": 0.3
+          },
+          {
+            "included": true,
+            "key": "median_resolution_time",
+            "normalized_score": 67.14,
+            "raw_value": 8,
+            "unit": "days",
+            "weight": 0.3
+          }
+        ],
+        "confidence": 0.5,
+        "place": {
+          "candidate_id": "hemel-hempstead",
+          "fly_tipping": {
+            "current_incidents_per_1000": 30,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 25,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "hemel-street-care",
+          "local_authority": "Dacorum",
+          "local_reports": {
+            "geographic_scope": "Dacorum",
+            "median_resolution_days": 8,
+            "period_end": "2026-07-31",
+            "period_start": "2025-08-01",
+            "reports_per_1000": 20,
+            "scope_kind": "local_authority",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 local-report fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            },
+            "unresolved_percent": 30
+          },
+          "visit_audit": null
+        },
+        "score": 61.34
+      },
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory",
+        "Street-care score uses low-resolution proxies; visit audit recommended"
+      ]
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 40.37,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "maidenhead-cafes",
+              "metric": "cafes",
+              "normalized_score": 96.88,
+              "raw_value": 11,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 29.94,
+              "confidence": 0.75,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "maidenhead-yoga",
+              "metric": "yoga_studios",
+              "normalized_score": 89.82,
+              "raw_value": 4,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 4.0
+            },
+            {
+              "active": true,
+              "category": "amenities",
+              "category_contribution": 21.54,
+              "confidence": 0.8,
+              "confidence_notes": "Synthetic POI example",
+              "evidence_id": "maidenhead-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 86.14,
+              "raw_value": 3,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "count_15_min_walk",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 18.37,
+          "score": 91.84,
+          "weight": 2.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 22.27,
+              "confidence": 0.3,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "maidenhead-street-care-score",
+              "metric": "street_care",
+              "normalized_score": 44.55,
+              "raw_value": 44.55,
+              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "category": "environment",
+              "category_contribution": 36.25,
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic network-distance example",
+              "evidence_id": "maidenhead-green",
+              "metric": "green_space",
+              "normalized_score": 72.5,
+              "raw_value": 14,
+              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 17.56,
+          "score": 58.52,
+          "weight": 3.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 7.25,
+              "confidence": 0.84,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "maidenhead-central-rail-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 43.5,
+              "raw_value": 72,
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "unit": "minutes",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "category": "essentials",
+              "category_contribution": 82.71,
+              "confidence": 0.68,
+              "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+              "evidence_id": "maidenhead-housing-market-affordability",
+              "metric": "housing_affordability",
+              "normalized_score": 99.25,
+              "raw_value": 0.66,
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "source_date": "2026-08-01",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 44.98,
+          "score": 89.96,
+          "weight": 5.0
+        }
+      ],
+      "confidence": 71.83,
+      "hard_constraints": {
+        "passed": false,
+        "results": [
+          {
+            "actual": 72,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "passed": false,
+            "value": 65
+          }
+        ]
+      },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.66,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "maidenhead",
+          "confidence": 0.68,
+          "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "5 km around Maidenhead",
+            "radius_km": 5
+          },
+          "id": "maidenhead-housing-market",
+          "listing_search_url": null,
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 16,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 330000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 330000
+      },
+      "id": "maidenhead",
+      "informational_metrics": [
+        {
+          "active": false,
+          "category": "amenities",
+          "category_contribution": 0.0,
+          "confidence": 0.8,
+          "confidence_notes": "Synthetic POI example",
+          "evidence_id": "maidenhead-betting",
+          "metric": "betting_shops",
+          "normalized_score": 22.63,
+          "raw_value": 3,
+          "source": "Synthetic LOCATION\u00b3 fixture",
+          "source_date": "2026-08-01",
+          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "unit": "count_15_min_walk",
+          "weight": 0.0
+        }
+      ],
+      "location": {
+        "latitude": 51.5225,
+        "longitude": -0.7202
+      },
+      "missing_metrics": [],
+      "name": "Maidenhead",
+      "overall_score": 80.9,
+      "place_kind": "town",
+      "rail_summary": {
+        "fastest_total_minutes": 72,
+        "journeys": [
+          {
+            "access_minutes": 10,
+            "cancellation_percent": 4.5,
+            "candidate_id": "maidenhead",
+            "changes": 1,
+            "confidence": 0.84,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 10,
+            "id": "maidenhead-central-rail",
+            "last_useful_departure": "2026-08-01T22:54:00+01:00",
+            "london_arrival_station": "London Paddington",
+            "london_last_mile_minutes": 10,
+            "origin_station": "Maidenhead",
+            "origin_station_crs": "MAI",
+            "primary": true,
+            "punctuality_percent": 82.0,
+            "scheduled_rail_minutes": 42,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 2,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 72
+          }
+        ],
+        "primary_journey_id": "maidenhead-central-rail"
+      },
+      "rank": 3,
+      "street_care_summary": {
+        "assessment_date": "2026-08-01",
+        "audit_age_days": 243,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 49.0,
+            "raw_value": 45,
+            "unit": "incidents_per_1000",
+            "weight": 0.4
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 41.58,
+            "raw_value": 18.421052631578945,
+            "unit": "percent_change",
+            "weight": 0.6
+          }
+        ],
+        "confidence": 0.3,
+        "place": {
+          "candidate_id": "maidenhead",
+          "fly_tipping": {
+            "current_incidents_per_1000": 45,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 38,
+            "previous_period": "2023/24",
+            "reporting_basis": "customer reported incidents only",
+            "source": {
+              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+            }
+          },
+          "id": "maidenhead-street-care",
+          "local_authority": "Windsor and Maidenhead",
+          "local_reports": null,
+          "visit_audit": {
+            "audited_at": "2025-12-01",
+            "geographic_scope": "Maidenhead centre walking loop",
+            "notes": "Synthetic stale audit retained for transparency but excluded from scoring.",
+            "ratings": {
+              "dog_fouling": 4,
+              "graffiti": 4,
+              "litter": 4,
+              "overall_upkeep": 4,
+              "overflowing_bins": 4,
+              "weeds_and_detritus": 4
+            }
+          }
+        },
+        "score": 44.55
+      },
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory",
+        "Purchase comparable sample has fewer than 20 transactions",
+        "Street-care score uses low-resolution proxies; visit audit recommended",
+        "Local report resolution evidence unavailable",
+        "Fly-tipping source does not report all incidents",
+        "Personal street-care audit is stale and does not override proxies"
+      ]
+    }
+  ],
+  "generated_at": "2026-08-01T12:00:00+00:00",
+  "route_boundary": {
+    "departure_time": null,
+    "description": "Synthetic 65-minute commute envelope drawn by hand around three real towns for the demo",
+    "geometry": {
+      "coordinates": [
+        [
+          [
+            -0.86,
+            51.46
+          ],
+          [
+            -0.62,
+            51.38
+          ],
+          [
+            -0.3,
+            51.36
+          ],
+          [
+            0.02,
+            51.38
+          ],
+          [
+            0.15,
+            51.5
+          ],
+          [
+            0.1,
+            51.66
+          ],
+          [
+            -0.08,
+            51.86
+          ],
+          [
+            -0.34,
+            51.89
+          ],
+          [
+            -0.6,
+            51.84
+          ],
+          [
+            -0.8,
+            51.7
+          ],
+          [
+            -0.89,
+            51.56
+          ],
+          [
+            -0.86,
+            51.46
+          ]
+        ]
+      ],
+      "type": "Polygon"
+    },
+    "provider": "fixture",
+    "retrieved_at": "2026-08-01T12:00:00+00:00",
+    "traffic_treatment": "not modelled; fictional boundary",
+    "type": "fixture_polygon"
+  },
+  "run_id": "demo-three-places",
+  "schema_version": "1",
+  "scoring_version": "1",
+  "unknown_data_policy": "warn"
+}

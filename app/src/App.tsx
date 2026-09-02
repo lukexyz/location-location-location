@@ -5,8 +5,11 @@ import { Dossier } from "./components/Dossier";
 import { MapView } from "./components/MapView";
 import { RankedList } from "./components/RankedList";
 import type { SortMode } from "./components/RankedList";
+import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
 import { parseResultBundle, ResultValidationError } from "./lib/validateResult";
+import { deriveBaseline, orderWhatIf, scoreWhatIf, weightsDiffer } from "./lib/whatif";
+import type { WeightMap, WhatIfScore } from "./lib/whatif";
 import type { LoadState, ResearchResult } from "./types";
 
 const demoResult = parseResultBundle(demoData);
@@ -16,24 +19,35 @@ export default function App() {
   const [result, setResult] = useState<ResearchResult>(demoResult);
   const [selectedId, setSelectedId] = useState(demoResult.candidates[0].id);
   const [sortMode, setSortMode] = useState<SortMode>("rank");
+  const [weights, setWeights] = useState<WeightMap>({});
   const [loadState, setLoadState] = useState<LoadState>({
     kind: "demo",
     message: "Demonstration data active: real towns, synthetic evidence",
   });
   const fileInput = useRef<HTMLInputElement>(null);
-  const candidates = useMemo(
-    () => [...result.candidates].sort((left, right) => {
-      if (sortMode === "name") return left.name.localeCompare(right.name);
-      if (sortMode === "score") {
-        return right.overall_score - left.overall_score || left.rank - right.rank;
-      }
-      if (sortMode === "confidence") {
-        return right.confidence - left.confidence || left.rank - right.rank;
-      }
-      return left.rank - right.rank;
-    }),
-    [result, sortMode],
-  );
+  const baseline = useMemo(() => deriveBaseline(result), [result]);
+  const whatIfActive = weightsDiffer(weights, baseline);
+  const whatIf = useMemo(() => {
+    if (!whatIfActive) return undefined;
+    return new Map<string, WhatIfScore>(
+      result.candidates.map((candidate) => [candidate.id, scoreWhatIf(candidate, weights, baseline)]),
+    );
+  }, [result, weights, baseline, whatIfActive]);
+  const candidates = useMemo(() => {
+    const ordered = [...result.candidates];
+    if (sortMode === "name") return ordered.sort((left, right) => left.name.localeCompare(right.name));
+    if (sortMode === "confidence") {
+      return ordered.sort((left, right) => right.confidence - left.confidence || left.rank - right.rank);
+    }
+    if (whatIf) {
+      const position = new Map(orderWhatIf([...whatIf.values()]).map((score, index) => [score.id, index]));
+      return ordered.sort((left, right) => position.get(left.id)! - position.get(right.id)!);
+    }
+    if (sortMode === "score") {
+      return ordered.sort((left, right) => right.overall_score - left.overall_score || left.rank - right.rank);
+    }
+    return ordered.sort((left, right) => left.rank - right.rank);
+  }, [result, sortMode, whatIf]);
   const selected = candidates.find((candidate) => candidate.id === selectedId) ?? candidates[0];
 
   async function importResult(file: File | undefined) {
@@ -44,6 +58,7 @@ export default function App() {
       }
       const next = parseResultBundle(JSON.parse(await file.text()));
       setResult(next);
+      setWeights({});
       setSelectedId([...next.candidates].sort((a, b) => a.rank - b.rank)[0].id);
       setLoadState({ kind: "loaded", message: `${file.name} loaded in this tab only` });
     } catch (error) {
@@ -56,6 +71,7 @@ export default function App() {
 
   function restoreDemo() {
     setResult(demoResult);
+    setWeights({});
     setSelectedId(demoResult.candidates[0].id);
     setLoadState({ kind: "demo", message: "Demonstration data active: real towns, synthetic evidence" });
   }
@@ -114,6 +130,7 @@ export default function App() {
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         Selected candidate: {selected.name}, rank {selected.rank}, score {selected.overall_score.toFixed(1)}.
+        {whatIf ? ` What-if score ${whatIf.get(selected.id)!.overallScore.toFixed(1)}.` : ""}
       </p>
 
       <main
@@ -126,16 +143,29 @@ export default function App() {
           candidates={candidates}
           selectedId={selected.id}
           sortMode={sortMode}
+          whatIf={whatIf}
           onSort={setSortMode}
           onSelect={setSelectedId}
+        >
+          <TunePanel
+            baseline={baseline}
+            weights={weights}
+            onChange={setWeights}
+            onReset={() => setWeights({})}
+          />
+        </RankedList>
+        <Dossier
+          candidate={selected}
+          routeBoundary={result.route_boundary}
+          whatIf={whatIf?.get(selected.id)}
         />
-        <Dossier candidate={selected} routeBoundary={result.route_boundary} />
       </main>
 
       <footer className="status-rail">
         <span><i className="status-light" /> VIEWER READY</span>
         <span>SCHEMA {result.schema_version} / SCORE {result.scoring_version}</span>
         <span>RESOLVED {compactDate(result.generated_at).toUpperCase()}</span>
+        {whatIf && <span className="whatif-readout">WHAT-IF PREVIEW · RESEARCHED RANKS RETAINED</span>}
         <span className="privacy-readout">LOCAL READ · NO RESULT UPLOAD · MAP TILES REMOTE</span>
       </footer>
     </div>

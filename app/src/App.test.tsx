@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -105,5 +105,23 @@ describe("viewer", () => {
     const file = new File(['{"schema_version":"2"}'], "old-results.json", { type: "application/json" });
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText(/Incompatible schema 2/)).toBeInTheDocument();
+  });
+
+  it("tunes importance as a labelled what-if without changing researched ranks", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.getByText("RESEARCHED WEIGHTS")).toBeInTheDocument();
+    const commute = screen.getByLabelText(/Door-to-door commute/);
+    fireEvent.change(commute, { target: { value: "0" } });
+    const cafes = screen.getByLabelText(/Cafés/);
+    fireEvent.change(cafes, { target: { value: "5" } });
+    expect(screen.getByText("WHAT-IF ACTIVE")).toBeInTheDocument();
+    expect(screen.getByText(/WHAT-IF PREVIEW/)).toBeInTheDocument();
+    const entries = screen.getAllByRole("button", { name: /within limits|outside hard limit/ });
+    expect(entries.map((entry) => entry.querySelector(".rank-number")!.textContent).sort()).toEqual(["01", "02", "03"]);
+    expect(entries[0]).toHaveTextContent(/researched/);
+    await user.click(screen.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }));
+    expect(screen.getByText("RESEARCHED WEIGHTS")).toBeInTheDocument();
+    expect(screen.queryByText(/WHAT-IF PREVIEW/)).not.toBeInTheDocument();
   });
 });

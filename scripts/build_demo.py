@@ -16,6 +16,17 @@ from location3.scoring import score_research  # noqa: E402
 from location3.street_care import merge_street_care_research  # noqa: E402
 
 
+# Importance used for the what-if parity fixture: a café-led, commute-light profile that
+# demotes betting shops to an informational metric.
+REWEIGHTED_IMPORTANCE = {
+    "cafes": 5,
+    "door_to_door_commute": 1,
+    "betting_shops": 0,
+    "yoga_studios": 4,
+    "premium_grocers": 3,
+}
+
+
 def main() -> int:
     profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
     evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
@@ -32,9 +43,24 @@ def main() -> int:
     results = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
     output = ROOT / "app/src/data/demo-results.json"
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(results, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"Wrote public fictional demo to {output}")
+    _write(output, results)
+    print(f"Wrote public demo to {output}")
+
+    # A second scoring of the same evidence with different importance. The viewer's
+    # what-if reweighting is tested against it so the browser arithmetic cannot
+    # drift from this scorer.
+    reweighted_profile = json.loads(json.dumps(profile))
+    reweighted_profile["weights"].update(REWEIGHTED_IMPORTANCE)
+    reweighted = score_research(reweighted_profile, evidence, "2026-08-01T12:00:00+00:00")
+    reweighted_output = ROOT / "app/src/data/demo-results.reweighted.json"
+    _write(reweighted_output, reweighted)
+    print(f"Wrote reweighted parity fixture to {reweighted_output}")
     return 0
+
+
+def _write(path: Path, payload: dict) -> None:
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":

@@ -99,7 +99,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, .leaflet-marker-ic
 .score-dial { --score: 0; position: relative; width: 76px; height: 76px; flex: 0 0 auto; display: grid; place-content: center; text-align: center; border-radius: 50%; background: radial-gradient(circle at center, #111817 54%, transparent 56%), conic-gradient(var(--acid) calc(var(--score) * 1%), rgba(185, 213, 193, .14) 0); box-shadow: 0 0 26px rgba(189, 255, 120, .12), inset 0 0 18px #050706; }
 .score-dial.failed { background: radial-gradient(circle at center, #111817 54%, transparent 56%), conic-gradient(var(--danger) calc(var(--score) * 1%), rgba(185, 213, 193, .14) 0); }
 .score-dial strong, .score-dial span { display: block; }.score-dial strong { font: 1.15rem Consolas, monospace; }.score-dial span { color: var(--muted); font-size: .48rem; letter-spacing: .18em; }
-.instrument-strip { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); background: rgba(0, 0, 0, .18); }
+.instrument-strip { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); border: 1px solid var(--line); background: rgba(0, 0, 0, .18); }
 .readout { padding: .6rem; border-right: 1px solid var(--line); }.readout:last-child { border: 0; }
 .readout span, .readout strong { display: block; }.readout span { color: var(--muted); font-size: .5rem; letter-spacing: .14em; text-transform: uppercase; }.readout strong { margin-top: .25rem; font: .68rem Consolas, monospace; }.readout.good strong { color: var(--acid); }.readout.bad strong { color: var(--danger); }
 .confidence-track, .category-bar, .metric-track { overflow: hidden; background: rgba(166, 195, 174, .12); }
@@ -188,3 +188,20 @@ button:focus-visible, summary:focus-visible, a:focus-visible, .leaflet-marker-ic
 .readout-grid small { color: var(--muted); font: .6rem/1.4 Consolas, monospace; overflow-wrap: anywhere; }
 .readout-grid li.is-empty strong { color: var(--muted); font-style: italic; }
 .readout-footnote { margin: .5rem 0 0; color: var(--muted); font: .6rem/1.4 Consolas, monospace; }
+
+/* What-if tuning: a preview that never rewrites the researched bundle. */
+.tune-panel { margin: 0 .75rem .35rem; border: 1px solid var(--line); background: rgba(0, 0, 0, .16); }
+.tune-panel summary { display: flex; justify-content: space-between; gap: .8rem; padding: .55rem .7rem; cursor: pointer; list-style: none; font: .6rem Consolas, monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.tune-panel summary::-webkit-details-marker { display: none; }
+.tune-panel summary b { color: var(--muted); font-weight: normal; }.tune-panel.active summary b { color: var(--amber); }
+.tune-note { margin: 0; padding: 0 .7rem .5rem; color: var(--muted); font: .6rem/1.45 Consolas, monospace; }
+.tune-grid { display: grid; gap: .35rem; padding: 0 .7rem .6rem; }
+.tune-row { display: grid; grid-template-columns: minmax(0, 1fr) 6.5rem 1.6rem; align-items: center; gap: .5rem; }
+.tune-row label { display: grid; min-width: 0; }.tune-row label span { font-size: .64rem; text-transform: uppercase; letter-spacing: .06em; }
+.tune-row label small { color: var(--muted); font: .56rem Consolas, monospace; text-transform: uppercase; }
+.tune-row input[type="range"] { width: 100%; min-height: 24px; accent-color: var(--acid); }
+.tune-row output { text-align: right; font: .78rem Consolas, monospace; color: var(--ink); }.tune-row output.changed { color: var(--amber); }
+.tune-panel .utility-button { margin: 0 .7rem .7rem; }
+.rank-score.whatif { color: var(--amber); }
+.whatif-readout { color: var(--amber); }
+.readout.preview strong { color: var(--amber); }

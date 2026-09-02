@@ -74,3 +74,17 @@ test("playful readouts restate cited evidence", async ({ page }) => {
   await expect(page.getByText("Readouts restate cited evidence; they add nothing to the score.")).toBeVisible();
   await expect(page.getByText("no evidence")).toHaveCount(0);
 });
+
+test("importance sliders preview a what-if order while researched ranks stay put", async ({ page }) => {
+  await page.getByText("Tune importance").click();
+  await page.getByLabel(/Door-to-door commute/).fill("0");
+  await page.getByLabel(/Cafés/).fill("5");
+  await expect(page.getByText("WHAT-IF ACTIVE")).toBeVisible();
+  await expect(page.getByText("WHAT-IF ORDER")).toBeVisible();
+  const numbers = await page.locator(".rank-number").allTextContents();
+  expect([...numbers].sort()).toEqual(["01", "02", "03"]);
+  await expect(page.locator(".rank-score.whatif")).toHaveCount(3);
+  await page.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }).click();
+  await expect(page.getByText("RESEARCHED WEIGHTS")).toBeVisible();
+  await expect(page.locator(".rank-score.whatif")).toHaveCount(0);
+});

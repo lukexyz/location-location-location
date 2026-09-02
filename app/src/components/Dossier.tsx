@@ -1,13 +1,16 @@
 import { compactDate, label, rawValue } from "../lib/format";
 import { deriveReadouts } from "../lib/readouts";
+import type { WhatIfScore } from "../lib/whatif";
 import type { CandidateResult, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
 
 export function Dossier({
   candidate,
   routeBoundary,
+  whatIf,
 }: {
   candidate: CandidateResult;
   routeBoundary?: RouteBoundary;
+  whatIf?: WhatIfScore;
 }) {
   const constraintStatus = candidate.hard_constraints.passed ? "CLEAR" : "LIMIT BREACH";
   return (
@@ -34,6 +37,13 @@ export function Dossier({
         <Readout label="Constraint" value={constraintStatus} tone={candidate.hard_constraints.passed ? "good" : "bad"} />
         <Readout label="Confidence" value={`${candidate.confidence.toFixed(0)}%`} />
         <Readout label="Evidence" value={`${metricCount(candidate)} pts`} />
+        {whatIf && (
+          <Readout
+            label="What-if"
+            value={`${whatIf.overallScore.toFixed(1)} · ${whatIf.confidence.toFixed(0)}%`}
+            tone="preview"
+          />
+        )}
       </div>
 
       <div
@@ -340,7 +350,7 @@ function MetricRow({ metric }: { metric: MetricResult }) {
   );
 }
 
-function Readout({ label: title, value, tone }: { label: string; value: string; tone?: "good" | "bad" }) {
+function Readout({ label: title, value, tone }: { label: string; value: string; tone?: "good" | "bad" | "preview" }) {
   return <div className={`readout ${tone ?? ""}`}><span>{title}</span><strong>{value}</strong></div>;
 }
 

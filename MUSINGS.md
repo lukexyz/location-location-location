@@ -613,3 +613,9 @@ The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 202
 ### P5 completion note
 
 - Six playful readouts sit at the top of the dossier: Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, and Pavement Pride. They are derived in the viewer from fields already in the result, render "no evidence" instead of a value when the evidence is missing, and unit tests prove they leave the result untouched.
+
+### P6 completion note
+
+- `whatif.ts` reproduces the scorer's category means, weighted overall, confidence, and contribution arithmetic, including Python's round-half-to-even on exact binary ties. Parity is proven against the demo bundle at its researched weights and against a second Python scoring of the same evidence with different importance, which `build_demo.py` now emits and CI keeps reproducible.
+- The register hosts a Tune importance panel. While a what-if is active the order and bright scores are the preview, rank numbers and the dossier dial remain the researched result, the footer and eyebrow say so, and one control restores the researched weights. Importing a bundle resets any preview.
+- Metrics that were never observed anywhere in a bundle cannot be tuned, because their category weight is unknown; metrics missing for one place reduce that place's what-if confidence exactly as the scorer would.

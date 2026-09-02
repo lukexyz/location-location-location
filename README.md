@@ -80,6 +80,12 @@ inside the current browser tab; it is not uploaded or stored. Map tiles remain a
 external network request. Compatible results include their route boundary and
 provider assumptions; the viewer draws that boundary, exposes weighted score
 contributions, and can sort the register without changing authoritative ranks.
+The **Tune importance** panel previews a what-if: sliders reweight the metrics in
+the browser using the same arithmetic as the Python scorer, the order and bright
+scores update, and the researched rank numbers stay in place. Evidence is never
+re-measured; rerun the research to make new importance authoritative. The parity
+of that arithmetic is tested against `demo-results.reweighted.json`, a second
+scoring that `scripts/build_demo.py` writes from the same fixture.
 
 Every generated profile, evidence bundle, result, and provenance manifest is
 validated against the Draft 2020-12 contracts in `schemas/` before it is written.

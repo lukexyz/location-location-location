@@ -1,18 +1,22 @@
 import { useRef } from "react";
+import type { ReactNode } from "react";
 
+import type { WhatIfScore } from "../lib/whatif";
 import type { CandidateResult } from "../types";
 
 interface RankedListProps {
   candidates: CandidateResult[];
   selectedId: string;
   sortMode: SortMode;
+  whatIf?: Map<string, WhatIfScore>;
   onSort: (mode: SortMode) => void;
   onSelect: (id: string) => void;
+  children?: ReactNode;
 }
 
 export type SortMode = "rank" | "score" | "confidence" | "name";
 
-export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect }: RankedListProps) {
+export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, onSelect, children }: RankedListProps) {
   const listRef = useRef<HTMLOListElement>(null);
 
   function moveFocus(index: number, key: string) {
@@ -30,7 +34,7 @@ export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect 
     <aside className="rank-panel panel-cut" aria-labelledby="rank-heading">
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">RESOLVED FIELD</span>
+          <span className="eyebrow">{whatIf ? "WHAT-IF ORDER" : "RESOLVED FIELD"}</span>
           <h2 id="rank-heading">Candidate register</h2>
         </div>
         <div className="rank-controls">
@@ -42,7 +46,7 @@ export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect 
               value={sortMode}
               onChange={(event) => onSort(event.currentTarget.value as SortMode)}
             >
-              <option value="rank">Recommended</option>
+              <option value="rank">{whatIf ? "What-if" : "Recommended"}</option>
               <option value="score">Suitability</option>
               <option value="confidence">Confidence</option>
               <option value="name">Name</option>
@@ -50,9 +54,11 @@ export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect 
           </label>
         </div>
       </div>
+      {children}
       <ol className="rank-list" ref={listRef}>
         {candidates.map((candidate, index) => {
           const selected = selectedId === candidate.id;
+          const preview = whatIf?.get(candidate.id);
           return (
             <li key={candidate.id}>
               <button
@@ -72,16 +78,21 @@ export function RankedList({ candidates, selectedId, sortMode, onSort, onSelect 
                   <strong>{candidate.name}</strong>
                   <small>
                     {candidate.hard_constraints.passed ? "within limits" : "outside hard limit"}
+                    {preview ? ` · researched ${candidate.overall_score.toFixed(1)}` : ""}
                   </small>
                 </span>
-                <span className="rank-score">{candidate.overall_score.toFixed(1)}</span>
+                <span className={`rank-score${preview ? " whatif" : ""}`}>
+                  {(preview ? preview.overallScore : candidate.overall_score).toFixed(1)}
+                </span>
               </button>
             </li>
           );
         })}
       </ol>
       <div className="panel-footnote">
-        Original rank always reflects hard-limit status, suitability, then confidence.
+        {whatIf
+          ? "Rank numbers stay researched; the order and bright scores are a what-if preview."
+          : "Original rank always reflects hard-limit status, suitability, then confidence."}
       </div>
     </aside>
   );
