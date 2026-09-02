@@ -168,6 +168,13 @@ def build_search_profile(
     for destination in parsed_destinations:
         if destination["max_minutes"] is None:
             continue
+        if destination["travel_mode"] != "public_transport":
+            raise ValueError(
+                f"{destination['label']}: a door-to-door limit cannot be evaluated for a "
+                f"{destination['travel_mode']} destination in v1 because commute evidence "
+                "comes only from the cited rail import; give MAX_MINUTES to public_transport "
+                "destinations only"
+            )
         hard_constraints.append({
             "metric": "door_to_door_commute",
             "operator": "<=",

@@ -38,6 +38,19 @@ describe("browser and JSON Schema contract parity", () => {
       const constraints = hard.results as Array<Record<string, unknown>>;
       constraints[0].operator = "=";
     }],
+    ["invalid constraint status", (candidate: Record<string, unknown>) => {
+      const hard = candidate.hard_constraints as Record<string, unknown>;
+      const constraints = hard.results as Array<Record<string, unknown>>;
+      constraints[0].status = "maybe";
+    }],
+    ["boolean constraint verdict from the old contract", (candidate: Record<string, unknown>) => {
+      const hard = candidate.hard_constraints as Record<string, unknown>;
+      delete hard.status;
+      hard.passed = true;
+    }],
+    ["missing coverage", (candidate: Record<string, unknown>) => {
+      delete candidate.score_coverage_percent;
+    }],
   ])("rejects %s in both validators", (_name, mutate) => {
     const invalid = structuredClone(demoData) as unknown as Record<string, unknown>;
     const candidates = invalid.candidates as Array<Record<string, unknown>>;

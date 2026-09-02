@@ -124,7 +124,13 @@ def _render_html(results: dict[str, Any]) -> str:
             f"{metric['raw_value']} {escape(metric['unit'])} (informational)</li>"
             for metric in candidate["informational_metrics"]
         )
-        status = "PASS" if candidate["hard_constraints"]["passed"] else "OUTSIDE LIMIT"
+        status = {
+            "pass": "PASS", "unknown": "LIMIT UNVERIFIED", "fail": "OUTSIDE LIMIT",
+        }[candidate["hard_constraints"]["status"]]
+        unmeasured = "".join(
+            f"<li>Unmeasured: {escape(item['category'].title())} (weight {item['weight']:g})</li>"
+            for item in candidate["unmeasured_categories"]
+        )
         warnings = "".join(f"<li>{escape(item)}</li>" for item in candidate["warnings"])
         warning_details = (
             f"<details><summary>Warnings</summary><ul>{warnings}</ul></details>"
@@ -136,8 +142,9 @@ def _render_html(results: dict[str, Any]) -> str:
               <div class="rank">#{candidate['rank']}</div>
               <h2>{escape(candidate['name'])}</h2>
               <div class="score">{candidate['overall_score']:.1f}</div>
-              <p>{status} · confidence {candidate['confidence']:.0f}%</p>
+              <p>{status} · confidence {candidate['confidence']:.0f}% · coverage {candidate['score_coverage_percent']:.0f}%</p>
               {''.join(categories)}
+              {f'<ul class="warn">{unmeasured}</ul>' if unmeasured else ''}
               {f'<ul>{informational}</ul>' if informational else ''}
               {warning_details}
             </article>"""
@@ -155,7 +162,7 @@ def _render_html(results: dict[str, Any]) -> str:
     main {{ display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }}
     article {{ position: relative; padding: 1rem; border: 1px solid #48604d; background: #111918; overflow: auto; }}
     h1, h2 {{ letter-spacing: .08em; }} .rank {{ color: #8aa88f; }}
-    .score {{ font-size: 3rem; color: #b6ff73; }} li {{ margin: .4rem 0; }}
+    .score {{ font-size: 3rem; color: #b6ff73; }} li {{ margin: .4rem 0; }} .warn {{ color: #ffc766; }}
     details {{ margin: .75rem 0; }} table {{ width: 100%; border-collapse: collapse; font-size: .75rem; }}
     th, td {{ padding: .35rem; text-align: left; border-bottom: 1px solid #293b2d; }}
   </style>

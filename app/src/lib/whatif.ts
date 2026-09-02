@@ -1,4 +1,4 @@
-import type { CandidateResult, MetricResult, ResearchResult } from "../types";
+import type { CandidateResult, ConstraintStatus, MetricResult, ResearchResult } from "../types";
 
 /**
  * What-if reweighting mirrors the Python scorer's arithmetic so a person can
@@ -34,8 +34,14 @@ export interface WhatIfScore {
   confidence: number;
   categories: WhatIfCategory[];
   missingMetrics: string[];
-  passed: boolean;
+  /** Weighted categories with no evidence at the previewed importance. */
+  unmeasuredCategories: string[];
+  /** Share of the intended category weight the preview score actually covers. */
+  coveragePercent: number;
+  constraintStatus: ConstraintStatus;
 }
+
+const CONSTRAINT_RANK: Record<ConstraintStatus, number> = { pass: 2, unknown: 1, fail: 0 };
 
 export const MAX_WEIGHT = 5;
 
@@ -54,6 +60,9 @@ export function deriveBaseline(result: ResearchResult): TuningBaseline {
   for (const candidate of result.candidates) {
     for (const category of candidate.categories) {
       categoryWeights[category.category] = category.weight;
+    }
+    for (const item of candidate.unmeasured_categories) {
+      categoryWeights[item.category] = item.weight;
     }
     for (const metric of presentMetrics(candidate)) {
       metricCategories[metric.metric] = metric.category;
@@ -141,20 +150,36 @@ export function scoreWhatIf(
   }
   const confidence = possibleConfidence ? availableConfidence / possibleConfidence : 1;
 
+  // Categories the preview weights but that have no tunable evidence stay visible,
+  // exactly as the scorer reports them, instead of vanishing from the arithmetic.
+  const measured = new Set(categories.map((category) => category.category));
+  const unmeasuredCategories = Object.keys(baseline.categoryWeights).sort().filter((category) =>
+    !measured.has(category)
+    && baseline.categoryWeights[category] > 0
+    && baseline.metrics.some((key) =>
+      baseline.metricCategories[key] === category
+      && clampWeight(weights[key] ?? baseline.metricWeights[key] ?? 0) > 0),
+  );
+  const intendedWeight = totalCategoryWeight
+    + unmeasuredCategories.reduce((total, category) => total + baseline.categoryWeights[category], 0);
+  const coveragePercent = intendedWeight ? round2(100 * totalCategoryWeight / intendedWeight) : 100;
+
   return {
     id: candidate.id,
     overallScore: round2(overall),
     confidence: round2(confidence * 100),
     categories,
     missingMetrics: missingMetrics.sort(),
-    passed: candidate.hard_constraints.passed,
+    unmeasuredCategories,
+    coveragePercent,
+    constraintStatus: candidate.hard_constraints.status,
   };
 }
 
 /** Order what-if scores the way the Python scorer ranks: limits, suitability, confidence. */
 export function orderWhatIf(scores: WhatIfScore[]): WhatIfScore[] {
   return [...scores].sort((left, right) =>
-    Number(right.passed) - Number(left.passed)
+    CONSTRAINT_RANK[right.constraintStatus] - CONSTRAINT_RANK[left.constraintStatus]
     || right.overallScore - left.overallScore
     || right.confidence - left.confidence,
   );

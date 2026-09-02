@@ -68,9 +68,9 @@ and never claims a property exists because an area looks affordable.
 | Part | What it tells you |
 | --- | --- |
 | **Map** | Route envelope, numbered score pins, the selected place. OpenStreetMap basemap with visible attribution. |
-| **Candidate register** | Researched rank, hard-limit status, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
+| **Candidate register** | Researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
 | **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |
-| **Evidence dossier** | Overall fit, confidence, hard limits, playful readouts, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, source, and date. |
+| **Evidence dossier** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, source, and date. |
 | **Playful readouts** | Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, Pavement Pride. Restatements of cited evidence that add nothing to the score and say "no evidence" when there is none. |
 | **Status rail** | Schema and scoring versions, resolution date, and the privacy readout: local read, no upload, map tiles remote. |
 

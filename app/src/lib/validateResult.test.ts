@@ -10,7 +10,7 @@ describe("parseResultBundle", () => {
 
   it("rejects incompatible schema versions with a useful message", () => {
     expect(() => parseResultBundle({ ...demoData, schema_version: "99" })).toThrow(
-      new ResultValidationError("Incompatible schema 99. This viewer requires schema 1."),
+      new ResultValidationError("Incompatible schema 99. This viewer requires schema 2; rerun the research command to regenerate the bundle."),
     );
   });
 

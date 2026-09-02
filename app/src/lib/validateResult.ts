@@ -1,6 +1,8 @@
 import type { ResearchResult } from "../types";
 
 const MAX_CANDIDATES = 1_000;
+const SUPPORTED_SCHEMA = "2";
+const CONSTRAINT_STATUSES = ["pass", "fail", "unknown"] as const;
 
 export class ResultValidationError extends Error {
   constructor(message: string) {
@@ -16,9 +18,9 @@ export function parseResultBundle(input: unknown): ResearchResult {
     ["schema_version", "scoring_version", "run_id", "generated_at", "unknown_data_policy", "route_boundary", "candidates"],
     "result bundle",
   );
-  if (result.schema_version !== "1") {
+  if (result.schema_version !== SUPPORTED_SCHEMA) {
     throw new ResultValidationError(
-      `Incompatible schema ${String(result.schema_version)}. This viewer requires schema 1.`,
+      `Incompatible schema ${String(result.schema_version)}. This viewer requires schema ${SUPPORTED_SCHEMA}; rerun the research command to regenerate the bundle.`,
     );
   }
   string(result.scoring_version, "scoring_version");
@@ -52,8 +54,9 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
     candidate,
     [
       "id", "name", "place_kind", "location", "rank", "overall_score", "confidence",
-      "hard_constraints", "categories", "informational_metrics", "rail_summary",
-      "housing_summary", "street_care_summary", "missing_metrics", "warnings",
+      "hard_constraints", "categories", "unmeasured_categories", "score_coverage_percent",
+      "informational_metrics", "rail_summary", "housing_summary", "street_care_summary",
+      "missing_metrics", "warnings",
     ],
     path,
   );
@@ -76,13 +79,14 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   range(location.longitude, `${path}.location.longitude`, -180, 180);
 
   const constraints = record(candidate.hard_constraints, `${path}.hard_constraints`);
-  exactKeys(constraints, ["passed", "results"], `${path}.hard_constraints`);
-  boolean(constraints.passed, `${path}.hard_constraints.passed`);
+  exactKeys(constraints, ["status", "results"], `${path}.hard_constraints`);
+  const declaredStatus = oneOf(constraints.status, CONSTRAINT_STATUSES, `${path}.hard_constraints.status`);
+  const statuses = new Set<string>();
   array(constraints.results, `${path}.hard_constraints.results`).forEach((item, itemIndex) => {
     const constraint = record(item, `${path}.hard_constraints.results[${itemIndex}]`);
     exactKeys(
       constraint,
-      ["metric", "destination_label", "operator", "value", "actual", "passed", "warning"],
+      ["metric", "destination_label", "operator", "value", "actual", "status", "warning"],
       `${path}.hard_constraints.results[${itemIndex}]`,
     );
     string(constraint.metric, `${path}.constraint.metric`);
@@ -92,9 +96,17 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
     oneOf(constraint.operator, ["<=", ">="], `${path}.constraint.operator`);
     finite(constraint.value, `${path}.constraint.value`);
     if (constraint.actual !== null) finite(constraint.actual, `${path}.constraint.actual`);
-    boolean(constraint.passed, `${path}.constraint.passed`);
+    const status = oneOf(constraint.status, CONSTRAINT_STATUSES, `${path}.constraint.status`);
+    if ((constraint.actual === null) !== (status === "unknown")) {
+      throw new ResultValidationError(`${path}.constraint status does not match its evidence`);
+    }
+    statuses.add(status);
     if (constraint.warning !== undefined) string(constraint.warning, `${path}.constraint.warning`);
   });
+  const expectedStatus = statuses.has("fail") ? "fail" : statuses.has("unknown") ? "unknown" : "pass";
+  if (declaredStatus !== expectedStatus) {
+    throw new ResultValidationError(`${path}.hard_constraints.status does not match its results`);
+  }
 
   array(candidate.categories, `${path}.categories`).forEach((item, categoryIndex) => {
     const category = record(item, `${path}.categories[${categoryIndex}]`);
@@ -111,6 +123,18 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
       validateMetric(metric, `${path}.categories[${categoryIndex}].metrics[${metricIndex}]`),
     );
   });
+  const measured = new Set<string>();
+  for (const item of candidate.categories as Array<{ category: string }>) measured.add(item.category);
+  array(candidate.unmeasured_categories, `${path}.unmeasured_categories`).forEach((item, itemIndex) => {
+    const unmeasured = record(item, `${path}.unmeasured_categories[${itemIndex}]`);
+    exactKeys(unmeasured, ["category", "weight"], `${path}.unmeasured_categories[${itemIndex}]`);
+    const name = string(unmeasured.category, `${path}.unmeasured_categories.category`);
+    if (measured.has(name)) {
+      throw new ResultValidationError(`${path}.unmeasured_categories lists a measured category`);
+    }
+    range(unmeasured.weight, `${path}.unmeasured_categories.weight`, Number.EPSILON, 5);
+  });
+  range(candidate.score_coverage_percent, `${path}.score_coverage_percent`, 0, 100);
   array(candidate.informational_metrics, `${path}.informational_metrics`).forEach(
     (metric, metricIndex) => validateMetric(metric, `${path}.informational_metrics[${metricIndex}]`),
   );

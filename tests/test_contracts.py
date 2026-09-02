@@ -46,6 +46,19 @@ class ContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             write_bundle(Path(directory), profile, enriched, results)
 
+    def test_profile_rejects_limits_that_no_evidence_path_can_evaluate(self):
+        profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
+        profile["search"]["destinations"].append({
+            "label": "Client office", "travel_mode": "driving",
+            "arrival": "Friday 10:00", "max_minutes": 30,
+        })
+        profile["hard_constraints"].append({
+            "metric": "door_to_door_commute", "operator": "<=", "value": 30,
+            "destination_label": "Client office",
+        })
+        with self.assertRaisesRegex(ValueError, "public_transport"):
+            validate_profile(profile)
+
     def test_schema_rejects_fields_the_contract_does_not_publish(self):
         profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
         profile["secret"] = "must not cross the contract boundary"

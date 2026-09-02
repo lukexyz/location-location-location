@@ -20,14 +20,26 @@ export interface RouteBoundary {
   geometry: BoundaryGeometry;
 }
 
+export type ConstraintStatus = "pass" | "fail" | "unknown";
+
 export interface ConstraintResult {
   metric: string;
   destination_label?: string;
   operator: "<=" | ">=";
   value: number;
   actual: number | null;
-  passed: boolean;
+  status: ConstraintStatus;
   warning?: string;
+}
+
+export interface HardConstraints {
+  status: ConstraintStatus;
+  results: ConstraintResult[];
+}
+
+export interface UnmeasuredCategory {
+  category: string;
+  weight: number;
 }
 
 export interface MetricResult {
@@ -199,11 +211,10 @@ export interface CandidateResult {
   rank: number;
   overall_score: number;
   confidence: number;
-  hard_constraints: {
-    passed: boolean;
-    results: ConstraintResult[];
-  };
+  hard_constraints: HardConstraints;
   categories: CategoryResult[];
+  unmeasured_categories: UnmeasuredCategory[];
+  score_coverage_percent: number;
   informational_metrics: MetricResult[];
   rail_summary?: RailSummary;
   housing_summary?: HousingSummary;
@@ -213,7 +224,7 @@ export interface CandidateResult {
 }
 
 export interface ResearchResult {
-  schema_version: "1";
+  schema_version: "2";
   scoring_version: string;
   run_id: string;
   generated_at: string;

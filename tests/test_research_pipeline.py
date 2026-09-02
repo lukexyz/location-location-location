@@ -187,6 +187,16 @@ class ResearchPipelineTests(unittest.TestCase):
             self.assertEqual(alpha["missing_metrics"], [
                 "door_to_door_commute", "housing_affordability", "street_care",
             ])
+            self.assertEqual(results["schema_version"], "2")
+            self.assertEqual(alpha["hard_constraints"], {"status": "pass", "results": []})
+            self.assertEqual(
+                alpha["unmeasured_categories"], [{"category": "essentials", "weight": 5.0}],
+                "a fresh run has no commute or housing evidence and must say so",
+            )
+            self.assertEqual(alpha["score_coverage_percent"], 50.0)
+            self.assertTrue(
+                any(warning.startswith("Unmeasured category: essentials") for warning in alpha["warnings"])
+            )
             profile_text = (temporary / "run" / "profile.json").read_text(encoding="utf-8")
             self.assertNotIn("51.50049", profile_text)
             profile = json.loads(profile_text)
@@ -341,6 +351,10 @@ class ResearchPipelineTests(unittest.TestCase):
             build_search_profile(preferences, weights=["cafes=6"])
         with self.assertRaisesRegex(ValueError, "together"):
             build_search_profile(preferences, budget_gbp=400000)
+        with self.assertRaisesRegex(ValueError, "cannot be evaluated for a driving destination"):
+            build_search_profile(
+                preferences, destinations=["Client office|driving|Friday 10:00|30"]
+            )
 
     def test_preview_prints_the_disclosure_without_a_key(self):
         with tempfile.TemporaryDirectory() as directory:

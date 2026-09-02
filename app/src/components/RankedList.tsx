@@ -2,7 +2,11 @@ import { useRef } from "react";
 import type { ReactNode } from "react";
 
 import type { WhatIfScore } from "../lib/whatif";
-import type { CandidateResult } from "../types";
+import type { CandidateResult, ConstraintStatus } from "../types";
+
+const LIMIT_TEXT: Record<ConstraintStatus, string> = {
+  pass: "within limits", unknown: "limit unverified", fail: "outside hard limit",
+};
 
 interface RankedListProps {
   candidates: CandidateResult[];
@@ -77,7 +81,8 @@ export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, o
                 <span className="rank-copy">
                   <strong>{candidate.name}</strong>
                   <small>
-                    {candidate.hard_constraints.passed ? "within limits" : "outside hard limit"}
+                    {LIMIT_TEXT[candidate.hard_constraints.status]}
+                    {candidate.score_coverage_percent < 100 ? ` · ${candidate.score_coverage_percent.toFixed(0)}% measured` : ""}
                     {preview ? ` · researched ${candidate.overall_score.toFixed(1)}` : ""}
                   </small>
                 </span>

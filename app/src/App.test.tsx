@@ -61,7 +61,7 @@ describe("viewer", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.selectOptions(screen.getByRole("combobox", { name: "Sort candidates" }), "name");
-    const candidates = screen.getAllByRole("button", { name: /within limits|outside hard limit/ });
+    const candidates = screen.getAllByRole("button", { name: /within limits|limit unverified|outside hard limit/ });
     expect(candidates[0]).toHaveAccessibleName(/Hemel Hempstead/);
     expect(candidates[1]).toHaveAccessibleName(/Maidenhead/);
     expect(candidates[1]).toHaveTextContent("03");
@@ -102,9 +102,9 @@ describe("viewer", () => {
   it("reports an incompatible imported schema", async () => {
     const user = userEvent.setup();
     render(<App />);
-    const file = new File(['{"schema_version":"2"}'], "old-results.json", { type: "application/json" });
+    const file = new File(['{"schema_version":"1"}'], "old-results.json", { type: "application/json" });
     await user.upload(screen.getByTestId("result-import"), file);
-    expect(await screen.findByText(/Incompatible schema 2/)).toBeInTheDocument();
+    expect(await screen.findByText(/Incompatible schema 1.*rerun the research command/)).toBeInTheDocument();
   });
 
   it("tunes importance as a labelled what-if without changing researched ranks", async () => {
@@ -117,7 +117,7 @@ describe("viewer", () => {
     fireEvent.change(cafes, { target: { value: "5" } });
     expect(screen.getByText("WHAT-IF ACTIVE")).toBeInTheDocument();
     expect(screen.getByText(/WHAT-IF PREVIEW/)).toBeInTheDocument();
-    const entries = screen.getAllByRole("button", { name: /within limits|outside hard limit/ });
+    const entries = screen.getAllByRole("button", { name: /within limits|limit unverified|outside hard limit/ });
     expect(entries.map((entry) => entry.querySelector(".rank-number")!.textContent).sort()).toEqual(["01", "02", "03"]);
     expect(entries[0]).toHaveTextContent(/researched/);
     await user.click(screen.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }));

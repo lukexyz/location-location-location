@@ -15,7 +15,8 @@ function metric(key: string, rawValue: number, category = "amenities"): MetricRe
 function candidate(overrides: Partial<CandidateResult> = {}): CandidateResult {
   return {
     id: "place", name: "Place", location: { latitude: 51.5, longitude: -0.1 }, rank: 1,
-    overall_score: 70, confidence: 80, hard_constraints: { passed: true, results: [] },
+    overall_score: 70, confidence: 80, hard_constraints: { status: "pass", results: [] },
+    unmeasured_categories: [], score_coverage_percent: 100,
     categories: [{
       category: "amenities", score: 50, weight: 2, overall_contribution: 10,
       metrics: [metric("cafes", 4), metric("betting_shops", 0)],

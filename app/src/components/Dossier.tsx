@@ -1,7 +1,14 @@
 import { compactDate, label, rawValue } from "../lib/format";
 import { deriveReadouts } from "../lib/readouts";
 import type { WhatIfScore } from "../lib/whatif";
-import type { CandidateResult, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
+import type { CandidateResult, ConstraintStatus, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
+
+const CONSTRAINT_LABEL: Record<ConstraintStatus, string> = {
+  pass: "CLEAR", unknown: "UNVERIFIED", fail: "LIMIT BREACH",
+};
+const CONSTRAINT_TONE: Record<ConstraintStatus, "good" | "warn" | "bad"> = {
+  pass: "good", unknown: "warn", fail: "bad",
+};
 
 export function Dossier({
   candidate,
@@ -12,7 +19,8 @@ export function Dossier({
   routeBoundary?: RouteBoundary;
   whatIf?: WhatIfScore;
 }) {
-  const constraintStatus = candidate.hard_constraints.passed ? "CLEAR" : "LIMIT BREACH";
+  const status = candidate.hard_constraints.status;
+  const coverage = candidate.score_coverage_percent;
   return (
     <aside className="dossier panel-cut" aria-labelledby="dossier-heading">
       <header className="dossier-heading">
@@ -24,7 +32,7 @@ export function Dossier({
           </div>
         </div>
         <div
-          className={`score-dial ${candidate.hard_constraints.passed ? "" : "failed"}`}
+          className={`score-dial ${status === "fail" ? "failed" : status === "unknown" ? "unverified" : ""}`}
           style={{ "--score": candidate.overall_score } as React.CSSProperties}
           aria-label={`Overall suitability ${candidate.overall_score.toFixed(1)} out of 100`}
         >
@@ -34,8 +42,9 @@ export function Dossier({
       </header>
 
       <div className="instrument-strip">
-        <Readout label="Constraint" value={constraintStatus} tone={candidate.hard_constraints.passed ? "good" : "bad"} />
+        <Readout label="Constraint" value={CONSTRAINT_LABEL[status]} tone={CONSTRAINT_TONE[status]} />
         <Readout label="Confidence" value={`${candidate.confidence.toFixed(0)}%`} />
+        <Readout label="Coverage" value={`${coverage.toFixed(0)}%`} tone={coverage < 100 ? "warn" : undefined} />
         <Readout label="Evidence" value={`${metricCount(candidate)} pts`} />
         {whatIf && (
           <Readout
@@ -86,8 +95,8 @@ export function Dossier({
                   {label(constraint.metric)}
                   {constraint.destination_label ? ` / ${constraint.destination_label}` : ""}
                 </span>
-                <strong className={constraint.passed ? "text-good" : "text-bad"}>
-                  {constraint.actual ?? "unknown"} {constraint.operator} {constraint.value}
+                <strong className={`text-${CONSTRAINT_TONE[constraint.status]}`}>
+                  {constraint.actual ?? "no evidence"} {constraint.operator} {constraint.value}
                 </strong>
               </div>
             ))}
@@ -135,6 +144,25 @@ export function Dossier({
             {category.metrics.map((metric) => (
               <MetricRow metric={metric} key={metric.metric} />
             ))}
+          </section>
+        ))}
+
+        {candidate.unmeasured_categories.map((item) => (
+          <section className="category-block unmeasured" key={item.category} aria-label={`${label(item.category)} has no evidence`}>
+            <header>
+              <div>
+                <span className="eyebrow">CATEGORY / WEIGHT {item.weight} / NO EVIDENCE</span>
+                <h3>{label(item.category)}</h3>
+              </div>
+              <div className="category-result">
+                <strong>--</strong>
+                <span>not in score</span>
+              </div>
+            </header>
+            <p className="unmeasured-note">
+              Nothing in this category was measured, so it is absent from the score rather than
+              counted as average. The score covers {coverage.toFixed(0)}% of the intended category weight.
+            </p>
           </section>
         ))}
 
@@ -350,7 +378,7 @@ function MetricRow({ metric }: { metric: MetricResult }) {
   );
 }
 
-function Readout({ label: title, value, tone }: { label: string; value: string; tone?: "good" | "bad" | "preview" }) {
+function Readout({ label: title, value, tone }: { label: string; value: string; tone?: "good" | "warn" | "bad" | "preview" }) {
   return <div className={`readout ${tone ?? ""}`}><span>{title}</span><strong>{value}</strong></div>;
 }
 

@@ -141,16 +141,16 @@
       ],
       "confidence": 82.96,
       "hard_constraints": {
-        "passed": true,
         "results": [
           {
             "actual": 58,
             "metric": "door_to_door_commute",
             "operator": "<=",
-            "passed": true,
+            "status": "pass",
             "value": 65
           }
-        ]
+        ],
+        "status": "pass"
       },
       "housing_summary": {
         "bedrooms": 2,
@@ -263,6 +263,7 @@
         "primary_journey_id": "welwyn-central-rail"
       },
       "rank": 1,
+      "score_coverage_percent": 100.0,
       "street_care_summary": {
         "assessment_date": "2026-08-01",
         "audit_age_days": 12,
@@ -368,6 +369,7 @@
         },
         "score": 87.5
       },
+      "unmeasured_categories": [],
       "warnings": [
         "Housing affordability is market evidence, not live inventory"
       ]
@@ -513,16 +515,16 @@
       ],
       "confidence": 77.63,
       "hard_constraints": {
-        "passed": true,
         "results": [
           {
             "actual": 38,
             "metric": "door_to_door_commute",
             "operator": "<=",
-            "passed": true,
+            "status": "pass",
             "value": 65
           }
-        ]
+        ],
+        "status": "pass"
       },
       "housing_summary": {
         "bedrooms": 2,
@@ -635,6 +637,7 @@
         "primary_journey_id": "hemel-central-rail"
       },
       "rank": 2,
+      "score_coverage_percent": 100.0,
       "street_care_summary": {
         "assessment_date": "2026-08-01",
         "audit_age_days": null,
@@ -720,6 +723,7 @@
         },
         "score": 61.34
       },
+      "unmeasured_categories": [],
       "warnings": [
         "Housing affordability is market evidence, not live inventory",
         "Street-care score uses low-resolution proxies; visit audit recommended"
@@ -866,16 +870,16 @@
       ],
       "confidence": 71.83,
       "hard_constraints": {
-        "passed": false,
         "results": [
           {
             "actual": 72,
             "metric": "door_to_door_commute",
             "operator": "<=",
-            "passed": false,
+            "status": "fail",
             "value": 65
           }
-        ]
+        ],
+        "status": "fail"
       },
       "housing_summary": {
         "bedrooms": 2,
@@ -988,6 +992,7 @@
         "primary_journey_id": "maidenhead-central-rail"
       },
       "rank": 3,
+      "score_coverage_percent": 100.0,
       "street_care_summary": {
         "assessment_date": "2026-08-01",
         "audit_age_days": 243,
@@ -1046,6 +1051,7 @@
         },
         "score": 44.55
       },
+      "unmeasured_categories": [],
       "warnings": [
         "Housing affordability is market evidence, not live inventory",
         "Purchase comparable sample has fewer than 20 transactions",
@@ -1121,7 +1127,7 @@
     "type": "fixture_polygon"
   },
   "run_id": "demo-three-places",
-  "schema_version": "1",
+  "schema_version": "2",
   "scoring_version": "1",
   "unknown_data_policy": "warn"
 }

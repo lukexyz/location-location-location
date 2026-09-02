@@ -103,9 +103,9 @@ class RailResearchTests(unittest.TestCase):
             item["destination_label"]: item
             for item in alder["hard_constraints"]["results"]
         }
-        self.assertTrue(by_destination["Central destination"]["passed"])
+        self.assertEqual(by_destination["Central destination"]["status"], "pass")
         self.assertEqual(by_destination["Central destination"]["actual"], 58)
-        self.assertFalse(by_destination["Client office"]["passed"])
+        self.assertEqual(by_destination["Client office"]["status"], "fail")
         self.assertEqual(by_destination["Client office"]["actual"], 70)
 
     def test_manifest_includes_rail_citations(self):

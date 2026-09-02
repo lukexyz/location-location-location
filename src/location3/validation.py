@@ -37,8 +37,9 @@ def validate_profile(profile: dict[str, Any]) -> None:
     constraints = profile.get("hard_constraints", [])
     if not isinstance(constraints, list):
         raise ValueError("profile hard_constraints must be an array")
-    destination_labels = {
-        destination["label"].casefold() for destination in search["destinations"]
+    destination_modes = {
+        destination["label"].casefold(): destination["travel_mode"]
+        for destination in search["destinations"]
     }
     constraint_keys: list[tuple[str, str]] = []
     for constraint in constraints:
@@ -60,8 +61,13 @@ def validate_profile(profile: dict[str, Any]) -> None:
                 raise ValueError("only commute constraints may name a destination")
             if not isinstance(destination_label, str) or not destination_label.strip():
                 raise ValueError("hard constraint destination_label must be non-empty")
-            if destination_label.casefold() not in destination_labels:
+            if destination_label.casefold() not in destination_modes:
                 raise ValueError("hard constraint destination is not in the search profile")
+            if destination_modes[destination_label.casefold()] != "public_transport":
+                raise ValueError(
+                    "a door-to-door limit can only be evaluated for a public_transport "
+                    "destination in v1; commute evidence comes from the cited rail import"
+                )
         constraint_keys.append(
             (constraint["metric"], (destination_label or "").casefold())
         )

@@ -3,7 +3,12 @@ import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import type { CandidateResult, RouteBoundary } from "../types";
+import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
+
+const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
+const MARKER_TEXT: Record<ConstraintStatus, string> = {
+  pass: "within limits", unknown: "limit unverified", fail: "outside hard limit",
+};
 
 interface MapViewProps {
   candidates: CandidateResult[];
@@ -42,7 +47,7 @@ export function MapView({ candidates, routeBoundary, selectedId, onSelect }: Map
             key={candidate.id}
             position={[candidate.location.latitude, candidate.location.longitude]}
             icon={scoreIcon(candidate, candidate.id === selectedId)}
-            title={`${candidate.name}: score ${candidate.overall_score.toFixed(1)}`}
+            title={`${candidate.name}: score ${candidate.overall_score.toFixed(1)}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
             alt={candidate.name}
             eventHandlers={{ click: () => onSelect(candidate.id) }}
           />
@@ -102,7 +107,7 @@ function SelectionController({
 }
 
 function scoreIcon(candidate: CandidateResult, selected: boolean): L.DivIcon {
-  const state = candidate.hard_constraints.passed ? "valid" : "excluded";
+  const state = MARKER_STATE[candidate.hard_constraints.status];
   const score = Math.round(candidate.overall_score);
   return L.divIcon({
     className: "score-marker-shell",

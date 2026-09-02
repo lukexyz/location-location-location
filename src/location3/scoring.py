@@ -11,6 +11,12 @@ from .catalog import METRICS, SCORING_VERSION
 from .validation import validate_evidence, validate_profile
 
 
+RESULT_SCHEMA_VERSION = "2"
+# Places that pass every limit rank first, then places whose limits could not be
+# checked, then places that breach a limit. Unknown is never treated as a pass.
+CONSTRAINT_STATUS_RANK = {"pass": 2, "unknown": 1, "fail": 0}
+
+
 def score_research(
     profile: dict[str, Any],
     evidence: dict[str, Any],
@@ -60,7 +66,9 @@ def score_research(
     ]
     scored.sort(
         key=lambda item: (
-            item["hard_constraints"]["passed"], item["overall_score"], item["confidence"]
+            CONSTRAINT_STATUS_RANK[item["hard_constraints"]["status"]],
+            item["overall_score"],
+            item["confidence"],
         ),
         reverse=True,
     )
@@ -68,7 +76,7 @@ def score_research(
         candidate["rank"] = rank
 
     return {
-        "schema_version": "1",
+        "schema_version": RESULT_SCHEMA_VERSION,
         "scoring_version": SCORING_VERSION,
         "run_id": profile["run_id"],
         "generated_at": generated_at,
@@ -159,11 +167,37 @@ def _score_candidate(
             category["score"] * category["weight"] / total_category_weight, 2
         )
 
+    # A category the person weighted but that has no evidence at all is renormalised
+    # out of the arithmetic; it must stay visible rather than silently vanish.
+    measured = {category["category"] for category in categories}
+    unmeasured_categories = [
+        {"category": category, "weight": float(category_weights[category])}
+        for category in sorted(category_weights)
+        if category not in measured
+        and category_weights[category] > 0
+        and any(
+            float(weights[key]) > 0
+            for key, definition in METRICS.items()
+            if definition.category == category
+        )
+    ]
+    intended_weight = total_category_weight + sum(
+        item["weight"] for item in unmeasured_categories
+    )
+    coverage = (
+        100.0 * total_category_weight / intended_weight if intended_weight else 100.0
+    )
+
     confidence = available_confidence / possible_confidence if possible_confidence else 1.0
     constraints = _evaluate_constraints(
         profile.get("hard_constraints", []), observations, rail_journeys
     )
-    warnings = [f"Missing weighted metric: {metric}" for metric in sorted(missing)]
+    warnings = [
+        f"Unmeasured category: {item['category']} (weight {item['weight']:g}) has no "
+        f"evidence; the overall score covers {coverage:g}% of the intended category weight"
+        for item in unmeasured_categories
+    ]
+    warnings.extend(f"Missing weighted metric: {metric}" for metric in sorted(missing))
     warnings.extend(item["warning"] for item in constraints if item.get("warning"))
     for journey in rail_journeys:
         if journey["last_useful_departure"] is None:
@@ -227,10 +261,12 @@ def _score_candidate(
         "overall_score": round(overall, 2),
         "confidence": round(confidence * 100, 2),
         "hard_constraints": {
-            "passed": all(item["passed"] for item in constraints),
+            "status": _overall_constraint_status(constraints),
             "results": constraints,
         },
         "categories": categories,
+        "unmeasured_categories": unmeasured_categories,
+        "score_coverage_percent": round(coverage, 2),
         "informational_metrics": informational_metrics,
         "missing_metrics": sorted(missing),
         "warnings": warnings,
@@ -299,13 +335,24 @@ def _evaluate_constraints(
         if actual is None:
             subject = f"{metric} for {destination_label}" if destination_label else metric
             results.append({
-                **constraint, "actual": None, "passed": True,
-                "warning": f"Unknown hard constraint: {subject}",
+                **constraint, "actual": None, "status": "unknown",
+                "warning": f"Unknown hard constraint: {subject}; no evidence was measured",
             })
             continue
         passed = (
             actual <= constraint["value"]
             if constraint["operator"] == "<=" else actual >= constraint["value"]
         )
-        results.append({**constraint, "actual": actual, "passed": passed})
+        results.append({
+            **constraint, "actual": actual, "status": "pass" if passed else "fail",
+        })
     return results
+
+
+def _overall_constraint_status(constraints: list[dict[str, Any]]) -> str:
+    statuses = {item["status"] for item in constraints}
+    if "fail" in statuses:
+        return "fail"
+    if "unknown" in statuses:
+        return "unknown"
+    return "pass"
