@@ -18,7 +18,7 @@ export default function App() {
   const [sortMode, setSortMode] = useState<SortMode>("rank");
   const [loadState, setLoadState] = useState<LoadState>({
     kind: "demo",
-    message: "Fictional demonstration data active",
+    message: "Demonstration data active: real towns, synthetic evidence",
   });
   const fileInput = useRef<HTMLInputElement>(null);
   const candidates = useMemo(
@@ -57,7 +57,7 @@ export default function App() {
   function restoreDemo() {
     setResult(demoResult);
     setSelectedId(demoResult.candidates[0].id);
-    setLoadState({ kind: "demo", message: "Fictional demonstration data active" });
+    setLoadState({ kind: "demo", message: "Demonstration data active: real towns, synthetic evidence" });
   }
 
   return (

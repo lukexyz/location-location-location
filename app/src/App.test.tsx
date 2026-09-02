@@ -18,20 +18,20 @@ describe("viewer", () => {
   it("keeps map and dossier selection synchronized", async () => {
     const user = userEvent.setup();
     render(<App />);
-    expect(screen.getByRole("heading", { name: "Alder Green" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Select map candidate" }));
-    expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Hemel Hempstead" })).toBeInTheDocument();
   });
 
   it("supports arrow-key navigation across candidate buttons", async () => {
     const user = userEvent.setup();
     render(<App />);
-    const alder = screen.getByRole("button", { name: /Alder Green/ });
-    const northbridge = screen.getByRole("button", { name: /Northbridge/ });
+    const alder = screen.getByRole("button", { name: /Welwyn Garden City/ });
+    const hemel = screen.getByRole("button", { name: /Hemel Hempstead/ });
     alder.focus();
     await user.keyboard("{ArrowDown}{Enter}");
-    expect(northbridge).toHaveFocus();
-    expect(screen.getByRole("heading", { name: "Northbridge" })).toBeInTheDocument();
+    expect(hemel).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "Hemel Hempstead" })).toBeInTheDocument();
   });
 
   it("highlights a favorable raw observation without recoloring its score", () => {
@@ -44,7 +44,7 @@ describe("viewer", () => {
   it("shows the full cited rail journey rather than only train time", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Rail intelligence" })).toBeInTheDocument();
-    expect(screen.getByText(/London King's Cross/)).toBeInTheDocument();
+    expect(screen.getAllByText(/London King's Cross/).length).toBeGreaterThan(0);
     expect(screen.getByText("Station access")).toBeInTheDocument();
     expect(screen.getByText("London last mile")).toBeInTheDocument();
   });
@@ -62,8 +62,8 @@ describe("viewer", () => {
     render(<App />);
     await user.selectOptions(screen.getByRole("combobox", { name: "Sort candidates" }), "name");
     const candidates = screen.getAllByRole("button", { name: /within limits|outside hard limit/ });
-    expect(candidates[0]).toHaveAccessibleName(/Alder Green/);
-    expect(candidates[1]).toHaveAccessibleName(/Mereford/);
+    expect(candidates[0]).toHaveAccessibleName(/Hemel Hempstead/);
+    expect(candidates[1]).toHaveAccessibleName(/Maidenhead/);
     expect(candidates[1]).toHaveTextContent("03");
   });
 

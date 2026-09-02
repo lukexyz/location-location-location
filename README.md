@@ -72,7 +72,10 @@ npm install
 npm run dev
 ```
 
-The viewer starts with fictional data. Importing a `results.json` reads it only
+The viewer starts with demonstration data: three real commuter-belt towns
+(Welwyn Garden City, Hemel Hempstead, and Maidenhead) carrying clearly labelled
+synthetic evidence, so nothing in the demo is a measurement of those towns.
+Importing a `results.json` reads it only
 inside the current browser tab; it is not uploaded or stored. Map tiles remain an
 external network request. Compatible results include their route boundary and
 provider assumptions; the viewer draws that boundary, exposes weighted score
@@ -99,4 +102,4 @@ tests, and the production build.
 The Pages deployment is deliberately manual. After selecting **GitHub Actions**
 as the repository's Pages source, run **Deploy viewer to Pages** from the Actions
 tab. The workflow tests the viewer and deploys only `app/dist`, which contains
-the fictional public demo—not ignored preferences or private research runs.
+the synthetic public demo—not ignored preferences or private research runs.

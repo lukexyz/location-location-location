@@ -31,7 +31,7 @@ class StreetCareResearchTests(unittest.TestCase):
         profile, evidence, street = fixtures()
         merged = merge_street_care_research(evidence, street)
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         summary = alder["street_care_summary"]
         self.assertEqual(summary["basis"], "recent_visit_audit")
         self.assertEqual(summary["score"], 87.5)
@@ -52,7 +52,7 @@ class StreetCareResearchTests(unittest.TestCase):
         profile, evidence, street = fixtures()
         merged = merge_street_care_research(evidence, street)
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        mere = next(item for item in results["candidates"] if item["id"] == "mereford")
+        mere = next(item for item in results["candidates"] if item["id"] == "maidenhead")
         self.assertEqual(mere["street_care_summary"]["basis"], "proxy")
         warnings = " ".join(mere["warnings"])
         self.assertIn("stale", warnings)
@@ -74,7 +74,7 @@ class StreetCareResearchTests(unittest.TestCase):
         merged = merge_street_care_research(evidence, street)
         observation = next(
             item for item in merged["observations"]
-            if item["candidate_id"] == "alder-green" and item["metric"] == "street_care"
+            if item["candidate_id"] == "welwyn-garden-city" and item["metric"] == "street_care"
         )
         observation["value"] = 100
         with self.assertRaisesRegex(ValueError, "does not match its raw components"):

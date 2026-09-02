@@ -27,7 +27,7 @@ class ReportingTests(unittest.TestCase):
                 {path.name for path in output.iterdir()},
                 {"profile.json", "evidence.json", "results.json", "provenance.json", "report.html"},
             )
-            self.assertIn("Alder Green", (output / "report.html").read_text(encoding="utf-8"))
+            self.assertIn("Welwyn Garden City", (output / "report.html").read_text(encoding="utf-8"))
             self.assertTrue(manifest["checksums"]["results.json"].startswith("sha256:"))
 
 

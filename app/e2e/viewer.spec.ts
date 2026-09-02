@@ -10,8 +10,8 @@ test.beforeEach(async ({ page }) => {
 test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await expect(page.getByLabel("Location cubed")).toBeVisible();
   await expect(page.locator(".score-marker")).toHaveCount(3);
-  await page.getByRole("button", { name: /Northbridge/ }).click();
-  await expect(page.getByRole("heading", { name: "Northbridge" })).toBeVisible();
+  await page.getByRole("button", { name: /Hemel Hempstead/ }).click();
+  await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
   await expect(page.locator(".score-marker.selected b")).toHaveText("73");
   await expect(page.locator(".leaflet-overlay-pane path")).toHaveCount(1);
 });
@@ -43,7 +43,7 @@ test("an imported result can be reset on desktop and mobile", async ({ page }) =
   await expect(page.getByRole("button", { name: "RESET DEMO" })).toBeVisible();
   await page.getByRole("button", { name: "RESET DEMO" }).click();
   await expect(page.getByRole("button", { name: "RESET DEMO" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Alder Green" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Welwyn Garden City" })).toBeVisible();
 });
 
 test("the instrument reflows without horizontal overflow", async ({ page }) => {

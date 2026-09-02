@@ -20,14 +20,14 @@ test("supports skip navigation, keyboard import, and candidate arrow keys", asyn
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main", { name: "Candidate results and evidence" })).toBeFocused();
 
-  const firstCandidate = page.getByRole("button", { name: /Alder Green/ });
-  const secondCandidate = page.getByRole("button", { name: /Northbridge/ });
+  const firstCandidate = page.getByRole("button", { name: /Welwyn Garden City/ });
+  const secondCandidate = page.getByRole("button", { name: /Hemel Hempstead/ });
   await firstCandidate.focus();
   await page.keyboard.press("ArrowDown");
   await expect(secondCandidate).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { name: "Northbridge" })).toBeVisible();
-  await expect(page.getByText(/Selected candidate: Northbridge/)).toBeAttached();
+  await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
+  await expect(page.getByText(/Selected candidate: Hemel Hempstead/)).toBeAttached();
 
   const importButton = page.getByRole("button", { name: /IMPORT RESULT.JSON/ });
   await importButton.focus();

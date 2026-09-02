@@ -27,7 +27,7 @@ class ScoringTests(unittest.TestCase):
         second = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
         self.assertEqual(first, second)
         self.assertEqual([item["name"] for item in first["candidates"]], [
-            "Alder Green", "Northbridge", "Mereford"
+            "Welwyn Garden City", "Hemel Hempstead", "Maidenhead"
         ])
         self.assertTrue(first["candidates"][0]["hard_constraints"]["passed"])
         self.assertFalse(first["candidates"][2]["hard_constraints"]["passed"])
@@ -37,11 +37,11 @@ class ScoringTests(unittest.TestCase):
         complete = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
         changed = deepcopy(evidence)
         changed["observations"] = [
-            item for item in changed["observations"] if item["id"] != "alder-cafes"
+            item for item in changed["observations"] if item["id"] != "welwyn-cafes"
         ]
         incomplete = score_research(profile, changed, "2026-08-01T12:00:00+00:00")
-        complete_alder = next(item for item in complete["candidates"] if item["id"] == "alder-green")
-        incomplete_alder = next(item for item in incomplete["candidates"] if item["id"] == "alder-green")
+        complete_alder = next(item for item in complete["candidates"] if item["id"] == "welwyn-garden-city")
+        incomplete_alder = next(item for item in incomplete["candidates"] if item["id"] == "welwyn-garden-city")
         self.assertIn("cafes", incomplete_alder["missing_metrics"])
         self.assertLess(incomplete_alder["confidence"], complete_alder["confidence"])
 
@@ -49,7 +49,7 @@ class ScoringTests(unittest.TestCase):
         profile, evidence = fixture_data()
         profile["weights"]["cafes"] = 0
         results = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         cafes = next(
             item for item in alder["informational_metrics"] if item["metric"] == "cafes"
         )

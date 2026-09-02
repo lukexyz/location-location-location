@@ -33,13 +33,13 @@ class HousingResearchTests(unittest.TestCase):
         merged = merge_housing_research(profile, evidence, housing)
         alder_observation = next(
             item for item in merged["observations"]
-            if item["candidate_id"] == "alder-green"
+            if item["candidate_id"] == "welwyn-garden-city"
             and item["metric"] == "housing_affordability"
         )
         self.assertEqual(alder_observation["value"], 0.78)
 
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         self.assertEqual(alder["housing_summary"]["typical_cost_gbp"], 390000)
         self.assertEqual(alder["housing_summary"]["inventory_status"], "not_checked")
 
@@ -82,7 +82,7 @@ class HousingResearchTests(unittest.TestCase):
         profile = configure_housing_profile(profile, rent)
         merged = merge_housing_research(profile, evidence, rent)
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         self.assertEqual(alder["housing_summary"]["budget_period"], "month")
         self.assertEqual(alder["housing_summary"]["budget_ratio"], 0.8)
         self.assertIn(
@@ -105,7 +105,7 @@ class HousingResearchTests(unittest.TestCase):
         merged = merge_housing_research(profile, evidence, housing)
         observation = next(
             item for item in merged["observations"]
-            if item["candidate_id"] == "alder-green"
+            if item["candidate_id"] == "welwyn-garden-city"
             and item["metric"] == "housing_affordability"
         )
         observation["value"] = 0.5

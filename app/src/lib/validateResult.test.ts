@@ -5,7 +5,7 @@ describe("parseResultBundle", () => {
   it("accepts the generated demonstration bundle", () => {
     const result = parseResultBundle(demoData);
     expect(result.candidates).toHaveLength(3);
-    expect(result.candidates[0].name).toBe("Alder Green");
+    expect(result.candidates[0].name).toBe("Welwyn Garden City");
   });
 
   it("rejects incompatible schema versions with a useful message", () => {
@@ -51,7 +51,7 @@ describe("parseResultBundle", () => {
     );
     expect(density).toBeUndefined();
 
-    const proxy = invalid.candidates.find((candidate) => candidate.id === "northbridge")!;
+    const proxy = invalid.candidates.find((candidate) => candidate.id === "hemel-hempstead")!;
     const proxyDensity = proxy.street_care_summary.components.find(
       (component) => component.key === "report_density",
     )!;

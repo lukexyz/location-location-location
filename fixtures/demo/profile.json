@@ -2,28 +2,93 @@
   "schema_version": "1",
   "run_id": "demo-three-places",
   "search": {
-    "approximate_origin": {"latitude": 51.5, "longitude": -0.1, "precision": "demo"},
+    "approximate_origin": {
+      "latitude": 51.5,
+      "longitude": -0.1,
+      "precision": "demo"
+    },
     "route_boundary": {
       "type": "fixture_polygon",
-      "description": "Synthetic 65-minute commute boundary drawn by hand for the demo",
+      "description": "Synthetic 65-minute commute envelope drawn by hand around three real towns for the demo",
       "provider": "fixture",
       "departure_time": null,
       "traffic_treatment": "not modelled; fictional boundary",
       "retrieved_at": "2026-08-01T12:00:00+00:00",
       "geometry": {
         "type": "Polygon",
-        "coordinates": [[
-          [-0.42, 51.44], [-0.30, 51.40], [-0.10, 51.38], [0.08, 51.41], [0.14, 51.50],
-          [0.10, 51.60], [-0.02, 51.68], [-0.20, 51.76], [-0.36, 51.77], [-0.44, 51.70],
-          [-0.47, 51.58], [-0.42, 51.44]
-        ]]
+        "coordinates": [
+          [
+            [
+              -0.86,
+              51.46
+            ],
+            [
+              -0.62,
+              51.38
+            ],
+            [
+              -0.3,
+              51.36
+            ],
+            [
+              0.02,
+              51.38
+            ],
+            [
+              0.15,
+              51.5
+            ],
+            [
+              0.1,
+              51.66
+            ],
+            [
+              -0.08,
+              51.86
+            ],
+            [
+              -0.34,
+              51.89
+            ],
+            [
+              -0.6,
+              51.84
+            ],
+            [
+              -0.8,
+              51.7
+            ],
+            [
+              -0.89,
+              51.56
+            ],
+            [
+              -0.86,
+              51.46
+            ]
+          ]
+        ]
       }
     },
-    "housing": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat", "bedrooms": 2},
+    "housing": {
+      "mode": "buy",
+      "budget_gbp": 500000,
+      "property_type": "flat",
+      "bedrooms": 2
+    },
     "destinations": [
-      {"label": "Central destination", "travel_mode": "public_transport", "arrival": "Tuesday 09:00", "max_minutes": 65}
+      {
+        "label": "Central destination",
+        "travel_mode": "public_transport",
+        "arrival": "Tuesday 09:00",
+        "max_minutes": 65
+      }
     ],
-    "providers": {"routing": "fixture", "housing": "fixture", "places": "fixture"}
+    "providers": {
+      "routing": "fixture",
+      "housing": "fixture",
+      "places": "fixture"
+    }
   },
   "weights": {
     "door_to_door_commute": 5,
@@ -35,7 +100,17 @@
     "yoga_studios": 1,
     "premium_grocers": 1
   },
-  "category_weights": {"essentials": 5, "environment": 3, "amenities": 2},
+  "category_weights": {
+    "essentials": 5,
+    "environment": 3,
+    "amenities": 2
+  },
   "unknown_data_policy": "warn",
-  "hard_constraints": [{"metric": "door_to_door_commute", "operator": "<=", "value": 65}]
+  "hard_constraints": [
+    {
+      "metric": "door_to_door_commute",
+      "operator": "<=",
+      "value": 65
+    }
+  ]
 }

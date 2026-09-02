@@ -31,14 +31,14 @@ class RailResearchTests(unittest.TestCase):
         merged = merge_rail_research(evidence, rail)
         alder_commutes = [
             item for item in merged["observations"]
-            if item["candidate_id"] == "alder-green"
+            if item["candidate_id"] == "welwyn-garden-city"
             and item["metric"] == "door_to_door_commute"
         ]
         self.assertEqual(len(alder_commutes), 1)
         self.assertEqual(alder_commutes[0]["value"], 58)
 
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         self.assertEqual(alder["rail_summary"]["fastest_total_minutes"], 58)
         self.assertEqual(
             alder["rail_summary"]["journeys"][0]["london_arrival_station"],
@@ -98,7 +98,7 @@ class RailResearchTests(unittest.TestCase):
             destination_labels=["Central destination", "Client office"],
         )
         results = score_research(profile, merged, "2026-08-01T12:00:00+00:00")
-        alder = next(item for item in results["candidates"] if item["id"] == "alder-green")
+        alder = next(item for item in results["candidates"] if item["id"] == "welwyn-garden-city")
         by_destination = {
             item["destination_label"]: item
             for item in alder["hard_constraints"]["results"]
