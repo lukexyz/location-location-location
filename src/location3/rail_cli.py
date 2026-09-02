@@ -22,6 +22,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--run-dir", required=True, type=Path)
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--performance", type=Path,
+        help="an orr-performance.json written by fetch_orr_performance.py",
+    )
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args(argv)
 
@@ -29,6 +33,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     evidence = _read_json(args.run_dir / "evidence.json")
     manifest = _read_json(args.run_dir / "provenance.json")
     rail_research = _read_json(args.input)
+    performance = _read_json(args.performance) if args.performance else None
     artifacts = {
         name: (args.run_dir / name).read_bytes()
         for name in ("profile.json", "evidence.json", "results.json")
@@ -40,6 +45,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         destination_labels=[
             item["label"] for item in profile["search"]["destinations"]
         ],
+        performance=performance,
     )
     output = args.output or args.run_dir.with_name(f"{args.run_dir.name}-rail")
 
@@ -48,13 +54,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"{len({item['candidate_id'] for item in rail_research['journeys']})} "
         "shortlisted candidates"
     )
-    print("Network calls: 0; only the cited local input file is read")
+    if performance is not None:
+        operators = sorted({
+            journey["operator"] for journey in merged["rail_journeys"] if "operator" in journey
+        })
+        print(
+            f"ORR performance: measured reliability applied to {len(operators)} operator(s): "
+            f"{', '.join(operators) or 'none named'}"
+        )
+    print("Network calls: 0; only the cited local input files are read")
     print(f"Private output: {output}")
     if not args.execute:
         print("Preview only. Re-run with --execute after reviewing the citations.")
         return 0
 
     profile["search"]["providers"]["rail"] = rail_research["provider"]
+    if performance is not None:
+        profile["search"]["providers"]["rail_performance"] = performance["provider"]
     generated_at = datetime.now(timezone.utc).isoformat()
     results = score_research(profile, merged, generated_at)
     write_bundle(
@@ -62,9 +78,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         profile,
         merged,
         results,
-        request_ledger=manifest["request_ledger"],
+        request_ledger=(
+            manifest["request_ledger"]
+            + (performance.get("request_ledger", []) if performance else [])
+        ),
     )
-    for name in ("route-boundary.geojson", "overpass-query.overpassql"):
+    for name in ("route-boundary.geojson", "overpass-query.overpassql", "orr-performance.json"):
         source = args.run_dir / name
         if source.exists():
             copy2(source, output / name)

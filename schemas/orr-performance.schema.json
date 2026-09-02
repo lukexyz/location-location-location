@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/orr-performance.schema.json",
+  "title": "OrrPerformance",
+  "description": "Operator-level punctuality and cancellation figures fetched from the Office of Rail and Road data portal by the bounded ORR adapter.",
+  "type": "object",
+  "required": ["schema_version", "provider", "retrieved_at", "source_date", "licence", "sources", "basis", "operators", "request_ledger", "request_ledger_summary"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "provider": {"const": "orr"},
+    "retrieved_at": {"type": "string", "format": "date-time"},
+    "source_date": {"type": "string", "format": "date"},
+    "licence": {"const": "OGL-3.0"},
+    "basis": {"const": "measured"},
+    "sources": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["kind", "label", "url"],
+        "properties": {
+          "kind": {"enum": ["punctuality", "cancellations"]},
+          "label": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "format": "uri"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "operators": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["operator", "period", "punctuality_time_to_3_percent", "punctuality_time_to_3_annual_percent", "cancellations_percent", "cancellations_annual_percent"],
+        "properties": {
+          "operator": {"type": "string", "minLength": 1},
+          "period": {"type": "string", "minLength": 1},
+          "punctuality_time_to_3_percent": {"type": "number", "minimum": 0, "maximum": 100},
+          "punctuality_time_to_3_annual_percent": {"type": "number", "minimum": 0, "maximum": 100},
+          "cancellations_percent": {"type": "number", "minimum": 0, "maximum": 100},
+          "cancellations_annual_percent": {"type": "number", "minimum": 0, "maximum": 100}
+        },
+        "additionalProperties": false
+      }
+    },
+    "request_ledger": {"$ref": "research-manifest.schema.json#/properties/request_ledger"},
+    "request_ledger_summary": {
+      "type": "object",
+      "required": ["network_requests", "cache_hits"],
+      "properties": {
+        "network_requests": {"type": "integer", "minimum": 0, "maximum": 2},
+        "cache_hits": {"type": "integer", "minimum": 0, "maximum": 2}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

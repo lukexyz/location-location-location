@@ -21,7 +21,7 @@ from location3.street_care import merge_street_care_research
 class ContractTests(unittest.TestCase):
     def test_every_public_schema_is_valid_json(self):
         schemas = list((ROOT / "schemas").glob("*.schema.json"))
-        self.assertEqual(len(schemas), 7)
+        self.assertEqual(len(schemas), 8)
         for path in schemas:
             with self.subTest(path=path.name):
                 self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["$schema"],

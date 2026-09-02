@@ -34,6 +34,7 @@
         "id": {"type": "string", "minLength": 1},
         "candidate_id": {"type": "string", "minLength": 1},
         "destination_label": {"type": "string", "minLength": 1},
+        "operator": {"type": "string", "minLength": 1, "description": "Train operator as named by ORR; lets the ORR adapter supply measured reliability"},
         "origin_station": {"type": "string", "minLength": 1},
         "origin_station_crs": {"type": "string", "pattern": "^[A-Z]{3}$"},
         "london_arrival_station": {"type": "string", "minLength": 1},

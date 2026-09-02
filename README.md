@@ -122,7 +122,8 @@ value cannot claim confidence above 0.5.
 | [OpenRouteService](https://openrouteservice.org/) | Isochrone search envelope | Free tier with your own key in `ORS_API_KEY`; never stored in a bundle |
 | [HM Land Registry Price Paid Data](https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads) and ONS rents | Cited housing evidence you import | Open Government Licence |
 | [Defra fly-tipping statistics](https://www.gov.uk/government/statistics/fly-tipping-statistics-for-england) and [FixMyStreet](https://data.mysociety.org/datasets/fms-geographic/) | Cited street-care evidence you import | As published; treated as a low-resolution prior |
-| National Rail timetables and [ORR performance](https://dataportal.orr.gov.uk/performance) | Cited rail evidence you import | As published |
+| National Rail timetables | Cited rail journey evidence you import | As published |
+| [ORR passenger rail performance](https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/) Tables 3138 and 3124 | Operator punctuality and cancellations, fetched by the bounded ORR adapter (two cached calls) | OGL-3.0 |
 | [Leaflet](https://leafletjs.com/) and OpenStreetMap tiles | Map rendering | BSD-2; [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) |
 
 ## Running it
@@ -174,7 +175,8 @@ users can invoke it with `/location-research`. Both defer to
 Each importer is zero-network, previews first, and writes a sibling run:
 
 ```powershell
-python scripts/import_rail.py --run-dir research-runs/NAME --input rail.json
+python scripts/fetch_orr_performance.py --run-dir research-runs/NAME --operator "Chiltern Railways"
+python scripts/import_rail.py --run-dir research-runs/NAME --input rail.json --performance research-runs/NAME/orr-performance.json
 python scripts/import_housing.py --run-dir research-runs/NAME-rail --input housing.json
 python scripts/import_street_care.py --run-dir research-runs/NAME-rail-housing --input street-care.json
 ```

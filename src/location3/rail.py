@@ -7,6 +7,7 @@ from datetime import date, datetime
 from typing import Any, Iterable
 from urllib.parse import urlsplit
 
+from .orr import performance_for, validate_performance
 from .validation import validate_basis, validate_evidence
 
 
@@ -23,15 +24,22 @@ def merge_rail_research(
     rail_research: dict[str, Any],
     *,
     destination_labels: Iterable[str] | None = None,
+    performance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return evidence enriched by cited rail facts for existing candidates only.
 
     When the run profile names destinations, every journey must be for one of them
-    so a journey cannot quietly describe a place the user never asked about.
+    so a journey cannot quietly describe a place the user never asked about. When an
+    ORR performance file is supplied, journeys that name their operator take their
+    punctuality and cancellation figures from it as measured evidence.
     """
     validate_evidence(evidence)
     candidate_ids = {candidate["id"] for candidate in evidence["candidates"]}
     validate_rail_research(rail_research, candidate_ids)
+    if performance is not None:
+        validate_performance(performance)
+        rail_research = apply_performance(rail_research, performance)
+        validate_rail_research(rail_research, candidate_ids)
     allowed = {label.casefold() for label in destination_labels or ()}
     if allowed:
         for journey in rail_research["journeys"]:
@@ -58,6 +66,47 @@ def merge_rail_research(
     merged["rail_journeys"] = journeys
     validate_evidence(merged)
     return merged
+
+
+def apply_performance(
+    rail_research: dict[str, Any], performance: dict[str, Any]
+) -> dict[str, Any]:
+    """Fill reliability from ORR for journeys that name an operator; measured wins."""
+    updated = deepcopy(rail_research)
+    punctuality_source = next(
+        source for source in performance["sources"] if source["kind"] == "punctuality"
+    )
+    cancellations_source = next(
+        source for source in performance["sources"] if source["kind"] == "cancellations"
+    )
+    for journey in updated["journeys"]:
+        operator = journey.get("operator")
+        if operator is None:
+            continue
+        record = performance_for(performance, operator)
+        journey["operator"] = record["operator"]
+        journey["punctuality_percent"] = record["punctuality_time_to_3_annual_percent"]
+        journey["cancellation_percent"] = record["cancellations_annual_percent"]
+        journey["sources"] = [
+            source for source in journey["sources"] if source["kind"] != "performance"
+        ] + [{
+            "kind": "performance",
+            "label": (
+                f"{punctuality_source['label']} and {cancellations_source['label']}, "
+                f"moving annual average, {record['period']}"
+            ),
+            "url": punctuality_source["url"],
+            "retrieved_at": performance["retrieved_at"],
+            "source_date": performance["source_date"],
+            "licence": performance["licence"],
+        }]
+        note = (
+            f"Reliability: ORR moving annual average for {record['operator']}, "
+            f"{record['period']} (measured); replaces any input reliability figures."
+        )
+        if note not in journey["confidence_notes"]:
+            journey["confidence_notes"] = f"{journey['confidence_notes'].rstrip()} {note}"
+    return updated
 
 
 def validate_rail_research(
@@ -94,6 +143,8 @@ def validate_rail_research(
             "service_window", "confidence_notes",
         ):
             _nonempty(journey, field)
+        if "operator" in journey:
+            _nonempty(journey, "operator")
         crs = journey["origin_station_crs"]
         if len(crs) != 3 or not crs.isascii() or not crs.isalpha() or crs != crs.upper():
             raise ValueError("origin_station_crs must be a three-letter uppercase CRS code")
