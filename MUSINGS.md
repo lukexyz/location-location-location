@@ -713,3 +713,10 @@ The project is on target with the scope-corrected vision and the build claims ab
 - **P13 — Viewer pass.** Fix map state churn, reorder the dossier so constraints, explanation, and missing-data warnings lead, show category weights and what-if missing metrics, fix the Green Escape wording, hemispheres, hidden mobile disclosure, and the import limits; move toward three typographic voices and custom controls.
 - **P14 — One official adapter.** ORR station performance through the same preview, cap, ledger, and citation path, so at least one hand-written input becomes measured.
 - **P15 — Hygiene.** Ignore `.env*`, add the install step to the README, consolidate validator helpers and importer CLIs, delete stale bytecode, and record completion notes here.
+
+### P9 completion note
+
+- The Overpass POI and green-space blocks now end with `out center body` and `out bb body`. The previous `tags` verbosity omitted node coordinates, so every café, bookmaker, or shop mapped as a node was dropped before counting. A recorded live response for Welwyn Garden City (`fixtures/overpass/`, ODbL) now proves node points of interest are counted, and a guard test shows the tags-only shape would have reported one café instead of six.
+- Collection follows the selected metrics: a metric weighted 0 with no hard limit is neither queried nor measured unless `--measure METRIC` asks for it, and the manifest records what was skipped. A run with no amenity metrics still discovers settlements.
+- The origin is rounded before it is sent or stored (`--origin-decimals`, default 3, about 110 m) and the profile records that precision. The preview prints the rounded origin, both provider hosts, what is measured, what is skipped, and which metrics are only ever imported from cited inputs. When the boundary is simplified for Overpass the manifest says how many vertices were sent.
+- The skill now lists every research flag and forbids editing preferences or scoring files or adding runs to git. The README gained the install step and the new flags.

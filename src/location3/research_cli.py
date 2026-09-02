@@ -25,6 +25,14 @@ RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 CONSTRAINT = re.compile(r"^([a-z_]+)(<=|>=)(-?\d+(?:\.\d+)?)$")
 WEIGHT = re.compile(r"^([a-z_]+)=(\d+(?:\.\d+)?)$")
 MAX_DESTINATION_MINUTES = 300
+# About 110 m at three decimal places: enough for an isochrone, not an address.
+DEFAULT_ORIGIN_DECIMALS = 3
+ORIGIN_DECIMAL_RANGE = (2, 6)
+ROUTING_ENDPOINT = "https://api.openrouteservice.org"
+PLACES_ENDPOINT = "https://overpass-api.de"
+OSM_METRICS: tuple[str, ...] = (
+    "cafes", "betting_shops", "yoga_studios", "premium_grocers", "green_space",
+)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -34,6 +42,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not RUN_ID.fullmatch(args.run_name):
         parser.error("run-name must use 1-64 letters, numbers, dots, dashes, or underscores")
     _validate_request(parser, args.latitude, args.longitude, args.minutes)
+    if not ORIGIN_DECIMAL_RANGE[0] <= args.origin_decimals <= ORIGIN_DECIMAL_RANGE[1]:
+        parser.error("origin-decimals must be between 2 and 6")
     output = args.output or root / "research-runs" / args.run_name
 
     try:
@@ -48,27 +58,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             property_type=args.property_type,
             bedrooms=args.bedrooms,
         )
+        measured = select_research_metrics(search, args.measure)
     except ValueError as error:
         parser.error(str(error))
 
     grocers = brand_group(preferences, "premium_grocers")
-    print(
-        "Research plan: OpenRouteService isochrone + one combined Overpass query "
-        "(settlements, amenities, green space, and the walkable street network)"
-    )
-    print(
-        f"Origin sent to routing provider: {args.latitude:.4f}, {args.longitude:.4f}; "
-        f"{args.minutes} minutes by {args.profile}"
-    )
-    print(
-        "Sent to Overpass: the boundary polygon and the premium grocer patterns "
-        f"{', '.join(grocers.patterns)}"
-    )
-    print(
-        "Measured for every candidate: cafes, betting shops, yoga, and premium grocers within "
-        "a 15-minute walk along the mapped pedestrian network; green space by proxy distance"
-    )
-    print("Maximum live provider calls: 2 (compatible cache hits reduce this)")
+    latitude, longitude = round_origin(args.latitude, args.longitude, args.origin_decimals)
+    for line in describe_research_plan(
+        latitude, longitude, args.origin_decimals, args.minutes, args.profile,
+        measured, grocers.patterns,
+    ):
+        print(line)
     for line in describe_search_profile(search):
         print(line)
     print(f"Private output: {output}")
@@ -91,6 +91,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         api_key=api_key,
         include_local_preferences=not args.public_only,
         search=search,
+        origin_decimals=args.origin_decimals,
+        measure=args.measure,
     )
     return 0
 
@@ -117,6 +119,19 @@ def _parser(root: Path) -> argparse.ArgumentParser:
     parser.add_argument("--destination", action="append", default=[], metavar="SPEC")
     parser.add_argument("--constraint", action="append", default=[], metavar="METRIC<=VALUE")
     parser.add_argument("--weight", action="append", default=[], metavar="METRIC=VALUE")
+    parser.add_argument(
+        "--measure",
+        action="append",
+        default=[],
+        metavar="METRIC",
+        help="collect a zero-weight metric for information only",
+    )
+    parser.add_argument(
+        "--origin-decimals",
+        type=int,
+        default=DEFAULT_ORIGIN_DECIMALS,
+        help="round the origin before it is sent or stored (3 is about 110 m)",
+    )
     parser.add_argument("--housing", choices=("buy", "rent"))
     parser.add_argument("--budget", type=float, help="purchase budget or monthly rent in GBP")
     parser.add_argument("--property-type", help="for example flat, terraced, semi-detached")
@@ -234,6 +249,75 @@ def describe_search_profile(search: dict[str, Any]) -> list[str]:
     return lines
 
 
+def select_research_metrics(
+    search: dict[str, Any], measure: Sequence[str] = ()
+) -> tuple[str, ...]:
+    """Metrics this run collects: weighted, hard-limited, or explicitly requested."""
+    for metric in measure:
+        if metric not in METRICS:
+            raise ValueError(f"--measure must name a catalogue metric: {metric}")
+    chosen = {metric for metric, weight in search["weights"].items() if weight > 0}
+    chosen.update(item["metric"] for item in search["hard_constraints"])
+    chosen.update(measure)
+    return tuple(metric for metric in METRICS if metric in chosen)
+
+
+def round_origin(latitude: float, longitude: float, decimals: int) -> tuple[float, float]:
+    return round(latitude, decimals), round(longitude, decimals)
+
+
+def origin_precision(decimals: int) -> str:
+    metres = round(111_320 / 10 ** decimals)
+    return f"rounded to {decimals} decimal places, about {metres} m"
+
+
+def describe_research_plan(
+    latitude: float,
+    longitude: float,
+    origin_decimals: int,
+    duration_minutes: int,
+    route_profile: str,
+    measured: Sequence[str],
+    grocer_patterns: Sequence[str],
+) -> list[str]:
+    """Say exactly what leaves the machine, to whom, and what is measured."""
+    osm_metrics = [metric for metric in OSM_METRICS if metric in measured]
+    lines = [
+        f"Research plan: OpenRouteService isochrone ({ROUTING_ENDPOINT}) + one combined "
+        f"Overpass query ({PLACES_ENDPOINT})",
+        f"Origin sent to routing provider: {latitude:.{origin_decimals}f}, "
+        f"{longitude:.{origin_decimals}f} ({origin_precision(origin_decimals)}; the exact "
+        "value you typed is neither sent nor stored)",
+    ]
+    sent = ["the boundary polygon (simplified to at most 80 vertices)"]
+    if "premium_grocers" in osm_metrics:
+        sent.append(f"the premium grocer patterns {', '.join(grocer_patterns)}")
+    lines.append(f"Sent to Overpass: {' and '.join(sent)}")
+    lines.append(f"Route limit: {duration_minutes} minutes by {route_profile}")
+    counts = [metric for metric in osm_metrics if metric != "green_space"]
+    if counts:
+        lines.append(
+            f"Measured for every candidate: {', '.join(counts)} within a 15-minute walk "
+            "along the mapped pedestrian network"
+        )
+    if "green_space" in osm_metrics:
+        lines.append("Measured for every candidate: green_space by proxy distance")
+    if not osm_metrics:
+        lines.append("Measured for every candidate: nothing beyond settlement discovery")
+    skipped = [metric for metric in OSM_METRICS if metric not in measured]
+    if skipped:
+        lines.append(
+            f"Not collected (weight 0 and no hard limit): {', '.join(skipped)}; "
+            "add --measure METRIC to record one for information"
+        )
+    imported = [metric for metric in METRICS if metric not in OSM_METRICS]
+    lines.append(
+        f"Imported later from cited inputs, never fetched here: {', '.join(imported)}"
+    )
+    lines.append("Maximum live provider calls: 2 (compatible cache hits reduce this)")
+    return lines
+
+
 def execute_research(
     *,
     root: Path,
@@ -249,10 +333,14 @@ def execute_research(
     search: dict[str, Any] | None = None,
     transport: HttpTransport | None = None,
     generated_at: str | None = None,
+    origin_decimals: int = DEFAULT_ORIGIN_DECIMALS,
+    measure: Sequence[str] = (),
 ) -> dict[str, object]:
     generated_at = generated_at or datetime.now(timezone.utc).isoformat()
     preferences = load_preferences(root, include_local=include_local_preferences)
     search = search or build_search_profile(preferences)
+    measured = select_research_metrics(search, measure)
+    latitude, longitude = round_origin(latitude, longitude, origin_decimals)
     upstream = transport or UrllibTransport()
     ledger = RequestLedger(max_network_requests=2)
     routing_transport = CachingTransport(
@@ -278,7 +366,7 @@ def execute_research(
         premium_grocers=brand_group(preferences, "premium_grocers"),
         transport=overpass_transport,
     )
-    research = collector.collect(boundary)
+    research = collector.collect(boundary, metrics=measured)
 
     profile = {
         "schema_version": "1",
@@ -287,7 +375,7 @@ def execute_research(
             "approximate_origin": {
                 "latitude": latitude,
                 "longitude": longitude,
-                "precision": "user-provided",
+                "precision": origin_precision(origin_decimals),
             },
             "route_boundary": {
                 "type": "isochrone",
@@ -320,6 +408,7 @@ def execute_research(
         research.evidence,
         results,
         request_ledger=ledger.entries,
+        warnings=run_warnings(research, measured),
     )
     _write_json(output / "route-boundary.geojson", boundary.geometry)
     (output / "overpass-query.overpassql").write_text(
@@ -331,6 +420,23 @@ def execute_research(
         f"{sum(entry['cache'] == 'hit' for entry in ledger.entries)} cache hits"
     )
     return manifest
+
+
+def run_warnings(research: Any, measured: Sequence[str]) -> list[str]:
+    """Provenance notes about what the bounded collection did not do."""
+    warnings: list[str] = []
+    sent, provided = research.polygon_vertices
+    if sent < provided:
+        warnings.append(
+            f"Overpass discovery used the route boundary simplified from {provided} to "
+            f"{sent} vertices; places near a concave edge may differ from the drawn boundary"
+        )
+    skipped = [metric for metric in OSM_METRICS if metric not in measured]
+    if skipped:
+        warnings.append(
+            f"Not collected in this run (weight 0 and no hard limit): {', '.join(skipped)}"
+        )
+    return warnings
 
 
 def _parse_destination(spec: str) -> dict[str, Any]:

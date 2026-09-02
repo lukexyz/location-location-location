@@ -6,7 +6,7 @@ from hashlib import sha256
 from html import escape
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 from . import __version__
 from .schema_validation import validate_schema_document
@@ -20,6 +20,7 @@ def write_bundle(
     results: dict[str, Any],
     *,
     request_ledger: list[dict[str, object]] | None = None,
+    warnings: Sequence[str] = (),
 ) -> dict[str, Any]:
     output.mkdir(parents=True, exist_ok=True)
     profile_bytes = _json_bytes(profile)
@@ -40,6 +41,7 @@ def write_bundle(
         "licences": _evidence_values(evidence, "licence", "licence"),
         "warnings": sorted(
             {warning for candidate in results["candidates"] for warning in candidate["warnings"]}
+            | set(warnings)
         ),
         "checksums": {
             "profile.json": _checksum(profile_bytes),

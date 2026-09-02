@@ -145,8 +145,8 @@ class OverpassAdapterTests(unittest.TestCase):
         self.assertIn('["name"](poly:"', query.split("->.places;", 1)[0])
         self.assertIn(".places out qt;", query)
         self.assertIn("(around.places:3600)", query)
-        self.assertIn(".pois out center tags qt;", query)
-        self.assertIn(".green out bb tags qt;", query)
+        self.assertIn(".pois out center body qt;", query)
+        self.assertIn(".green out bb body qt;", query)
         self.assertIn('way["highway"~"^(footway|path|pedestrian|', query)
         self.assertIn('["foot"!~"^(no|private)$"]["access"!="private"](around.places:1300)', query)
         self.assertIn(".network out geom qt;", query)
@@ -283,6 +283,7 @@ class OverpassAdapterTests(unittest.TestCase):
 
         polygon = result.query.split('poly:"', 1)[1].split('"', 1)[0]
         self.assertEqual(len(polygon.split()), 40)
+        self.assertEqual(result.polygon_vertices, (19, 120))
         self.assertEqual(result.evidence, {
             "schema_version": "1", "candidates": [], "observations": []
         })
@@ -297,6 +298,118 @@ class OverpassAdapterTests(unittest.TestCase):
         dotted = BrandGroup(patterns=("Co.op",), shop_types=("food.store",))
         self.assertEqual(dotted.overpass_regex(), r"(Co\.op)")
         self.assertEqual(dotted.shop_regex(), r"^(food\.store)$")
+
+
+RECORDED_RESPONSE = ROOT / "fixtures" / "overpass" / "welwyn-garden-city-sample.json"
+
+
+def welwyn_boundary():
+    return RouteBoundary(
+        geometry={
+            "type": "Polygon",
+            "coordinates": [[
+                [-0.215, 51.797], [-0.199, 51.797], [-0.199, 51.809],
+                [-0.215, 51.809], [-0.215, 51.797],
+            ]],
+        },
+        provider="openrouteservice",
+        profile="driving-car",
+        duration_minutes=30,
+    )
+
+
+class RecordedOverpassResponseTests(unittest.TestCase):
+    """The recorded response carries the element shapes the live query returns."""
+
+    def setUp(self):
+        self.payload = json.loads(RECORDED_RESPONSE.read_text(encoding="utf-8"))
+        self.retrieved_at = "2026-09-03T00:00:00+00:00"
+
+    def collector(self, payload):
+        # The sample was recorded at a 600 m walk radius to keep the file small.
+        return OverpassAmenityCollector(
+            premium_grocers=GROCERS,
+            transport=RecordingTransport(payload),
+            walk_radius_metres=600,
+        )
+
+    def test_recorded_live_response_counts_node_points_of_interest(self):
+        result = self.collector(self.payload).collect(
+            welwyn_boundary(), retrieved_at=self.retrieved_at
+        )
+
+        self.assertEqual(
+            [item["name"] for item in result.evidence["candidates"]], ["Welwyn Garden City"]
+        )
+        values = {item["metric"]: item["value"] for item in result.evidence["observations"]}
+        self.assertEqual(values, {
+            "cafes": 6, "betting_shops": 1, "yoga_studios": 0, "premium_grocers": 1,
+            "green_space": 0.0,
+        })
+        for item in result.evidence["observations"]:
+            self.assertEqual(item["source_date"], "2026-09-02")
+            if item["metric"] != "green_space":
+                self.assertIn("pedestrian-network catchment", item["geographic_scope"])
+        self.assertEqual(result.polygon_vertices, (4, 4))
+        validate_evidence(result.evidence)
+
+    def test_tags_only_verbosity_would_silently_drop_node_points_of_interest(self):
+        # `out tags` omits node coordinates. Guard the query so this never returns.
+        without_coordinates = {
+            **self.payload,
+            "elements": [
+                {key: value for key, value in element.items() if key not in ("lat", "lon")}
+                if element["type"] == "node" and "place" not in element.get("tags", {})
+                else element
+                for element in self.payload["elements"]
+            ],
+        }
+        collector = self.collector(without_coordinates)
+
+        result = collector.collect(welwyn_boundary(), retrieved_at=self.retrieved_at)
+
+        values = {item["metric"]: item["value"] for item in result.evidence["observations"]}
+        self.assertEqual(values["cafes"], 1, "only the café mapped as a way survives")
+        self.assertEqual(values["betting_shops"], 0)
+        query = collector.build_query(welwyn_boundary())
+        self.assertIn(".pois out center body qt;", query)
+        self.assertIn(".green out bb body qt;", query)
+        self.assertNotIn("out center tags", query)
+        self.assertNotIn("out bb tags", query)
+
+    def test_query_and_measurement_follow_the_selected_metrics(self):
+        collector = self.collector(self.payload)
+
+        cafes_only = collector.collect(
+            welwyn_boundary(),
+            metrics=("cafes", "door_to_door_commute"),
+            retrieved_at=self.retrieved_at,
+        )
+        self.assertIn('nwr["amenity"="cafe"]', cafes_only.query)
+        for absent in ("bookmaker", "gambling", "yoga", "Waitrose", '"leisure"', ".green"):
+            self.assertNotIn(absent, cafes_only.query)
+        self.assertIn(".network out geom qt;", cafes_only.query)
+        self.assertEqual(cafes_only.query.count("out "), 3)
+        self.assertEqual(
+            [item["metric"] for item in cafes_only.evidence["observations"]], ["cafes"]
+        )
+        self.assertEqual(cafes_only.measured_metrics, ("cafes",))
+
+        green_only = collector.collect(
+            welwyn_boundary(), metrics=("green_space",), retrieved_at=self.retrieved_at
+        )
+        self.assertNotIn(".pois", green_only.query)
+        self.assertNotIn(".network", green_only.query)
+        self.assertEqual(
+            [item["metric"] for item in green_only.evidence["observations"]], ["green_space"]
+        )
+
+        discovery_only = collector.collect(
+            welwyn_boundary(), metrics=(), retrieved_at=self.retrieved_at
+        )
+        self.assertEqual(discovery_only.query.count("out "), 1)
+        self.assertEqual(discovery_only.evidence["observations"], [])
+        self.assertEqual(len(discovery_only.evidence["candidates"]), 1)
 
 
 if __name__ == "__main__":

@@ -36,16 +36,18 @@ and never claims a property exists because an area looks affordable.
 ## How a run works
 
 1. **Preview.** `research_location.py` prints exactly what will leave your
-   machine: the origin sent to the routing provider, the boundary polygon and
-   brand patterns sent to Overpass, the metrics measured, and the call ceiling.
+   machine: the rounded origin sent to the routing provider, the boundary polygon
+   and brand patterns sent to Overpass, the metrics measured and skipped, and the
+   call ceiling.
    Nothing is fetched until you add `--execute`.
 2. **Bound.** One OpenRouteService isochrone becomes the search envelope, for
    example everywhere within a 30-minute drive.
 3. **Collect.** One combined Overpass call discovers cities, towns, suburbs,
    villages, and neighbourhoods inside the envelope and, around each of them,
-   fetches cafés, betting shops, yoga, configurable premium grocers, public green
-   space, and the walkable street network. Two live calls, total, with an
-   expiring local cache so a rerun costs nothing.
+   fetches only the amenity metrics you weighted or limited (cafés, betting
+   shops, yoga, configurable premium grocers, public green space) plus the
+   walkable street network. Two live calls, total, with an expiring local cache
+   so a rerun costs nothing.
 4. **Measure.** Deterministic Python counts amenities within a 15-minute walk
    along the mapped pedestrian network, measures green-space distance, and
    records each observation with its source, licence, retrieval date,
@@ -126,6 +128,11 @@ the hard limits, and the scores. Switching agent cannot change a number.
 Requires Python 3.11 or newer, Node 22 or newer, and an OpenRouteService key.
 
 ```powershell
+uv sync            # or: pip install -e .
+npm install
+```
+
+```powershell
 python scripts/run_fixture.py
 python -m unittest discover -s tests
 uvx ruff@0.15.0 check src scripts tests
@@ -145,9 +152,13 @@ python scripts/research_location.py --latitude LAT --longitude LON --minutes 30
 
 Repeatable flags: `--destination "LABEL|MODE|ARRIVAL|MAX_MINUTES"`,
 `--constraint "METRIC<=VALUE"`, `--weight "METRIC=VALUE"`, plus `--housing`,
-`--budget`, `--property-type`, and `--bedrooms`. The preview discloses those
-choices, the premium-grocer fragments, and the two-call ceiling. Set a local
-`ORS_API_KEY`, review the preview, then add `--execute`. The single Overpass call
+`--budget`, `--property-type`, and `--bedrooms`. A metric weighted 0 with no hard
+limit is not collected at all; add `--measure METRIC` to record it for
+information. The origin is rounded before it is sent or stored
+(`--origin-decimals`, default 3, about 110 m). The preview prints the rounded
+origin, the provider hosts, the premium-grocer fragments, what is and is not
+measured, and the two-call ceiling. Set a local `ORS_API_KEY`, review the
+preview, then add `--execute`. The single Overpass call
 also fetches the walkable street network around each discovered settlement, so
 amenity counts follow a 15-minute walk along mapped footways and streets;
 observations say explicitly when a straight-line proxy was used instead.
