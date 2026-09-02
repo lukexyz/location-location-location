@@ -78,6 +78,47 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
         if source_date > retrieved_at.date():
             raise ValueError("source_date cannot be later than retrieved_at")
 
+    rail_journeys = bundle.get("rail_journeys", [])
+    if not isinstance(rail_journeys, list):
+        raise ValueError("evidence rail_journeys must be an array")
+    if rail_journeys:
+        # Local import avoids coupling the base evidence validator to a provider.
+        from .rail import validate_rail_research
+
+        validate_rail_research(
+            {
+                "schema_version": "1",
+                "provider": "evidence bundle",
+                "journeys": rail_journeys,
+            },
+            candidate_ids,
+        )
+
+    housing_research = bundle.get("housing_research")
+    if housing_research is not None:
+        if not isinstance(housing_research, dict):
+            raise ValueError("evidence housing_research must be an object")
+        from .housing import validate_housing_research
+
+        validate_housing_research(housing_research, candidate_ids)
+        budget = housing_research["requirements"]["budget_gbp"]
+        for market in housing_research["markets"]:
+            matching = [
+                observation
+                for observation in observations
+                if observation["candidate_id"] == market["candidate_id"]
+                and observation["metric"] == "housing_affordability"
+            ]
+            if len(matching) != 1:
+                raise ValueError(
+                    "each housing market requires one affordability observation"
+                )
+            expected_ratio = market["typical_cost_gbp"] / budget
+            if abs(matching[0]["value"] - expected_ratio) > 0.000001:
+                raise ValueError(
+                    "housing affordability observation does not match market and budget"
+                )
+
 
 def validate_manifest(
     manifest: dict[str, Any], artifacts: Mapping[str, bytes] | None = None
@@ -150,8 +191,18 @@ def validate_provenance(
 ) -> None:
     validate_evidence(evidence)
     validate_manifest(manifest, artifacts)
-    sources = sorted({item["source_url"] for item in evidence["observations"]})
-    licences = sorted({item["licence"] for item in evidence["observations"]})
+    sources = {item["source_url"] for item in evidence["observations"]}
+    licences = {item["licence"] for item in evidence["observations"]}
+    for journey in evidence.get("rail_journeys", []):
+        sources.update(source["url"] for source in journey["sources"])
+        licences.update(source["licence"] for source in journey["sources"])
+    housing_research = evidence.get("housing_research")
+    if housing_research:
+        for market in housing_research["markets"]:
+            sources.update(source["url"] for source in market["sources"])
+            licences.update(source["licence"] for source in market["sources"])
+    sources = sorted(sources)
+    licences = sorted(licences)
     if manifest["sources"] != sources:
         raise ValueError("manifest sources do not match evidence citations")
     if manifest["licences"] != licences:

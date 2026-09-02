@@ -121,13 +121,13 @@
               "active": true,
               "category": "essentials",
               "category_contribution": 29.91,
-              "confidence": 0.95,
-              "confidence_notes": "Synthetic high-confidence example",
-              "evidence_id": "alder-commute",
+              "confidence": 0.9,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "alder-central-rail-commute",
               "metric": "door_to_door_commute",
               "normalized_score": 59.83,
               "raw_value": 58,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
               "source_date": "2026-08-01",
               "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
@@ -138,14 +138,14 @@
               "category": "essentials",
               "category_contribution": 45.12,
               "confidence": 0.85,
-              "confidence_notes": "Synthetic comparable-sales example",
-              "evidence_id": "alder-housing",
+              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+              "evidence_id": "alder-housing-market-affordability",
               "metric": "housing_affordability",
               "normalized_score": 90.25,
               "raw_value": 0.78,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
               "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
               "unit": "budget_ratio",
               "weight": 5.0
             }
@@ -155,7 +155,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 82.27,
+      "confidence": 81.14,
       "hard_constraints": {
         "passed": true,
         "results": [
@@ -168,6 +168,43 @@
           }
         ]
       },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.78,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "alder-green",
+          "confidence": 0.85,
+          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "2 km around Alder Green",
+            "radius_km": 2
+          },
+          "id": "alder-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 28,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 390000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 390000
+      },
       "id": "alder-green",
       "informational_metrics": [],
       "location": {
@@ -177,8 +214,56 @@
       "missing_metrics": [],
       "name": "Alder Green",
       "overall_score": 78.4,
+      "rail_summary": {
+        "fastest_total_minutes": 58,
+        "journeys": [
+          {
+            "access_minutes": 8,
+            "cancellation_percent": 2.0,
+            "candidate_id": "alder-green",
+            "changes": 0,
+            "confidence": 0.9,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 7,
+            "id": "alder-central-rail",
+            "last_useful_departure": "2026-08-01T23:18:00+01:00",
+            "london_arrival_station": "London King's Cross",
+            "london_last_mile_minutes": 8,
+            "origin_station": "Alder Green",
+            "origin_station_crs": "ALD",
+            "primary": true,
+            "punctuality_percent": 90.1,
+            "scheduled_rail_minutes": 35,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 4,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 58
+          }
+        ],
+        "primary_journey_id": "alder-central-rail"
+      },
       "rank": 1,
-      "warnings": []
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory"
+      ]
     },
     {
       "categories": [
@@ -301,13 +386,13 @@
               "active": true,
               "category": "essentials",
               "category_contribution": 41.0,
-              "confidence": 0.95,
-              "confidence_notes": "Synthetic high-confidence example",
-              "evidence_id": "north-commute",
+              "confidence": 0.93,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "north-central-rail-commute",
               "metric": "door_to_door_commute",
               "normalized_score": 82.0,
               "raw_value": 38,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
               "source_date": "2026-08-01",
               "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
@@ -317,15 +402,15 @@
               "active": true,
               "category": "essentials",
               "category_contribution": 34.16,
-              "confidence": 0.85,
-              "confidence_notes": "Synthetic comparable-sales example",
-              "evidence_id": "north-housing",
+              "confidence": 0.82,
+              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+              "evidence_id": "north-housing-market-affordability",
               "metric": "housing_affordability",
               "normalized_score": 68.33,
               "raw_value": 0.95,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
               "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
               "unit": "budget_ratio",
               "weight": 5.0
             }
@@ -335,7 +420,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 82.27,
+      "confidence": 81.14,
       "hard_constraints": {
         "passed": true,
         "results": [
@@ -348,6 +433,43 @@
           }
         ]
       },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.95,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "northbridge",
+          "confidence": 0.82,
+          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "2 km around Northbridge",
+            "radius_km": 2
+          },
+          "id": "north-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 22,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 475000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 475000
+      },
       "id": "northbridge",
       "informational_metrics": [],
       "location": {
@@ -357,8 +479,56 @@
       "missing_metrics": [],
       "name": "Northbridge",
       "overall_score": 74.78,
+      "rail_summary": {
+        "fastest_total_minutes": 38,
+        "journeys": [
+          {
+            "access_minutes": 5,
+            "cancellation_percent": 1.5,
+            "candidate_id": "northbridge",
+            "changes": 0,
+            "confidence": 0.93,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 5,
+            "id": "north-central-rail",
+            "last_useful_departure": "2026-08-01T23:42:00+01:00",
+            "london_arrival_station": "London Bridge",
+            "london_last_mile_minutes": 6,
+            "origin_station": "Northbridge",
+            "origin_station_crs": "NOR",
+            "primary": true,
+            "punctuality_percent": 92.4,
+            "scheduled_rail_minutes": 22,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 6,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 38
+          }
+        ],
+        "primary_journey_id": "north-central-rail"
+      },
       "rank": 2,
-      "warnings": []
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory"
+      ]
     },
     {
       "categories": [
@@ -481,13 +651,13 @@
               "active": true,
               "category": "essentials",
               "category_contribution": 21.75,
-              "confidence": 0.95,
-              "confidence_notes": "Synthetic high-confidence example",
-              "evidence_id": "mere-commute",
+              "confidence": 0.84,
+              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "evidence_id": "mere-central-rail-commute",
               "metric": "door_to_door_commute",
               "normalized_score": 43.5,
               "raw_value": 72,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 timetable fixture",
               "source_date": "2026-08-01",
               "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
               "unit": "minutes",
@@ -497,15 +667,15 @@
               "active": true,
               "category": "essentials",
               "category_contribution": 49.62,
-              "confidence": 0.85,
-              "confidence_notes": "Synthetic comparable-sales example",
-              "evidence_id": "mere-housing",
+              "confidence": 0.68,
+              "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+              "evidence_id": "mere-housing-market-affordability",
               "metric": "housing_affordability",
               "normalized_score": 99.25,
               "raw_value": 0.66,
-              "source": "Synthetic LOCATION\u00b3 fixture",
+              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
               "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
               "unit": "budget_ratio",
               "weight": 5.0
             }
@@ -515,7 +685,7 @@
           "weight": 5.0
         }
       ],
-      "confidence": 82.27,
+      "confidence": 75.91,
       "hard_constraints": {
         "passed": false,
         "results": [
@@ -528,6 +698,43 @@
           }
         ]
       },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.66,
+        "inventory_status": "not_checked",
+        "market": {
+          "candidate_id": "mereford",
+          "confidence": 0.68,
+          "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+          "geography": {
+            "kind": "radius",
+            "label": "5 km around Mereford",
+            "radius_km": 5
+          },
+          "id": "mere-housing-market",
+          "listing_search_url": null,
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 16,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
+              "licence": "CC0-1.0",
+              "retrieved_at": "2026-08-01T12:00:00Z",
+              "source_date": "2026-08-01",
+              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 330000
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 330000
+      },
       "id": "mereford",
       "informational_metrics": [],
       "location": {
@@ -537,8 +744,57 @@
       "missing_metrics": [],
       "name": "Mereford",
       "overall_score": 69.1,
+      "rail_summary": {
+        "fastest_total_minutes": 72,
+        "journeys": [
+          {
+            "access_minutes": 10,
+            "cancellation_percent": 4.5,
+            "candidate_id": "mereford",
+            "changes": 1,
+            "confidence": 0.84,
+            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 10,
+            "id": "mere-central-rail",
+            "last_useful_departure": "2026-08-01T22:54:00+01:00",
+            "london_arrival_station": "London Liverpool Street",
+            "london_last_mile_minutes": 10,
+            "origin_station": "Mereford",
+            "origin_station_crs": "MER",
+            "primary": true,
+            "punctuality_percent": 82.0,
+            "scheduled_rail_minutes": 42,
+            "service_window": "Typical Tuesday arrival by 09:00",
+            "services_per_hour": 2,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Synthetic LOCATION\u00b3 timetable fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+              },
+              {
+                "kind": "performance",
+                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
+                "licence": "CC0-1.0",
+                "retrieved_at": "2026-08-01T12:00:00Z",
+                "source_date": "2026-08-01",
+                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+              }
+            ],
+            "total_minutes": 72
+          }
+        ],
+        "primary_journey_id": "mere-central-rail"
+      },
       "rank": 3,
-      "warnings": []
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory",
+        "Purchase comparable sample has fewer than 20 transactions"
+      ]
     }
   ],
   "generated_at": "2026-08-01T12:00:00+00:00",

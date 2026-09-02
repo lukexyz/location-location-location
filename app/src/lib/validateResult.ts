@@ -71,8 +71,145 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   array(candidate.informational_metrics, `${path}.informational_metrics`).forEach(
     (metric, metricIndex) => validateMetric(metric, `${path}.informational_metrics[${metricIndex}]`),
   );
+  if (candidate.rail_summary !== undefined) {
+    validateRailSummary(candidate.rail_summary, `${path}.rail_summary`, id);
+  }
+  if (candidate.housing_summary !== undefined) {
+    validateHousingSummary(candidate.housing_summary, `${path}.housing_summary`, id);
+  }
   stringArray(candidate.missing_metrics, `${path}.missing_metrics`);
   stringArray(candidate.warnings, `${path}.warnings`);
+}
+
+function validateHousingSummary(value: unknown, path: string, candidateId: string): void {
+  const summary = record(value, path);
+  const mode = string(summary.mode, `${path}.mode`);
+  if (mode !== "buy" && mode !== "rent") {
+    throw new ResultValidationError(`${path}.mode must be buy or rent`);
+  }
+  const budget = range(summary.budget_gbp, `${path}.budget_gbp`, Number.EPSILON, Infinity);
+  const period = string(summary.budget_period, `${path}.budget_period`);
+  if (period !== (mode === "buy" ? "purchase" : "month")) {
+    throw new ResultValidationError(`${path}.budget_period does not match mode`);
+  }
+  string(summary.property_type, `${path}.property_type`);
+  if (summary.bedrooms !== null) integer(summary.bedrooms, `${path}.bedrooms`, 0);
+  const typical = range(summary.typical_cost_gbp, `${path}.typical_cost_gbp`, Number.EPSILON, Infinity);
+  const ratio = range(summary.budget_ratio, `${path}.budget_ratio`, Number.EPSILON, Infinity);
+  if (Math.abs(ratio - typical / budget) > 0.000001) {
+    throw new ResultValidationError(`${path}.budget_ratio is inconsistent`);
+  }
+  if (summary.inventory_status !== "not_checked") {
+    throw new ResultValidationError(`${path}.inventory_status must be not_checked`);
+  }
+
+  const market = record(summary.market, `${path}.market`);
+  string(market.id, `${path}.market.id`);
+  if (string(market.candidate_id, `${path}.market.candidate_id`) !== candidateId) {
+    throw new ResultValidationError(`${path}.market references another candidate`);
+  }
+  if (finite(market.typical_cost_gbp, `${path}.market.typical_cost_gbp`) !== typical) {
+    throw new ResultValidationError(`${path}.market typical cost is inconsistent`);
+  }
+  const statistic = string(market.statistic, `${path}.market.statistic`);
+  if (statistic !== "median" && statistic !== "mean") {
+    throw new ResultValidationError(`${path}.market.statistic must be median or mean`);
+  }
+  const geography = record(market.geography, `${path}.market.geography`);
+  const geographyKind = string(geography.kind, `${path}.market.geography.kind`);
+  string(geography.label, `${path}.market.geography.label`);
+  if (mode === "buy") {
+    if (geographyKind !== "radius") {
+      throw new ResultValidationError(`${path}.market purchase geography must be a radius`);
+    }
+    range(geography.radius_km, `${path}.market.geography.radius_km`, Number.EPSILON, 5);
+  } else {
+    if (!["local_authority", "broad_rental_market_area", "region"].includes(geographyKind)) {
+      throw new ResultValidationError(`${path}.market rent geography is invalid`);
+    }
+    if (geography.radius_km !== null) {
+      throw new ResultValidationError(`${path}.market rent geography cannot use a radius`);
+    }
+  }
+  string(market.period_start, `${path}.market.period_start`);
+  string(market.period_end, `${path}.market.period_end`);
+  if (market.sample_size !== null) integer(market.sample_size, `${path}.market.sample_size`, 1);
+  if (mode === "buy" && market.sample_size === null) {
+    throw new ResultValidationError(`${path}.market purchase sample cannot be unknown`);
+  }
+  if (market.listing_search_url !== null) url(market.listing_search_url, `${path}.market.listing_search_url`);
+  range(market.confidence, `${path}.market.confidence`, 0, 1);
+  string(market.confidence_notes, `${path}.market.confidence_notes`);
+  const sources = array(market.sources, `${path}.market.sources`);
+  if (sources.length === 0) throw new ResultValidationError(`${path}.market.sources cannot be empty`);
+  const sourceKinds = new Set<string>();
+  sources.forEach((value, index) => {
+    const sourcePath = `${path}.market.sources[${index}]`;
+    const source = record(value, sourcePath);
+    const kind = string(source.kind, `${sourcePath}.kind`);
+    if (sourceKinds.has(kind)) throw new ResultValidationError(`${path}.market has duplicate source kinds`);
+    sourceKinds.add(kind);
+    ["label", "retrieved_at", "source_date", "licence"]
+      .forEach((field) => string(source[field], `${sourcePath}.${field}`));
+    url(source.url, `${sourcePath}.url`);
+  });
+  const requiredSource = mode === "buy" ? "transactions" : "rents";
+  if (!sourceKinds.has(requiredSource)) {
+    throw new ResultValidationError(`${path}.market requires a ${requiredSource} source`);
+  }
+}
+
+function validateRailSummary(value: unknown, path: string, candidateId: string): void {
+  const summary = record(value, path);
+  const primaryId = string(summary.primary_journey_id, `${path}.primary_journey_id`);
+  const fastest = range(summary.fastest_total_minutes, `${path}.fastest_total_minutes`, 0, Infinity);
+  const journeys = array(summary.journeys, `${path}.journeys`);
+  if (journeys.length === 0) throw new ResultValidationError(`${path}.journeys cannot be empty`);
+  const ids = new Set<string>();
+  let primaryCount = 0;
+  let actualFastest = Infinity;
+  journeys.forEach((value, index) => {
+    const journeyPath = `${path}.journeys[${index}]`;
+    const journey = record(value, journeyPath);
+    const journeyId = string(journey.id, `${journeyPath}.id`);
+    if (ids.has(journeyId)) throw new ResultValidationError(`Duplicate rail journey id: ${journeyId}`);
+    ids.add(journeyId);
+    if (string(journey.candidate_id, `${journeyPath}.candidate_id`) !== candidateId) {
+      throw new ResultValidationError(`${journeyPath} references another candidate`);
+    }
+    ["destination_label", "origin_station", "origin_station_crs", "london_arrival_station", "service_window", "confidence_notes"]
+      .forEach((field) => string(journey[field], `${journeyPath}.${field}`));
+    const primary = boolean(journey.primary, `${journeyPath}.primary`);
+    primaryCount += primary ? 1 : 0;
+    const components = ["access_minutes", "expected_wait_minutes", "scheduled_rail_minutes", "london_last_mile_minutes"]
+      .map((field) => range(journey[field], `${journeyPath}.${field}`, 0, Infinity));
+    const total = range(journey.total_minutes, `${journeyPath}.total_minutes`, 0, Infinity);
+    if (Math.abs(components.reduce((sum, item) => sum + item, 0) - total) > 0.01) {
+      throw new ResultValidationError(`${journeyPath} component times do not equal total_minutes`);
+    }
+    actualFastest = Math.min(actualFastest, total);
+    integer(journey.changes, `${journeyPath}.changes`, 0);
+    range(journey.services_per_hour, `${journeyPath}.services_per_hour`, 0, Infinity);
+    nullableString(journey.last_useful_departure, `${journeyPath}.last_useful_departure`);
+    nullableRange(journey.punctuality_percent, `${journeyPath}.punctuality_percent`, 0, 100);
+    nullableRange(journey.cancellation_percent, `${journeyPath}.cancellation_percent`, 0, 100);
+    range(journey.confidence, `${journeyPath}.confidence`, 0, 1);
+    const sources = array(journey.sources, `${journeyPath}.sources`);
+    if (sources.length === 0) throw new ResultValidationError(`${journeyPath}.sources cannot be empty`);
+    sources.forEach((value, sourceIndex) => {
+      const sourcePath = `${journeyPath}.sources[${sourceIndex}]`;
+      const source = record(value, sourcePath);
+      ["kind", "label", "retrieved_at", "source_date", "licence"]
+        .forEach((field) => string(source[field], `${sourcePath}.${field}`));
+      url(source.url, `${sourcePath}.url`);
+    });
+  });
+  if (primaryCount !== 1 || !ids.has(primaryId)) {
+    throw new ResultValidationError(`${path} must identify exactly one primary journey`);
+  }
+  if (Math.abs(fastest - actualFastest) > 0.01) {
+    throw new ResultValidationError(`${path}.fastest_total_minutes is inconsistent`);
+  }
 }
 
 function validateMetric(value: unknown, path: string): void {
@@ -140,6 +277,22 @@ function range(value: unknown, path: string, minimum: number, maximum: number): 
     throw new ResultValidationError(`${path} must be between ${minimum} and ${maximum}`);
   }
   return number;
+}
+
+function integer(value: unknown, path: string, minimum: number): number {
+  const number = finite(value, path);
+  if (!Number.isInteger(number) || number < minimum) {
+    throw new ResultValidationError(`${path} must be an integer of at least ${minimum}`);
+  }
+  return number;
+}
+
+function nullableString(value: unknown, path: string): void {
+  if (value !== null) string(value, path);
+}
+
+function nullableRange(value: unknown, path: string, minimum: number, maximum: number): void {
+  if (value !== null) range(value, path, minimum, maximum);
 }
 
 function stringArray(value: unknown, path: string): void {

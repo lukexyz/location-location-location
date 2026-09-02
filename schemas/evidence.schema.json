@@ -30,6 +30,13 @@
     "observations": {
       "type": "array",
       "items": {"$ref": "#/$defs/observation"}
+    },
+    "rail_journeys": {
+      "type": "array",
+      "items": {"$ref": "rail-research.schema.json#/$defs/journey"}
+    },
+    "housing_research": {
+      "$ref": "housing-research.schema.json"
     }
   },
   "$defs": {

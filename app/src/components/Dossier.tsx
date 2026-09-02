@@ -1,5 +1,5 @@
 import { compactDate, label, rawValue } from "../lib/format";
-import type { CandidateResult, MetricResult } from "../types";
+import type { CandidateResult, HousingSummary, MetricResult, RailJourney } from "../types";
 
 export function Dossier({ candidate }: { candidate: CandidateResult }) {
   const constraintStatus = candidate.hard_constraints.passed ? "CLEAR" : "LIMIT BREACH";
@@ -48,6 +48,25 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
           </section>
         )}
 
+        {candidate.rail_summary && (
+          <section className="rail-block" aria-labelledby={`rail-${candidate.id}`}>
+            <header>
+              <div>
+                <span className="eyebrow">SHORTLIST / CITED JOURNEYS</span>
+                <h3 id={`rail-${candidate.id}`}>Rail intelligence</h3>
+              </div>
+              <strong>{candidate.rail_summary.fastest_total_minutes} min</strong>
+            </header>
+            {candidate.rail_summary.journeys.map((journey) => (
+              <RailJourneyReadout journey={journey} key={journey.id} />
+            ))}
+          </section>
+        )}
+
+        {candidate.housing_summary && (
+          <HousingReadout housing={candidate.housing_summary} candidateId={candidate.id} />
+        )}
+
         {candidate.categories.map((category) => (
           <section className="category-block" key={category.category}>
             <header>
@@ -89,6 +108,91 @@ export function Dossier({ candidate }: { candidate: CandidateResult }) {
   );
 }
 
+function HousingReadout({ housing, candidateId }: { housing: HousingSummary; candidateId: string }) {
+  const market = housing.market;
+  const basis = housing.mode === "buy" ? "purchase" : "month";
+  return (
+    <section className="housing-block" aria-labelledby={`housing-${candidateId}`}>
+      <header>
+        <div>
+          <span className="eyebrow">SHORTLIST / MARKET EVIDENCE</span>
+          <h3 id={`housing-${candidateId}`}>Housing affordability</h3>
+        </div>
+        <strong>{Math.round(housing.budget_ratio * 100)}%</strong>
+      </header>
+      <dl className="housing-grid">
+        <div><dt>Typical {basis}</dt><dd>{gbp(housing.typical_cost_gbp)}</dd></div>
+        <div><dt>Budget</dt><dd>{gbp(housing.budget_gbp)}</dd></div>
+        <div><dt>Property</dt><dd>{housing.bedrooms === null ? "Any size" : `${housing.bedrooms} bed`} {housing.property_type}</dd></div>
+        <div><dt>Statistic</dt><dd>{market.statistic}</dd></div>
+        <div><dt>Geography</dt><dd>{market.geography.label}</dd></div>
+        <div><dt>Sample</dt><dd>{market.sample_size ?? "not published"}</dd></div>
+        <div><dt>Period</dt><dd>{compactDate(market.period_start)}–{compactDate(market.period_end)}</dd></div>
+        <div><dt>Confidence</dt><dd>{Math.round(market.confidence * 100)}%</dd></div>
+      </dl>
+      <p className="housing-note">{market.confidence_notes}</p>
+      <p className="inventory-note">Market evidence only — live inventory was not checked.</p>
+      {market.listing_search_url && (
+        <a className="listing-action" href={market.listing_search_url} rel="noreferrer" target="_blank">
+          Search current listings ↗
+        </a>
+      )}
+      <div className="housing-sources">
+        {market.sources.map((source) => (
+          <a href={source.url} key={source.kind} rel="noreferrer" target="_blank">
+            {source.kind}: {source.label} ({compactDate(source.source_date)})
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function gbp(value: number): string {
+  return new Intl.NumberFormat("en-GB", {
+    style: "currency", currency: "GBP", maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function RailJourneyReadout({ journey }: { journey: RailJourney }) {
+  const lastTrain = journey.last_useful_departure
+    ? journey.last_useful_departure.slice(11, 16)
+    : "unknown";
+  return (
+    <details className="rail-journey" open={journey.primary}>
+      <summary>
+        <span><strong>{journey.origin_station}</strong> → {journey.london_arrival_station}</span>
+        <b>{journey.total_minutes} min</b>
+      </summary>
+      <p className="rail-window">{journey.destination_label} / {journey.service_window}</p>
+      <dl className="rail-grid">
+        <div><dt>Station access</dt><dd>{journey.access_minutes} min</dd></div>
+        <div><dt>Expected wait</dt><dd>{journey.expected_wait_minutes} min</dd></div>
+        <div><dt>Scheduled rail</dt><dd>{journey.scheduled_rail_minutes} min</dd></div>
+        <div><dt>London last mile</dt><dd>{journey.london_last_mile_minutes} min</dd></div>
+        <div><dt>Changes</dt><dd>{journey.changes}</dd></div>
+        <div><dt>Frequency</dt><dd>{journey.services_per_hour}/hr</dd></div>
+        <div><dt>Last useful train</dt><dd>{lastTrain}</dd></div>
+        <div><dt>Time to 3</dt><dd>{railPercent(journey.punctuality_percent)}</dd></div>
+        <div><dt>Cancellations</dt><dd>{railPercent(journey.cancellation_percent)}</dd></div>
+        <div><dt>Confidence</dt><dd>{Math.round(journey.confidence * 100)}%</dd></div>
+      </dl>
+      <p className="rail-note">{journey.confidence_notes}</p>
+      <div className="rail-sources">
+        {journey.sources.map((source) => (
+          <a href={source.url} key={source.kind} rel="noreferrer" target="_blank">
+            {source.kind}: {source.label} ({compactDate(source.source_date)})
+          </a>
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function railPercent(value: number | null): string {
+  return value === null ? "unknown" : `${value.toFixed(1)}%`;
+}
+
 function MetricRow({ metric }: { metric: MetricResult }) {
   const favorableObservation = metric.metric === "betting_shops" && metric.raw_value === 0;
   return (
@@ -122,5 +226,7 @@ function Readout({ label: title, value, tone }: { label: string; value: string; 
 
 function metricCount(candidate: CandidateResult): number {
   return candidate.categories.reduce((total, category) => total + category.metrics.length, 0)
-    + candidate.informational_metrics.length;
+    + candidate.informational_metrics.length
+    + (candidate.rail_summary?.journeys.length ?? 0)
+    + (candidate.housing_summary ? 1 : 0);
 }

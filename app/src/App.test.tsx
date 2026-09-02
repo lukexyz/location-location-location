@@ -30,6 +30,22 @@ describe("viewer", () => {
     expect(container.querySelector(".metric-raw + .metric-score")).toHaveTextContent("100.0");
   });
 
+  it("shows the full cited rail journey rather than only train time", () => {
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "Rail intelligence" })).toBeInTheDocument();
+    expect(screen.getByText(/London King's Cross/)).toBeInTheDocument();
+    expect(screen.getByText("Station access")).toBeInTheDocument();
+    expect(screen.getByText("London last mile")).toBeInTheDocument();
+  });
+
+  it("labels market affordability separately from live listings", () => {
+    render(<App />);
+    expect(screen.getByRole("heading", { name: "Housing affordability" })).toBeInTheDocument();
+    expect(screen.getByText("£390,000")).toBeInTheDocument();
+    expect(screen.getByText(/live inventory was not checked/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Search current listings/ })).toBeInTheDocument();
+  });
+
   it("imports valid result JSON locally without a fetch", async () => {
     const user = userEvent.setup();
     const fetchSpy = vi.fn();

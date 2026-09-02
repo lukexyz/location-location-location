@@ -35,8 +35,8 @@ def write_bundle(
         "cache_used": any(
             entry.get("cache") == "hit" for entry in (request_ledger or [])
         ),
-        "sources": sorted({item["source_url"] for item in evidence["observations"]}),
-        "licences": sorted({item["licence"] for item in evidence["observations"]}),
+        "sources": _evidence_values(evidence, "source_url", "url"),
+        "licences": _evidence_values(evidence, "licence", "licence"),
         "warnings": sorted(
             {warning for candidate in results["candidates"] for warning in candidate["warnings"]}
         ),
@@ -66,6 +66,22 @@ def _json_bytes(value: dict[str, Any]) -> bytes:
 
 def _checksum(content: bytes) -> str:
     return f"sha256:{sha256(content).hexdigest()}"
+
+
+def _evidence_values(
+    evidence: dict[str, Any], observation_key: str, rail_source_key: str
+) -> list[str]:
+    values = {item[observation_key] for item in evidence["observations"]}
+    for journey in evidence.get("rail_journeys", []):
+        values.update(source[rail_source_key] for source in journey["sources"])
+    housing_research = evidence.get("housing_research")
+    if housing_research:
+        values.update(
+            source[rail_source_key]
+            for market in housing_research["markets"]
+            for source in market["sources"]
+        )
+    return sorted(values)
 
 
 def _render_html(results: dict[str, Any]) -> str:

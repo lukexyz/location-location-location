@@ -20,7 +20,7 @@ test("a local result can be imported and rejected without navigation", async ({ 
     buffer: Buffer.from('{"schema_version":"7"}'),
   });
   await expect(page.getByRole("status")).toContainText("Incompatible schema 7");
-  await expect(page).toHaveURL(/127\.0\.0\.1:4173/);
+  await expect(page).toHaveURL(/127\.0\.0\.1:43117/);
 });
 
 test("the instrument reflows without horizontal overflow", async ({ page }) => {
@@ -29,4 +29,10 @@ test("the instrument reflows without horizontal overflow", async ({ page }) => {
     document: document.documentElement.scrollWidth,
   }));
   expect(dimensions.document).toBeLessThanOrEqual(dimensions.viewport + 1);
+});
+
+test("housing evidence is explicit about its market-only scope", async ({ page }) => {
+  await expect(page.getByRole("heading", { name: "Housing affordability" })).toBeVisible();
+  await expect(page.getByText(/live inventory was not checked/i)).toBeVisible();
+  await expect(page.getByRole("link", { name: /Search current listings/ })).toBeVisible();
 });

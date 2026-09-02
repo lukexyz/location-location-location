@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/rail-research.schema.json",
+  "title": "RailResearch",
+  "type": "object",
+  "required": ["schema_version", "provider", "journeys"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "provider": {"type": "string", "minLength": 1},
+    "journeys": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/journey"}
+    }
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["kind", "label", "url", "retrieved_at", "source_date", "licence"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "source_date": {"type": "string", "format": "date"},
+        "licence": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "journey": {
+      "type": "object",
+      "required": ["id", "candidate_id", "destination_label", "origin_station", "origin_station_crs", "london_arrival_station", "service_window", "primary", "access_minutes", "expected_wait_minutes", "scheduled_rail_minutes", "london_last_mile_minutes", "total_minutes", "changes", "services_per_hour", "last_useful_departure", "punctuality_percent", "cancellation_percent", "confidence", "confidence_notes", "sources"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "destination_label": {"type": "string", "minLength": 1},
+        "origin_station": {"type": "string", "minLength": 1},
+        "origin_station_crs": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "london_arrival_station": {"type": "string", "minLength": 1},
+        "service_window": {"type": "string", "minLength": 1},
+        "primary": {"type": "boolean"},
+        "access_minutes": {"type": "number", "minimum": 0},
+        "expected_wait_minutes": {"type": "number", "minimum": 0},
+        "scheduled_rail_minutes": {"type": "number", "minimum": 0},
+        "london_last_mile_minutes": {"type": "number", "minimum": 0},
+        "total_minutes": {"type": "number", "minimum": 0},
+        "changes": {"type": "integer", "minimum": 0},
+        "services_per_hour": {"type": "number", "minimum": 0},
+        "last_useful_departure": {"type": ["string", "null"], "format": "date-time"},
+        "punctuality_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "cancellation_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "confidence_notes": {"type": "string", "minLength": 1},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any
 
@@ -27,8 +28,25 @@ def score_research(
             raise ValueError(f"multiple observations for {candidate_id}/{metric}")
         by_candidate[candidate_id][metric] = observation
 
+    rail_by_candidate: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for journey in evidence.get("rail_journeys", []):
+        rail_by_candidate[journey["candidate_id"]].append(journey)
+
+    housing_by_candidate: dict[str, dict[str, Any]] = {}
+    housing_research = evidence.get("housing_research")
+    if housing_research:
+        housing_by_candidate = {
+            market["candidate_id"]: market for market in housing_research["markets"]
+        }
+
     scored = [
-        _score_candidate(candidate, by_candidate[candidate["id"]], profile)
+        _score_candidate(
+            candidate,
+            by_candidate[candidate["id"]],
+            rail_by_candidate[candidate["id"]],
+            housing_by_candidate.get(candidate["id"]),
+            profile,
+        )
         for candidate in evidence["candidates"]
     ]
     scored.sort(
@@ -53,6 +71,8 @@ def score_research(
 def _score_candidate(
     candidate: dict[str, Any],
     observations: dict[str, dict[str, Any]],
+    rail_journeys: list[dict[str, Any]],
+    housing_market: dict[str, Any] | None,
     profile: dict[str, Any],
 ) -> dict[str, Any]:
     weights = profile["weights"]
@@ -131,6 +151,26 @@ def _score_candidate(
     constraints = _evaluate_constraints(profile.get("hard_constraints", []), observations)
     warnings = [f"Missing weighted metric: {metric}" for metric in sorted(missing)]
     warnings.extend(item["warning"] for item in constraints if item.get("warning"))
+    for journey in rail_journeys:
+        if journey["last_useful_departure"] is None:
+            warnings.append(
+                f"Last useful rail service unavailable: {journey['destination_label']}"
+            )
+        if (
+            journey["punctuality_percent"] is None
+            or journey["cancellation_percent"] is None
+        ):
+            warnings.append(
+                f"Rail reliability incomplete: {journey['destination_label']}"
+            )
+    if housing_market:
+        mode = profile["search"]["housing"]["mode"]
+        warnings.append("Housing affordability is market evidence, not live inventory")
+        if mode == "buy" and housing_market["sample_size"] < 20:
+            warnings.append("Purchase comparable sample has fewer than 20 transactions")
+        if mode == "rent":
+            geography = housing_market["geography"]["kind"].replace("_", " ")
+            warnings.append(f"Rent evidence uses coarse {geography} geography")
     informational_metrics = [
         metric
         for category in sorted(metric_results)
@@ -139,7 +179,7 @@ def _score_candidate(
     ]
     for metric in informational_metrics:
         metric["category_contribution"] = 0.0
-    return {
+    result = {
         "id": candidate["id"],
         "name": candidate["name"],
         "location": candidate["location"],
@@ -154,6 +194,34 @@ def _score_candidate(
         "missing_metrics": sorted(missing),
         "warnings": warnings,
     }
+    if rail_journeys:
+        result["rail_summary"] = {
+            "primary_journey_id": next(
+                journey["id"] for journey in rail_journeys if journey["primary"]
+            ),
+            "fastest_total_minutes": min(
+                journey["total_minutes"] for journey in rail_journeys
+            ),
+            "journeys": deepcopy(rail_journeys),
+        }
+    if housing_market:
+        requirements = profile["search"]["housing"]
+        result["housing_summary"] = {
+            "mode": requirements["mode"],
+            "budget_gbp": requirements["budget_gbp"],
+            "budget_period": (
+                "purchase" if requirements["mode"] == "buy" else "month"
+            ),
+            "property_type": requirements["property_type"],
+            "bedrooms": requirements["bedrooms"],
+            "typical_cost_gbp": housing_market["typical_cost_gbp"],
+            "budget_ratio": (
+                housing_market["typical_cost_gbp"] / requirements["budget_gbp"]
+            ),
+            "inventory_status": "not_checked",
+            "market": deepcopy(housing_market),
+        }
+    return result
 
 
 def _evaluate_constraints(

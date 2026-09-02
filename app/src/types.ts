@@ -37,6 +37,85 @@ export interface CategoryResult {
   metrics: MetricResult[];
 }
 
+export interface RailSource {
+  kind: string;
+  label: string;
+  url: string;
+  retrieved_at: string;
+  source_date: string;
+  licence: string;
+}
+
+export interface RailJourney {
+  id: string;
+  candidate_id: string;
+  destination_label: string;
+  origin_station: string;
+  origin_station_crs: string;
+  london_arrival_station: string;
+  service_window: string;
+  primary: boolean;
+  access_minutes: number;
+  expected_wait_minutes: number;
+  scheduled_rail_minutes: number;
+  london_last_mile_minutes: number;
+  total_minutes: number;
+  changes: number;
+  services_per_hour: number;
+  last_useful_departure: string | null;
+  punctuality_percent: number | null;
+  cancellation_percent: number | null;
+  confidence: number;
+  confidence_notes: string;
+  sources: RailSource[];
+}
+
+export interface RailSummary {
+  primary_journey_id: string;
+  fastest_total_minutes: number;
+  journeys: RailJourney[];
+}
+
+export interface HousingSource {
+  kind: string;
+  label: string;
+  url: string;
+  retrieved_at: string;
+  source_date: string;
+  licence: string;
+}
+
+export interface HousingMarket {
+  id: string;
+  candidate_id: string;
+  typical_cost_gbp: number;
+  statistic: "median" | "mean";
+  geography: {
+    kind: "radius" | "local_authority" | "broad_rental_market_area" | "region";
+    label: string;
+    radius_km: number | null;
+  };
+  period_start: string;
+  period_end: string;
+  sample_size: number | null;
+  listing_search_url: string | null;
+  confidence: number;
+  confidence_notes: string;
+  sources: HousingSource[];
+}
+
+export interface HousingSummary {
+  mode: "buy" | "rent";
+  budget_gbp: number;
+  budget_period: "purchase" | "month";
+  property_type: string;
+  bedrooms: number | null;
+  typical_cost_gbp: number;
+  budget_ratio: number;
+  inventory_status: "not_checked";
+  market: HousingMarket;
+}
+
 export interface CandidateResult {
   id: string;
   name: string;
@@ -50,6 +129,8 @@ export interface CandidateResult {
   };
   categories: CategoryResult[];
   informational_metrics: MetricResult[];
+  rail_summary?: RailSummary;
+  housing_summary?: HousingSummary;
   missing_metrics: string[];
   warnings: string[];
 }

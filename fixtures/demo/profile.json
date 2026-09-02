@@ -4,7 +4,7 @@
   "search": {
     "approximate_origin": {"latitude": 51.5, "longitude": -0.1, "precision": "demo"},
     "route_boundary": {"type": "fixture_polygon", "description": "Synthetic 65-minute commute boundary"},
-    "housing": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat"},
+    "housing": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat", "bedrooms": 2},
     "destinations": [{"label": "Central destination", "travel_mode": "public_transport", "arrival": "Tuesday 09:00"}],
     "providers": {"routing": "fixture", "housing": "fixture", "places": "fixture"}
   },

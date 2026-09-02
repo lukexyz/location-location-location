@@ -509,5 +509,7 @@ Do not introduce a national ETL warehouse, published H3 catalogue, Cloudflare ro
 - Raw observations and desirability scores have different semantics. Keep normalized scores visually consistent; use contextual colour on the observation itself (for example, zero betting shops is positive).
 - The first live slice uses one bounded OpenRouteService isochrone and one combined Overpass query. Café reach is explicitly lower-confidence until the 1.2 km proxy is replaced by walking-network catchments.
 - Research now previews before execution, caps live calls at two, reuses an ignored expiring cache, and validates redacted request provenance, citations, licences, dates, and checksums.
-- Real desktop/mobile browser tests caught issues unit tests did not, including hidden import errors, obscured map state, and fixed chrome covering evidence.
+- Rail enrichment is a separate zero-network shortlist step: component times must equal the door-to-door total, reliability may remain unknown, and every displayed fact retains its citation.
+- Housing enrichment follows the same boundary: code derives cost-to-budget ratios from cited shortlist evidence, buy comparables retain radius and sample size, rent retains its coarser published geography, and aggregate evidence never becomes a live-inventory claim.
+- Real desktop/mobile browser tests caught issues unit tests did not, including hidden import errors, obscured map state, fixed chrome covering evidence, and accidental reuse of another project's Vite port.
 - `experiments/MUSINGS.md` is a frozen clean-room brief for an independent rebuild and should not inherit this implementation's output or later notes.

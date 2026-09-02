@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/housing-research.schema.json",
+  "title": "HousingResearch",
+  "type": "object",
+  "required": ["schema_version", "provider", "requirements", "markets"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "provider": {"type": "string", "minLength": 1},
+    "requirements": {
+      "type": "object",
+      "required": ["mode", "budget_gbp", "property_type", "bedrooms"],
+      "properties": {
+        "mode": {"enum": ["buy", "rent"]},
+        "budget_gbp": {"type": "number", "exclusiveMinimum": 0},
+        "property_type": {"type": "string", "minLength": 1},
+        "bedrooms": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "markets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/market"}}
+  },
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["kind", "label", "url", "retrieved_at", "source_date", "licence"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "source_date": {"type": "string", "format": "date"},
+        "licence": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "geography": {
+      "type": "object",
+      "required": ["kind", "label", "radius_km"],
+      "properties": {
+        "kind": {"enum": ["radius", "local_authority", "broad_rental_market_area", "region"]},
+        "label": {"type": "string", "minLength": 1},
+        "radius_km": {"type": ["number", "null"], "exclusiveMinimum": 0, "maximum": 5}
+      },
+      "additionalProperties": false
+    },
+    "market": {
+      "type": "object",
+      "required": ["id", "candidate_id", "typical_cost_gbp", "statistic", "geography", "period_start", "period_end", "sample_size", "listing_search_url", "confidence", "confidence_notes", "sources"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "candidate_id": {"type": "string", "minLength": 1},
+        "typical_cost_gbp": {"type": "number", "exclusiveMinimum": 0},
+        "statistic": {"enum": ["median", "mean"]},
+        "geography": {"$ref": "#/$defs/geography"},
+        "period_start": {"type": "string", "format": "date"},
+        "period_end": {"type": "string", "format": "date"},
+        "sample_size": {"type": ["integer", "null"], "minimum": 1},
+        "listing_search_url": {"type": ["string", "null"], "format": "uri"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "confidence_notes": {"type": "string", "minLength": 1},
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
