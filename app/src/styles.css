@@ -178,3 +178,13 @@ button:focus-visible, summary:focus-visible, a:focus-visible, .leaflet-marker-ic
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Playful readouts: presentation of cited evidence, never a scoring input. */
+.readout-block { margin-top: .2rem; }
+.readout-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.readout-grid li { display: grid; gap: .2rem; min-width: 0; padding: .55rem .6rem; border: 1px solid var(--line); background: rgba(0, 0, 0, .14); }
+.readout-grid .eyebrow { font-size: .56rem; }
+.readout-grid strong { color: var(--acid); font: .82rem Consolas, monospace; overflow-wrap: anywhere; }
+.readout-grid small { color: var(--muted); font: .6rem/1.4 Consolas, monospace; overflow-wrap: anywhere; }
+.readout-grid li.is-empty strong { color: var(--muted); font-style: italic; }
+.readout-footnote { margin: .5rem 0 0; color: var(--muted); font: .6rem/1.4 Consolas, monospace; }

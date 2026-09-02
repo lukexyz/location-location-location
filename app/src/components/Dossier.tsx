@@ -1,4 +1,5 @@
 import { compactDate, label, rawValue } from "../lib/format";
+import { deriveReadouts } from "../lib/readouts";
 import type { CandidateResult, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
 
 export function Dossier({
@@ -47,6 +48,20 @@ export function Dossier({
       </div>
 
       <div className="dossier-scroll">
+        <section className="readout-block" aria-labelledby={`readouts-${candidate.id}`}>
+          <h3 id={`readouts-${candidate.id}`} className="visually-hidden">Playful readouts</h3>
+          <ul className="readout-grid">
+            {deriveReadouts(candidate).map((readout) => (
+              <li key={readout.key} className={readout.available ? undefined : "is-empty"}>
+                <span className="eyebrow">{readout.title.toUpperCase()}</span>
+                <strong>{readout.value}</strong>
+                <small>{readout.detail}</small>
+              </li>
+            ))}
+          </ul>
+          <p className="readout-footnote">Readouts restate cited evidence; they add nothing to the score.</p>
+        </section>
+
         {routeBoundary && <RouteBoundaryReadout boundary={routeBoundary} />}
 
         {candidate.hard_constraints.results.length > 0 && (

@@ -65,3 +65,12 @@ test("street-care evidence exposes its basis and raw prior", async ({ page }) =>
   await expect(page.getByText(/PAVEMENT PRIDE \/ Recent visit audit/i)).toBeVisible();
   await expect(page.getByText("12/1k")).toBeVisible();
 });
+
+test("playful readouts restate cited evidence", async ({ page }) => {
+  const readouts = page.locator(".readout-grid");
+  await expect(readouts).toBeVisible();
+  await expect(readouts.getByText("SOURDOUGH-TO-SLOTS")).toBeVisible();
+  await expect(readouts.getByText("LAST TRAIN HOME")).toBeVisible();
+  await expect(page.getByText("Readouts restate cited evidence; they add nothing to the score.")).toBeVisible();
+  await expect(page.getByText("no evidence")).toHaveCount(0);
+});

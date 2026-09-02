@@ -599,3 +599,17 @@ The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 202
 - Screenshot baselines need Linux-rendered references generated in CI; adopt them once a CI run can publish baselines rather than committing Windows renders that would fail there.
 - Official source adapters for Land Registry price-paid and ORR performance follow the same preview, cap, and citation rules and are attempted only after a bounded live query is verified.
 - Later metric modules, per-destination isochrone overlays, compare mode, and run diffing remain future ideas.
+
+### P4 completion note
+
+- The single Overpass call now uses `around` filters on the discovered place nodes for amenities, green space, and the walkable highway network, which also stops it fetching every café in a large drive-time polygon. The call cap stays at two.
+- `walking.py` builds an undirected graph from way geometry, densifies long segments so mid-street features snap within about 25 m, and runs a bounded Dijkstra from each place node. A feature snaps to its single nearest walkable node so every measurement reads as "network distance to that node plus the short offset".
+- Fallbacks are explicit in each observation: a candidate more than 300 m from any walkable way, or a cached response without network data, keeps the straight-line proxy and says why. Network-measured counts carry a modest confidence bonus; green space keeps its bounding-box proxy.
+
+### Demo place note
+
+- The public demo now names three real commuter-belt towns (Welwyn Garden City, Hemel Hempstead, Maidenhead) with real coordinates and plausible stations, but every number remains synthetic and is labelled as such in the viewer, fixtures, and README. The demo must never be read as a measurement of those towns.
+
+### P5 completion note
+
+- Six playful readouts sit at the top of the dossier: Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, and Pavement Pride. They are derived in the viewer from fields already in the result, render "no evidence" instead of a value when the evidence is missing, and unit tests prove they leave the result untouched.
