@@ -680,3 +680,36 @@ Ordered by value; none is blocking a push of the current checkpoint.
 - What-if previews never write back. Making new importance authoritative always means rerunning the research command.
 - Exports are re-scored bundles. No script may hand-edit a `results.json`.
 - The public demo may name real places only while every number is synthetic and labelled as such in the interface, fixtures, and README.
+
+## 2026-09-02 — Code Evaluation Against the Brief and Gameplan P9–P15
+
+### Verdict
+
+The project is on target with the scope-corrected vision and the build claims above hold: ruff is clean, 52 Python, 33 viewer, and 28 browser tests pass, the demo regenerates byte-identically, the production build succeeds, and `main` is fully pushed at 4b6c880. The drift is not in direction but in depth. The parts of the mission that carry the most weight are the least real.
+
+### Where the build has drifted from the vision
+
+- **The live run does not measure what the user weights most.** A run makes one isochrone call and one Overpass call. Door-to-door commute, housing affordability, and street care enter only through hand-written JSON that an agent "researches" without a source adapter. The schemas require hard numbers such as punctuality percent and a 2 km median price, so an agent with browsing will emit plausible figures with a URL attached. "Cited" is enforced; "measured" is not. The brief's measured / transformed / inferred / observed distinction has no field anywhere.
+- **The one live amenity path is broken on real data.** The POI block ends with `out center tags`. In Overpass QL `tags` prints ids and tags without coordinates for nodes, and `center` adds a centroid only for ways and relations. Most cafés, bookmakers, and shops are nodes, so `osm.py` drops them and every count reads 0 at confidence 0.75. The tests hand-build elements with `lat`/`lon`, so the suite cannot see it.
+- **Missing evidence is quietly renormalised away.** A category with no observations leaves the weight denominator, so a fresh run ranks purely on cafés and green space with confidence as the only warning. Hard constraints with no evidence count as passed and sort above genuine failures, and driving or walking destination limits can never be evaluated at all. The brief says missing is never clean.
+- **The skill cannot express the acceptance scenario.** `SKILL.md` omits the destination, constraint, weight, and housing flags the CLI already has, and every run collects all five amenity categories regardless of selected metrics, contradicting "only metrics selected for that run".
+- **The viewer reads as a dark dashboard rather than a machined instrument.** Two floating cards with drop shadows cover most of the map, controls are native selects and OS range sliders, all text is one Consolas voice at roughly 9 px, pins are fixed 58 px discs with no collision handling, and the score explanation and missing-data warnings sit at the bottom of the dossier. Mobile hides the "loaded in this tab only" disclosure.
+
+### Defects found
+
+- Export redaction is incomplete: the ledger request id is a hash of the exact ORS body, so a rounded origin can be brute-forced from an export; station names, audit notes, and lowercase label mentions survive anonymisation.
+- The disclosure understates what is sent: the preview prints the origin at 4 decimals but full precision is sent, and the polygon sent to Overpass is subsampled to 80 vertices while the full one is recorded.
+- The map refits on every slider tick because the bounds controller depends on the sorted candidate array.
+- Green Escape asserts "no green space was found" when the metric is merely absent.
+- Smaller: a 5 MB import cap rejects runs over roughly 350 candidates; all-zero sliders show 100 % confidence; coordinates render as "-0.208E"; `.env` files are not ignored; the README has no install step; the launch default weights recorded on 2026-09-01 (street care 4, betting 3, yoga 2, grocers 2) no longer match `preferences.toml` (3, 2, 1, 1) and this entry amends that decision to the file's values.
+- Code debt: four copies of the validator helpers, three near-identical importer CLIs, circular-import workarounds in scoring and validation, a 545-line hand validator duplicating the JSON schema, and stale `.pyc` files for deleted modules.
+
+### Gameplan
+
+- **P9 — Make the live path real.** Fix the Overpass output verbosity, add a recorded live-shaped fixture with node POIs, derive the Overpass blocks from the selected metrics and constraints, print exactly the body that leaves the machine with the origin rounded before sending, and record the simplified polygon in provenance. Give the skill the full command line.
+- **P10 — Missing is never clean.** Three-state hard constraints (`pass` / `fail` / `unknown`) with unknown sorted below pass; reject destination limits that no evidence path can evaluate; keep empty categories visible in the result as unmeasured with a prominent warning instead of silently renormalising.
+- **P11 — Complete export redaction.** Re-hash or drop request ids, strip station names and audit prose, replace labels case-insensitively, and drop the private visit audit from exports.
+- **P12 — Evidence basis.** Add a required `basis` field (`measured`, `transformed`, `agent_inferred`, `user_observed`) to observations and to rail, housing, and street-care inputs; surface it in the dossier and lower confidence for inferred values.
+- **P13 — Viewer pass.** Fix map state churn, reorder the dossier so constraints, explanation, and missing-data warnings lead, show category weights and what-if missing metrics, fix the Green Escape wording, hemispheres, hidden mobile disclosure, and the import limits; move toward three typographic voices and custom controls.
+- **P14 — One official adapter.** ORR station performance through the same preview, cap, ledger, and citation path, so at least one hand-written input becomes measured.
+- **P15 — Hygiene.** Ignore `.env*`, add the install step to the README, consolidate validator helpers and importer CLIs, delete stale bytecode, and record completion notes here.
