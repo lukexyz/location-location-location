@@ -3,99 +3,72 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
-import json
 from pathlib import Path
-from shutil import copy2
 from typing import Any, Sequence
 
+from .importer import ImportPlan, ImportSpec, read_json, run_import
+from .orr_cli import OUTPUT_NAME as PERFORMANCE_FILE
 from .rail import merge_rail_research
-from .reporting import write_bundle
-from .scoring import score_research
-from .validation import validate_provenance
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Preview or import cited shortlist-only London rail research"
-    )
-    parser.add_argument("--run-dir", required=True, type=Path)
-    parser.add_argument("--input", required=True, type=Path)
-    parser.add_argument("--output", type=Path)
+def _add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--performance", type=Path,
         help="an orr-performance.json written by fetch_orr_performance.py",
     )
-    parser.add_argument("--execute", action="store_true")
-    args = parser.parse_args(argv)
 
-    profile = _read_json(args.run_dir / "profile.json")
-    evidence = _read_json(args.run_dir / "evidence.json")
-    manifest = _read_json(args.run_dir / "provenance.json")
-    rail_research = _read_json(args.input)
-    performance = _read_json(args.performance) if args.performance else None
-    artifacts = {
-        name: (args.run_dir / name).read_bytes()
-        for name in ("profile.json", "evidence.json", "results.json")
-    }
-    validate_provenance(evidence, manifest, artifacts)
+
+def _prepare(
+    profile: dict[str, Any],
+    evidence: dict[str, Any],
+    rail_research: dict[str, Any],
+    args: argparse.Namespace,
+) -> ImportPlan:
+    performance = read_json(args.performance) if args.performance else None
     merged = merge_rail_research(
         evidence,
         rail_research,
-        destination_labels=[
-            item["label"] for item in profile["search"]["destinations"]
-        ],
+        destination_labels=[item["label"] for item in profile["search"]["destinations"]],
         performance=performance,
     )
-    output = args.output or args.run_dir.with_name(f"{args.run_dir.name}-rail")
-
-    print(
+    lines = [
         f"Rail import plan: {len(rail_research['journeys'])} journeys across "
         f"{len({item['candidate_id'] for item in rail_research['journeys']})} "
         "shortlisted candidates"
-    )
+    ]
+    providers = {"rail": rail_research["provider"]}
+    ledger: list[dict[str, Any]] = []
+    copies: tuple[str, ...] = ()
     if performance is not None:
         operators = sorted({
             journey["operator"] for journey in merged["rail_journeys"] if "operator" in journey
         })
-        print(
+        lines.append(
             f"ORR performance: measured reliability applied to {len(operators)} operator(s): "
             f"{', '.join(operators) or 'none named'}"
         )
-    print("Network calls: 0; only the cited local input files are read")
-    print(f"Private output: {output}")
-    if not args.execute:
-        print("Preview only. Re-run with --execute after reviewing the citations.")
-        return 0
-
-    profile["search"]["providers"]["rail"] = rail_research["provider"]
-    if performance is not None:
-        profile["search"]["providers"]["rail_performance"] = performance["provider"]
-    generated_at = datetime.now(timezone.utc).isoformat()
-    results = score_research(profile, merged, generated_at)
-    write_bundle(
-        output,
-        profile,
-        merged,
-        results,
-        request_ledger=(
-            manifest["request_ledger"]
-            + (performance.get("request_ledger", []) if performance else [])
-        ),
+        providers["rail_performance"] = performance["provider"]
+        ledger = list(performance.get("request_ledger", []))
+        copies = (PERFORMANCE_FILE,)
+    return ImportPlan(
+        profile=profile,
+        evidence=merged,
+        lines=lines,
+        providers=providers,
+        request_ledger=ledger,
+        copies=copies,
     )
-    for name in ("route-boundary.geojson", "overpass-query.overpassql", "orr-performance.json"):
-        source = args.run_dir / name
-        if source.exists():
-            copy2(source, output / name)
-    print(f"Wrote rail-enriched bundle to {output}")
-    return 0
 
 
-def _read_json(path: Path) -> dict[str, Any]:
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as error:
-        raise ValueError(f"Cannot read JSON from {path}: {error}") from error
-    if not isinstance(value, dict):
-        raise ValueError(f"{path} must contain a JSON object")
-    return value
+SPEC = ImportSpec(
+    description="Preview or import cited shortlist-only London rail research",
+    suffix="rail",
+    label="rail",
+    preview_hint="the citations",
+    prepare=_prepare,
+    add_arguments=_add_arguments,
+)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    return run_import(argv, SPEC)
