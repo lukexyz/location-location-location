@@ -24,7 +24,10 @@ Optional repeatable flags include `--destination
 "LABEL|MODE|ARRIVAL|MAX_MINUTES"`, `--constraint "METRIC<=VALUE"`, and `--weight
 "METRIC=VALUE"`; housing flags are also available. The preview discloses those
 choices, the configurable premium-grocer fragments, and the two-call ceiling.
-Set a local `ORS_API_KEY`, review the preview, then add `--execute`.
+Set a local `ORS_API_KEY`, review the preview, then add `--execute`. The single
+Overpass call also fetches the walkable street network around each discovered
+settlement, so amenity counts follow a 15-minute walk along mapped footways and
+streets; observations say explicitly when a straight-line proxy was used instead.
 Codex users can invoke the same workflow with `$location-research`; Claude Code
 users can invoke it with `/location-research`. Both entry points defer to the
 single workflow in `skills/location-research/SKILL.md`.

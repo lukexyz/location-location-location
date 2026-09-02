@@ -141,10 +141,16 @@ class OverpassAdapterTests(unittest.TestCase):
         ):
             self.assertIn(clause, query)
         cafe_filter = query.split('nwr["amenity"="cafe"]', 1)[1].split(";", 1)[0]
-        self.assertNotIn("poly:", cafe_filter)
-        self.assertEqual(cafe_filter.count(","), 3)
+        self.assertEqual(cafe_filter, "(around.places:1200)")
+        self.assertIn('["name"](poly:"', query.split("->.places;", 1)[0])
+        self.assertIn(".places out qt;", query)
+        self.assertIn("(around.places:3600)", query)
         self.assertIn(".pois out center tags qt;", query)
         self.assertIn(".green out bb tags qt;", query)
+        self.assertIn('way["highway"~"^(footway|path|pedestrian|', query)
+        self.assertIn('["foot"!~"^(no|private)$"]["access"!="private"](around.places:1300)', query)
+        self.assertIn(".network out geom qt;", query)
+        self.assertEqual(query.count("out "), 4, "one call, four output statements")
 
         candidates = result.evidence["candidates"]
         self.assertEqual([item["name"] for item in candidates], ["Alpha", "Beta"])
@@ -171,12 +177,67 @@ class OverpassAdapterTests(unittest.TestCase):
         self.assertEqual(beta["green_space"], 20.8)
         self.assertTrue(all(
             "not a pedestrian-network" in item["transformation"]
+            and "carried no pedestrian network" in item["transformation"]
             for item in result.evidence["observations"]
+            if item["metric"] != "green_space"
         ))
         self.assertTrue(all(
             item["source_date"] == "2026-09-01"
             for item in result.evidence["observations"]
         ))
+        validate_evidence(result.evidence)
+
+    def test_network_catchment_counts_walking_distance_not_straight_line(self):
+        def offset(north_metres, east_metres):
+            return 51.5 + north_metres / 111_320, -0.1 + east_metres / 69_300
+
+        def way(way_id, points):
+            return {
+                "type": "way", "id": way_id, "tags": {"highway": "residential"},
+                "nodes": [node_id for node_id, _, _ in points],
+                "geometry": [{"lat": lat, "lon": lon} for _, lat, lon in points],
+            }
+
+        # A road runs 800 m east, 800 m north, then 800 m back west from the town node.
+        road = way(500, [
+            (501, 51.5, -0.1), (502, *offset(0, 800)),
+            (503, *offset(800, 800)), (504, *offset(800, 0)),
+        ])
+        transport = RecordingTransport({
+            "osm3s": {"timestamp_osm_base": "2026-09-01T18:22:00Z"},
+            "elements": [
+                node(10, 51.5, -0.1, place="town", name="Alpha"),
+                node(11, 51.53, -0.1, place="village", name="Remote"),
+                road,
+                # Beside the street 600 m along: reachable on the network.
+                node(20, *offset(40, 600), amenity="cafe", name="Kerbside"),
+                # 800 m away as the crow flies but 2,400 m by road: excluded.
+                node(21, *offset(800, 0), amenity="cafe", name="Across the fields"),
+                node(22, *offset(800, 0), shop="bookmaker", name="Far Odds"),
+                # No walkable way within 150 m: measured straight-line as a fallback.
+                node(23, *offset(600, 500), amenity="cafe", name="Off grid"),
+                node(24, *offset(200, 100), shop="bookmaker", name="Near Odds"),
+            ],
+        })
+        collector = OverpassAmenityCollector(premium_grocers=GROCERS, transport=transport)
+
+        result = collector.collect(
+            simple_boundary(), retrieved_at="2026-09-02T09:00:00+00:00"
+        )
+
+        by_candidate = {}
+        for item in result.evidence["observations"]:
+            by_candidate.setdefault(item["candidate_id"], {})[item["metric"]] = item
+        alpha = by_candidate["osm-node-10"]
+        self.assertEqual(alpha["cafes"]["value"], 2)
+        self.assertEqual(alpha["betting_shops"]["value"], 1)
+        self.assertIn("pedestrian-network catchment", alpha["cafes"]["geographic_scope"])
+        self.assertIn("walking distance along the OSM pedestrian network", alpha["cafes"]["transformation"])
+        self.assertAlmostEqual(alpha["cafes"]["confidence"], 0.75)
+        remote = by_candidate["osm-node-11"]
+        self.assertIn("straight-line catchment", remote["cafes"]["geographic_scope"])
+        self.assertIn("no walkable way was mapped within 300 m", remote["cafes"]["transformation"])
+        self.assertAlmostEqual(remote["cafes"]["confidence"], 0.65)
         validate_evidence(result.evidence)
 
     def test_nearby_anchors_are_deduplicated_keeping_the_most_significant_kind(self):

@@ -52,7 +52,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error(str(error))
 
     grocers = brand_group(preferences, "premium_grocers")
-    print("Research plan: OpenRouteService isochrone + one combined Overpass query")
+    print(
+        "Research plan: OpenRouteService isochrone + one combined Overpass query "
+        "(settlements, amenities, green space, and the walkable street network)"
+    )
     print(
         f"Origin sent to routing provider: {args.latitude:.4f}, {args.longitude:.4f}; "
         f"{args.minutes} minutes by {args.profile}"
@@ -61,7 +64,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "Sent to Overpass: the boundary polygon and the premium grocer patterns "
         f"{', '.join(grocers.patterns)}"
     )
-    print("Measured for every candidate: cafes, betting shops, yoga, premium grocers, green space")
+    print(
+        "Measured for every candidate: cafes, betting shops, yoga, and premium grocers within "
+        "a 15-minute walk along the mapped pedestrian network; green space by proxy distance"
+    )
     print("Maximum live provider calls: 2 (compatible cache hits reduce this)")
     for line in describe_search_profile(search):
         print(line)

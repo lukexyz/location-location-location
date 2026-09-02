@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from math import asin, cos, radians, sin, sqrt
+from math import cos, radians
 import json
 import re
 from typing import Any, Iterable, Sequence
@@ -14,6 +14,17 @@ from .catalog import PLACE_KINDS
 from .net import HttpTransport, UrllibTransport
 from .routing import RouteBoundary
 from .validation import validate_evidence
+from .walking import (
+    CATCHMENT_METRES,
+    CATCHMENT_MINUTES,
+    FEATURE_SNAP_METRES,
+    ORIGIN_SNAP_METRES,
+    WALK_METRES_PER_MINUTE,
+    WALKABLE_HIGHWAYS,
+    Reach,
+    WalkingNetwork,
+    distance_metres,
+)
 
 
 DEFAULT_OVERPASS_ENDPOINT = "https://overpass-api.de/api/interpreter"
@@ -23,8 +34,9 @@ OSM_LICENCE = "ODbL-1.0"
 
 # When two anchors sit within `dedupe_metres` of each other the more significant
 # PLACE_KINDS entry is kept.
-WALK_METRES_PER_MINUTE = 80
 GREEN_SPACE_CUTOFF_MINUTES = 45
+# The network is fetched slightly beyond the catchment so edge features can snap.
+NETWORK_MARGIN_METRES = 100
 GREEN_SPACE_TAGS = {
     "leisure": ("park", "nature_reserve", "recreation_ground", "common", "dog_park"),
     "landuse": ("recreation_ground", "village_green"),
@@ -89,7 +101,7 @@ class OverpassAmenityCollector:
         endpoint: str = DEFAULT_OVERPASS_ENDPOINT,
         timeout: float = 90.0,
         query_timeout_seconds: int = 60,
-        walk_radius_metres: int = 1200,
+        walk_radius_metres: int = CATCHMENT_METRES,
         max_polygon_vertices: int = 80,
         dedupe_metres: int = 400,
         place_kinds: Sequence[str] = PLACE_KINDS,
@@ -119,32 +131,40 @@ class OverpassAmenityCollector:
     def build_query(self, boundary: RouteBoundary) -> str:
         ring = _limit_vertices(_outer_ring(boundary.geometry), self._max_polygon_vertices)
         polygon = " ".join(f"{latitude:.6f} {longitude:.6f}" for longitude, latitude in ring)
-        poi_box = _bbox(_buffered_bounds(ring, self._walk_radius_metres))
-        green_box = _bbox(
-            _buffered_bounds(ring, GREEN_SPACE_CUTOFF_MINUTES * WALK_METRES_PER_MINUTE)
-        )
+        poi_reach = self._walk_radius_metres
+        green_reach = GREEN_SPACE_CUTOFF_MINUTES * WALK_METRES_PER_MINUTE
+        network_reach = self._walk_radius_metres + NETWORK_MARGIN_METRES
         kinds = "|".join(self._place_kinds)
         grocers = self._premium_grocers
         shop_filter = f'["shop"~"{grocers.shop_regex()}"]'
         leisure = "|".join(GREEN_SPACE_TAGS["leisure"])
         landuse = "|".join(GREEN_SPACE_TAGS["landuse"])
+        highways = "|".join(WALKABLE_HIGHWAYS)
         return (
             f"[out:json][timeout:{self._query_timeout_seconds}];\n"
+            f'node["place"~"^({kinds})$"]["name"](poly:"{polygon}")->.places;\n'
+            ".places out qt;\n"
             "(\n"
-            f'  node["place"~"^({kinds})$"]["name"](poly:"{polygon}");\n'
-            f'  nwr["amenity"="cafe"]({poi_box});\n'
-            f'  nwr["shop"="bookmaker"]({poi_box});\n'
-            f'  nwr["amenity"="gambling"]({poi_box});\n'
-            f'  nwr["sport"~"(^|;)yoga(;|$)",i]({poi_box});\n'
-            f'  nwr{shop_filter}["brand"~"{grocers.overpass_regex()}",i]({poi_box});\n'
-            f'  nwr{shop_filter}["name"~"{grocers.overpass_regex()}",i]({poi_box});\n'
+            f'  nwr["amenity"="cafe"](around.places:{poi_reach});\n'
+            f'  nwr["shop"="bookmaker"](around.places:{poi_reach});\n'
+            f'  nwr["amenity"="gambling"](around.places:{poi_reach});\n'
+            f'  nwr["sport"~"(^|;)yoga(;|$)",i](around.places:{poi_reach});\n'
+            f'  nwr{shop_filter}["brand"~"{grocers.overpass_regex()}",i]'
+            f"(around.places:{poi_reach});\n"
+            f'  nwr{shop_filter}["name"~"{grocers.overpass_regex()}",i]'
+            f"(around.places:{poi_reach});\n"
             ")->.pois;\n"
             ".pois out center tags qt;\n"
             "(\n"
-            f'  nwr["leisure"~"^({leisure})$"]["access"!="private"]({green_box});\n'
-            f'  nwr["landuse"~"^({landuse})$"]["access"!="private"]({green_box});\n'
+            f'  nwr["leisure"~"^({leisure})$"]["access"!="private"]'
+            f"(around.places:{green_reach});\n"
+            f'  nwr["landuse"~"^({landuse})$"]["access"!="private"]'
+            f"(around.places:{green_reach});\n"
             ")->.green;\n"
-            ".green out bb tags qt;"
+            ".green out bb tags qt;\n"
+            f'way["highway"~"^({highways})$"]["foot"!~"^(no|private)$"]'
+            f'["access"!="private"](around.places:{network_reach})->.network;\n'
+            ".network out geom qt;"
         )
 
     def collect(
@@ -180,9 +200,14 @@ class OverpassAmenityCollector:
             _candidates(elements, self._place_kinds), self._dedupe_metres
         )
         features = _classify(elements, self._premium_grocers)
+        network = WalkingNetwork.from_elements(elements)
         source_date = _source_date(payload, retrieved_at)
         observations: list[dict[str, Any]] = []
         for candidate in candidates:
+            location = candidate["location"]
+            reach = network.reach(
+                location["latitude"], location["longitude"], self._walk_radius_metres
+            )
             for metric in ("cafes", "betting_shops", "yoga_studios", "premium_grocers"):
                 observations.append(
                     _count_observation(
@@ -192,6 +217,8 @@ class OverpassAmenityCollector:
                         radius_metres=self._walk_radius_metres,
                         retrieved_at=retrieved_at,
                         source_date=source_date,
+                        network=network,
+                        reach=reach,
                     )
                 )
             green = _green_space_observation(
@@ -437,6 +464,8 @@ _COUNT_METRIC_NOTES = {
         "brand tags are usually present for national chains",
     ),
 }
+# Network catchments remove the straight-line guess, so the same coverage earns more trust.
+NETWORK_CONFIDENCE_BONUS = 0.1
 
 
 def _count_observation(
@@ -447,35 +476,86 @@ def _count_observation(
     radius_metres: int,
     retrieved_at: str,
     source_date: str,
+    network: WalkingNetwork | None = None,
+    reach: Reach | None = None,
 ) -> dict[str, Any]:
     location = candidate["location"]
-    count = sum(
-        _extent_distance_metres(location["latitude"], location["longitude"], extent)
-        <= radius_metres
-        for _, extent in features
-    )
     description, confidence, coverage_note = _COUNT_METRIC_NOTES[metric]
+    minutes = radius_metres / WALK_METRES_PER_MINUTE
+    if network is not None and reach is not None and reach.usable:
+        count = sum(
+            _walking_reachable(network, reach, location, extent, radius_metres)
+            for _, extent in features
+        )
+        scope = (
+            f"{minutes:g}-minute pedestrian-network catchment ({radius_metres} m at "
+            f"{WALK_METRES_PER_MINUTE} m/min) from the OSM place node"
+        )
+        transformation = (
+            f"Distinct {description} within {radius_metres} m walking distance along the "
+            "OSM pedestrian network from the nearest walkable way to the place node; a "
+            f"feature more than {FEATURE_SNAP_METRES} m from any walkable way is measured "
+            "straight-line instead"
+        )
+        confidence = min(0.95, confidence + NETWORK_CONFIDENCE_BONUS)
+        notes = (
+            f"OSM {coverage_note}; the catchment follows mapped footways and streets, so "
+            "unmapped paths or shortcuts are not counted"
+        )
+    else:
+        count = sum(
+            _extent_distance_metres(location["latitude"], location["longitude"], extent)
+            <= radius_metres
+            for _, extent in features
+        )
+        reason = (
+            "no walkable way was mapped within "
+            f"{ORIGIN_SNAP_METRES} m of the place node"
+            if network is not None and network.node_count
+            else "the response carried no pedestrian network"
+        )
+        scope = f"{radius_metres} m straight-line catchment around OSM place node"
+        transformation = (
+            f"Distinct {description} within a straight-line radius; "
+            f"a bounded proxy, not a pedestrian-network isochrone, because {reason}"
+        )
+        notes = (
+            f"OSM {coverage_note}; catchment uses a straight-line proxy for a "
+            f"{CATCHMENT_MINUTES}-minute walk"
+        )
     return {
         "id": f'{candidate["id"]}-{metric.replace("_", "-")}',
         "candidate_id": candidate["id"],
         "metric": metric,
         "value": count,
         "unit": "count_15_min_walk",
-        "geographic_scope": f"{radius_metres} m straight-line catchment around OSM place node",
+        "geographic_scope": scope,
         "source": OSM_SOURCE,
         "source_url": OSM_SOURCE_URL,
         "retrieved_at": retrieved_at,
         "source_date": source_date,
-        "transformation": (
-            f"Distinct {description} within a straight-line radius; "
-            "a bounded proxy, not a pedestrian-network isochrone"
-        ),
+        "transformation": transformation,
         "licence": OSM_LICENCE,
         "confidence": confidence,
-        "confidence_notes": (
-            f"OSM {coverage_note}; catchment uses a straight-line proxy for a 15-minute walk"
-        ),
+        "confidence_notes": notes,
     }
+
+
+def _walking_reachable(
+    network: WalkingNetwork,
+    reach: Reach,
+    location: dict[str, float],
+    extent: dict[str, float],
+    radius_metres: int,
+) -> bool:
+    latitude = (extent["minlat"] + extent["maxlat"]) / 2
+    longitude = (extent["minlon"] + extent["maxlon"]) / 2
+    if not network.has_snappable_feature(latitude, longitude):
+        return _extent_distance_metres(
+            location["latitude"], location["longitude"], extent
+        ) <= radius_metres
+    metres = network.walking_metres(reach, latitude, longitude)
+    return metres is not None and metres <= radius_metres
 
 
 def _green_space_observation(
@@ -525,13 +605,7 @@ def _green_space_observation(
 
 
 def _distance_metres(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    latitude_delta = radians(lat2 - lat1)
-    longitude_delta = radians(lon2 - lon1)
-    a = (
-        sin(latitude_delta / 2) ** 2
-        + cos(radians(lat1)) * cos(radians(lat2)) * sin(longitude_delta / 2) ** 2
-    )
-    return 6_371_008.8 * 2 * asin(sqrt(a))
+    return distance_metres(lat1, lon1, lat2, lon2)
 
 
 def _json_object(body: bytes) -> dict[str, Any]:

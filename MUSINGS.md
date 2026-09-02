@@ -565,3 +565,37 @@ Each milestone must leave the tree clean, generated demo output reproducible, pr
 - Ruff runs with its default rule set. Tests and entry-point scripts keep their intentional `sys.path` imports through per-file ignores, and formatting is deliberately not enforced because it would reformat most Python files without changing behaviour; adopt it as its own change if wanted.
 - Claude Code gets the same thin pointer as Codex at `.claude/skills/location-research/SKILL.md`; both defer to `skills/location-research/SKILL.md` so the research logic exists once.
 - Verified at this checkpoint: 43 Python tests, 23 viewer tests, 24 desktop and mobile browser tests, clean lint, reproducible demo, and the production build.
+
+## 2026-09-02 — Development Gameplan After the Brief Audit
+
+The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 2026-09-01 brief and its scope correction found the bounded workflow, contracts, privacy and cost safeguards, and viewer largely delivered, with these gaps: straight-line amenity catchments instead of pedestrian-network reach, only one of the six playful readouts, no preference tuning without rerunning Python, hand-written rail and housing evidence, no deliberate export path, no screenshot regression, and a README that documents commands rather than the product. Work proceeds in the order below; each milestone is committed locally and not pushed unless asked.
+
+### P4 — Pedestrian-network catchments without moving the call cap
+
+- Fetch the walkable highway network in the same combined Overpass query using `around` filters on the discovered place nodes, so the run still makes at most one routing call and one Overpass call.
+- Build a walking graph in deterministic Python, snap each candidate and point of interest to it, and count amenities within a 15-minute (1,200 m at 80 m per minute) network distance.
+- Keep the straight-line proxy as an explicit, labelled fallback when the network is absent from a cached response or a candidate sits too far from any walkable way. Green-space distance keeps its bounding-box proxy for now because its 45-minute reach would need a much larger network extract.
+
+### P5 — Derived readouts as presentation only
+
+- Add Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, and Rail Roulette alongside Pavement Pride in the dossier.
+- Readouts derive only from fields already in the result, render "no evidence" rather than inventing values, and are covered by tests showing they never change a score.
+
+### P6 — What-if reweighting in the viewer
+
+- Port the category-mean and weighted-overall arithmetic to TypeScript and prove parity against the Python-scored demo bundle.
+- Let the viewer tune metric importance from 0 to 5 and preview the resulting order, clearly labelled as a what-if. Authoritative Python ranks, hard-limit status, and confidence stay visible; the authoritative bundle is never modified.
+
+### P7 — Deliberate export with redaction
+
+- Add a preview-first export command that copies a run with the origin rounded, optional budget removal, and the privacy warning the brief specified. Sharing remains a separate, explicit action.
+
+### P8 — README as product documentation
+
+- Masthead, product story, instrument tour, metric glossary, architecture and source tables, screenshots captured from the demo, cost and privacy boundaries, attribution, and the MIT versus ODbL/OGL licence split.
+
+### Deferred and conditional
+
+- Screenshot baselines need Linux-rendered references generated in CI; adopt them once a CI run can publish baselines rather than committing Windows renders that would fail there.
+- Official source adapters for Land Registry price-paid and ORR performance follow the same preview, cap, and citation rules and are attempted only after a bounded live query is verified.
+- Later metric modules, per-destination isochrone overlays, compare mode, and run diffing remain future ideas.
