@@ -42,6 +42,8 @@ export interface UnmeasuredCategory {
   weight: number;
 }
 
+export type EvidenceBasis = "measured" | "transformed" | "agent_inferred" | "user_observed" | "synthetic";
+
 export interface MetricResult {
   metric: string;
   category: string;
@@ -57,6 +59,7 @@ export interface MetricResult {
   source_date: string;
   confidence_notes: string;
   category_contribution: number;
+  basis: EvidenceBasis;
 }
 
 export interface CategoryResult {
@@ -98,6 +101,7 @@ export interface RailJourney {
   confidence: number;
   confidence_notes: string;
   sources: RailSource[];
+  basis: EvidenceBasis;
 }
 
 export interface RailSummary {
@@ -132,6 +136,7 @@ export interface HousingMarket {
   confidence: number;
   confidence_notes: string;
   sources: HousingSource[];
+  basis: EvidenceBasis;
 }
 
 export interface HousingSummary {
@@ -182,6 +187,7 @@ export interface StreetCarePlace {
     ratings: Record<string, number>;
     notes: string;
   };
+  basis: EvidenceBasis;
 }
 
 export interface StreetCareComponent {

@@ -1,4 +1,4 @@
-import { compactDate, label, rawValue } from "../lib/format";
+import { basisLabel, compactDate, label, rawValue } from "../lib/format";
 import { deriveReadouts } from "../lib/readouts";
 import type { WhatIfScore } from "../lib/whatif";
 import type { CandidateResult, ConstraintStatus, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
@@ -231,6 +231,7 @@ function HousingReadout({ housing, candidateId }: { housing: HousingSummary; can
         <div><dt>Sample</dt><dd>{market.sample_size ?? "not published"}</dd></div>
         <div><dt>Period</dt><dd>{compactDate(market.period_start)}–{compactDate(market.period_end)}</dd></div>
         <div><dt>Confidence</dt><dd>{Math.round(market.confidence * 100)}%</dd></div>
+        <div><dt>Basis</dt><dd className={market.basis === "agent_inferred" ? "text-warn" : undefined}>{basisLabel(market.basis)}</dd></div>
       </dl>
       <p className="housing-note">{market.confidence_notes}</p>
       <p className="inventory-note">Market evidence only — live inventory was not checked.</p>
@@ -273,6 +274,7 @@ function StreetCareReadout({ streetCare, candidateId }: { streetCare: StreetCare
       <dl className="street-care-grid">
         <div><dt>Local authority</dt><dd>{place.local_authority}</dd></div>
         <div><dt>Confidence</dt><dd>{Math.round(streetCare.confidence * 100)}%</dd></div>
+        <div><dt>Basis</dt><dd className={place.basis === "agent_inferred" ? "text-warn" : undefined}>{streetCare.basis === "recent_visit_audit" ? "User-observed" : basisLabel(place.basis)}</dd></div>
         <div><dt>Fly-tipping</dt><dd>{place.fly_tipping.current_incidents_per_1000}/1k</dd></div>
         <div><dt>Prior period</dt><dd>{place.fly_tipping.previous_incidents_per_1000}/1k</dd></div>
         <div><dt>Reporting basis</dt><dd>{place.fly_tipping.reporting_basis}</dd></div>
@@ -333,6 +335,7 @@ function RailJourneyReadout({ journey }: { journey: RailJourney }) {
         <div><dt>Time to 3</dt><dd>{railPercent(journey.punctuality_percent)}</dd></div>
         <div><dt>Cancellations</dt><dd>{railPercent(journey.cancellation_percent)}</dd></div>
         <div><dt>Confidence</dt><dd>{Math.round(journey.confidence * 100)}%</dd></div>
+        <div><dt>Basis</dt><dd className={journey.basis === "agent_inferred" ? "text-warn" : undefined}>{basisLabel(journey.basis)}</dd></div>
       </dl>
       <p className="rail-note">{journey.confidence_notes}</p>
       <div className="rail-sources">
@@ -361,7 +364,10 @@ function MetricRow({ metric }: { metric: MetricResult }) {
             <><span className="favorable-observation">0</span> in 15 min</>
           ) : rawValue(metric.raw_value, metric.unit)}
         </span>
-        <span className="metric-score">{metric.normalized_score.toFixed(1)}</span>
+        <span className="metric-score">
+          {metric.basis === "agent_inferred" && <i className="basis-flag" title="Agent-inferred">EST</i>}
+          {metric.normalized_score.toFixed(1)}
+        </span>
       </summary>
       <div className="metric-detail">
         <div className="metric-track"><span style={{ width: `${metric.normalized_score}%` }} /></div>
@@ -369,10 +375,14 @@ function MetricRow({ metric }: { metric: MetricResult }) {
           <div><dt>Weight</dt><dd>{metric.active ? metric.weight : "informational"}</dd></div>
           <div><dt>Category points</dt><dd>{metric.category_contribution.toFixed(2)}</dd></div>
           <div><dt>Confidence</dt><dd>{Math.round(metric.confidence * 100)}%</dd></div>
+          <div><dt>Basis</dt><dd className={metric.basis === "agent_inferred" ? "text-warn" : undefined}>{basisLabel(metric.basis)}</dd></div>
           <div><dt>Source date</dt><dd>{compactDate(metric.source_date)}</dd></div>
           <div><dt>Evidence</dt><dd><a href={metric.source_url} rel="noreferrer" target="_blank">{metric.source}</a></dd></div>
         </dl>
         <p>{metric.confidence_notes}</p>
+        {metric.basis === "agent_inferred" && (
+          <p className="basis-note">Agent-inferred value: an estimate, not a measurement. Verify before relying on it.</p>
+        )}
       </div>
     </details>
   );

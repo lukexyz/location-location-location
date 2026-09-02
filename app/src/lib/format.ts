@@ -16,6 +16,18 @@ export function label(value: string): string {
   return LABELS[value] ?? value.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
 }
 
+const BASIS_LABELS: Record<string, string> = {
+  measured: "Measured",
+  transformed: "Transformed",
+  agent_inferred: "Agent-inferred",
+  user_observed: "User-observed",
+  synthetic: "Synthetic",
+};
+
+export function basisLabel(value: string): string {
+  return BASIS_LABELS[value] ?? value;
+}
+
 export function rawValue(value: number, unit: string): string {
   if (unit === "minutes" || unit === "walk_minutes") return `${value} min`;
   if (unit === "budget_ratio") return `${Math.round(value * 100)}% of budget`;

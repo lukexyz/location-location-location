@@ -40,7 +40,8 @@
           "source_date": "2026-08-01",
           "licence": "CC0-1.0"
         }
-      ]
+      ],
+      "basis": "synthetic"
     },
     {
       "id": "hemel-central-rail",
@@ -80,7 +81,8 @@
           "source_date": "2026-08-01",
           "licence": "CC0-1.0"
         }
-      ]
+      ],
+      "basis": "synthetic"
     },
     {
       "id": "maidenhead-central-rail",
@@ -120,7 +122,8 @@
           "source_date": "2026-08-01",
           "licence": "CC0-1.0"
         }
-      ]
+      ],
+      "basis": "synthetic"
     }
   ]
 }

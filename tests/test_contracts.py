@@ -59,6 +59,32 @@ class ContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "public_transport"):
             validate_profile(profile)
 
+    def test_evidence_basis_is_required_and_caps_agent_estimates(self):
+        evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
+        unlabelled = json.loads(json.dumps(evidence))
+        del unlabelled["observations"][0]["basis"]
+        with self.assertRaisesRegex(ValueError, "basis must be one of"):
+            validate_evidence(unlabelled)
+        overconfident = json.loads(json.dumps(evidence))
+        overconfident["observations"][0]["basis"] = "agent_inferred"
+        overconfident["observations"][0]["confidence"] = 0.9
+        with self.assertRaisesRegex(ValueError, "agent-inferred observation cannot claim confidence above 0.5"):
+            validate_evidence(overconfident)
+        overconfident["observations"][0]["confidence"] = 0.5
+        validate_evidence(overconfident)
+        rail = json.loads((ROOT / "fixtures/demo/rail.json").read_text(encoding="utf-8"))
+        rail["journeys"][0]["basis"] = "agent_inferred"
+        with self.assertRaisesRegex(ValueError, "agent-inferred rail journey"):
+            merge_rail_research(evidence, rail)
+        rail["journeys"][0]["confidence"] = 0.4
+        merged = merge_rail_research(evidence, rail)
+        commute = next(
+            item for item in merged["observations"]
+            if item["id"] == f"{rail['journeys'][0]['id']}-commute"
+        )
+        self.assertEqual(commute["basis"], "agent_inferred")
+        self.assertEqual(commute["confidence"], 0.4)
+
     def test_schema_rejects_fields_the_contract_does_not_publish(self):
         profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
         profile["secret"] = "must not cross the contract boundary"

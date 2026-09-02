@@ -132,6 +132,7 @@ def _score_candidate(
                 "source_url": observation["source_url"],
                 "source_date": observation["source_date"],
                 "confidence_notes": observation["confidence_notes"],
+                "basis": observation["basis"],
             }
         )
 

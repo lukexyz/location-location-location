@@ -49,6 +49,12 @@ describe("viewer", () => {
     expect(screen.getByText("London last mile")).toBeInTheDocument();
   });
 
+  it("labels the basis of every fact so a synthetic or estimated value cannot pass as measured", () => {
+    render(<App />);
+    expect(screen.getAllByText("Basis").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Synthetic").length).toBeGreaterThan(0);
+  });
+
   it("shows route assumptions and score contributions", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Route boundary" })).toBeInTheDocument();

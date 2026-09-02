@@ -7,7 +7,7 @@ from hashlib import sha256
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
-from .catalog import METRICS, PLACE_KINDS
+from .catalog import EVIDENCE_BASES, INFERRED_CONFIDENCE_CAP, METRICS, PLACE_KINDS
 
 
 TRAVEL_MODES = {"public_transport", "driving", "cycling", "walking"}
@@ -205,6 +205,7 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
         confidence = _require(observation, "confidence", (int, float))
         if not 0 <= confidence <= 1:
             raise ValueError("observation confidence must be between 0 and 1")
+        validate_basis(observation, confidence, "observation")
         for key in (
             "geographic_scope", "source", "transformation", "licence", "confidence_notes",
         ):
@@ -281,6 +282,20 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
                 raise ValueError(
                     "street-care observation does not match its raw components"
                 )
+
+
+def validate_basis(record: dict[str, Any], confidence: float, label: str) -> str:
+    """Require an honest evidence basis; an agent estimate cannot claim high confidence."""
+    basis = record.get("basis")
+    if basis not in EVIDENCE_BASES:
+        raise ValueError(
+            f"{label} basis must be one of {', '.join(EVIDENCE_BASES)}"
+        )
+    if basis == "agent_inferred" and confidence > INFERRED_CONFIDENCE_CAP:
+        raise ValueError(
+            f"agent-inferred {label} cannot claim confidence above {INFERRED_CONFIDENCE_CAP}"
+        )
+    return basis
 
 
 def validate_manifest(

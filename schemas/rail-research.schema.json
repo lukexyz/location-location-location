@@ -29,7 +29,7 @@
     },
     "journey": {
       "type": "object",
-      "required": ["id", "candidate_id", "destination_label", "origin_station", "origin_station_crs", "london_arrival_station", "service_window", "primary", "access_minutes", "expected_wait_minutes", "scheduled_rail_minutes", "london_last_mile_minutes", "total_minutes", "changes", "services_per_hour", "last_useful_departure", "punctuality_percent", "cancellation_percent", "confidence", "confidence_notes", "sources"],
+      "required": ["id", "candidate_id", "destination_label", "origin_station", "origin_station_crs", "london_arrival_station", "service_window", "primary", "access_minutes", "expected_wait_minutes", "scheduled_rail_minutes", "london_last_mile_minutes", "total_minutes", "changes", "services_per_hour", "last_useful_departure", "punctuality_percent", "cancellation_percent", "confidence", "confidence_notes", "sources", "basis"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "candidate_id": {"type": "string", "minLength": 1},
@@ -51,7 +51,8 @@
         "cancellation_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "confidence_notes": {"type": "string", "minLength": 1},
-        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}}
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "basis": {"enum": ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"]}
       },
       "additionalProperties": false
     }

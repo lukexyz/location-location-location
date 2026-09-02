@@ -48,7 +48,7 @@
   "$defs": {
     "observation": {
       "type": "object",
-      "required": ["id", "candidate_id", "metric", "value", "unit", "geographic_scope", "source", "source_url", "retrieved_at", "source_date", "transformation", "licence", "confidence", "confidence_notes"],
+      "required": ["id", "candidate_id", "metric", "value", "unit", "geographic_scope", "source", "source_url", "retrieved_at", "source_date", "transformation", "licence", "confidence", "confidence_notes", "basis"],
       "properties": {
         "id": {"type": "string"},
         "candidate_id": {"type": "string"},
@@ -63,7 +63,8 @@
         "transformation": {"type": "string"},
         "licence": {"type": "string"},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-        "confidence_notes": {"type": "string"}
+        "confidence_notes": {"type": "string"},
+        "basis": {"enum": ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"]}
       },
       "additionalProperties": false
     }

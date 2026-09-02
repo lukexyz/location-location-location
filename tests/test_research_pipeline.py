@@ -188,6 +188,10 @@ class ResearchPipelineTests(unittest.TestCase):
                 "door_to_door_commute", "housing_affordability", "street_care",
             ])
             self.assertEqual(results["schema_version"], "2")
+            self.assertTrue(all(
+                metric["basis"] == "measured"
+                for category in alpha["categories"] for metric in category["metrics"]
+            ))
             self.assertEqual(alpha["hard_constraints"], {"status": "pass", "results": []})
             self.assertEqual(
                 alpha["unmeasured_categories"], [{"category": "essentials", "weight": 5.0}],

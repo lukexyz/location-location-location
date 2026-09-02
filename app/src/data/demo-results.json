@@ -7,6 +7,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 33.33,
               "confidence": 0.8,
@@ -23,6 +24,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 20.92,
               "confidence": 0.8,
@@ -39,6 +41,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 6.45,
               "confidence": 0.75,
@@ -55,6 +58,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 7.18,
               "confidence": 0.8,
@@ -79,6 +83,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "user_observed",
               "category": "environment",
               "category_contribution": 43.75,
               "confidence": 0.8867,
@@ -95,6 +100,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "environment",
               "category_contribution": 48.5,
               "confidence": 0.9,
@@ -119,6 +125,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 29.91,
               "confidence": 0.9,
@@ -135,6 +142,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 45.12,
               "confidence": 0.85,
@@ -175,6 +183,7 @@
         "budget_ratio": 0.78,
         "inventory_status": "not_checked",
         "market": {
+          "basis": "synthetic",
           "candidate_id": "welwyn-garden-city",
           "confidence": 0.85,
           "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
@@ -220,6 +229,7 @@
         "journeys": [
           {
             "access_minutes": 8,
+            "basis": "synthetic",
             "cancellation_percent": 2.0,
             "candidate_id": "welwyn-garden-city",
             "changes": 0,
@@ -319,6 +329,7 @@
         ],
         "confidence": 0.8867,
         "place": {
+          "basis": "synthetic",
           "candidate_id": "welwyn-garden-city",
           "fly_tipping": {
             "current_incidents_per_1000": 12,
@@ -380,6 +391,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 20.44,
               "confidence": 0.8,
@@ -396,6 +408,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 28.55,
               "confidence": 0.8,
@@ -412,6 +425,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 10.22,
               "confidence": 0.75,
@@ -428,6 +442,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 7.18,
               "confidence": 0.8,
@@ -452,6 +467,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "environment",
               "category_contribution": 30.67,
               "confidence": 0.5,
@@ -468,6 +484,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "environment",
               "category_contribution": 43.75,
               "confidence": 0.9,
@@ -492,6 +509,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 41.0,
               "confidence": 0.93,
@@ -508,6 +526,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 34.16,
               "confidence": 0.82,
@@ -548,6 +567,7 @@
         "budget_ratio": 0.95,
         "inventory_status": "not_checked",
         "market": {
+          "basis": "synthetic",
           "candidate_id": "hemel-hempstead",
           "confidence": 0.82,
           "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
@@ -593,6 +613,7 @@
         "journeys": [
           {
             "access_minutes": 5,
+            "basis": "synthetic",
             "cancellation_percent": 1.5,
             "candidate_id": "hemel-hempstead",
             "changes": 0,
@@ -684,6 +705,7 @@
         ],
         "confidence": 0.5,
         "place": {
+          "basis": "synthetic",
           "candidate_id": "hemel-hempstead",
           "fly_tipping": {
             "current_incidents_per_1000": 30,
@@ -734,6 +756,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 7.54,
               "confidence": 0.8,
@@ -750,6 +773,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 32.29,
               "confidence": 0.8,
@@ -766,6 +790,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 14.97,
               "confidence": 0.75,
@@ -782,6 +807,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "amenities",
               "category_contribution": 14.36,
               "confidence": 0.8,
@@ -806,6 +832,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "environment",
               "category_contribution": 22.27,
               "confidence": 0.3,
@@ -822,6 +849,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "environment",
               "category_contribution": 36.25,
               "confidence": 0.9,
@@ -846,6 +874,7 @@
           "metrics": [
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 21.75,
               "confidence": 0.84,
@@ -862,6 +891,7 @@
             },
             {
               "active": true,
+              "basis": "synthetic",
               "category": "essentials",
               "category_contribution": 49.62,
               "confidence": 0.68,
@@ -902,6 +932,7 @@
         "budget_ratio": 0.66,
         "inventory_status": "not_checked",
         "market": {
+          "basis": "synthetic",
           "candidate_id": "maidenhead",
           "confidence": 0.68,
           "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
@@ -947,6 +978,7 @@
         "journeys": [
           {
             "access_minutes": 10,
+            "basis": "synthetic",
             "cancellation_percent": 4.5,
             "candidate_id": "maidenhead",
             "changes": 1,
@@ -1014,6 +1046,7 @@
         ],
         "confidence": 0.3,
         "place": {
+          "basis": "synthetic",
           "candidate_id": "maidenhead",
           "fly_tipping": {
             "current_incidents_per_1000": 45,

@@ -51,6 +51,11 @@ describe("browser and JSON Schema contract parity", () => {
     ["missing coverage", (candidate: Record<string, unknown>) => {
       delete candidate.score_coverage_percent;
     }],
+    ["unlabelled evidence basis", (candidate: Record<string, unknown>) => {
+      const categories = candidate.categories as Array<Record<string, unknown>>;
+      const metrics = categories[0].metrics as Array<Record<string, unknown>>;
+      metrics[0].basis = "guessed";
+    }],
   ])("rejects %s in both validators", (_name, mutate) => {
     const invalid = structuredClone(demoData) as unknown as Record<string, unknown>;
     const candidates = invalid.candidates as Array<Record<string, unknown>>;

@@ -563,6 +563,7 @@ def _count_observation(
         "licence": OSM_LICENCE,
         "confidence": confidence,
         "confidence_notes": notes,
+        "basis": "measured",
     }
 
 
@@ -621,6 +622,7 @@ def _green_space_observation(
             f"{WALK_METRES_PER_MINUTE} m per minute; a proxy, not a pedestrian-network route"
         ),
         "licence": OSM_LICENCE,
+        "basis": "measured",
         "confidence": 0.6,
         "confidence_notes": (
             "Bounding-box distance can understate the walk to a park entrance; informal "

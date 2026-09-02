@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Any
 from urllib.parse import urlsplit
 
-from .validation import validate_evidence, validate_profile
+from .validation import validate_basis, validate_evidence, validate_profile
 
 
 MODES = {"buy", "rent"}
@@ -113,6 +113,7 @@ def validate_housing_research(
                 "id", "candidate_id", "typical_cost_gbp", "statistic",
                 "geography", "period_start", "period_end", "sample_size",
                 "listing_search_url", "confidence", "confidence_notes", "sources",
+                "basis",
             },
             "housing market",
         )
@@ -152,6 +153,7 @@ def validate_housing_research(
             or not 0 <= confidence <= 1
         ):
             raise ValueError("housing confidence must be between 0 and 1")
+        validate_basis(market, float(confidence), "housing market")
         _nonempty(market, "confidence_notes")
         _validate_geography(market.get("geography"), mode)
         source_kinds = _validate_sources(market.get("sources"))
@@ -186,6 +188,7 @@ def _affordability_observation(
         "licence": source["licence"],
         "confidence": market["confidence"],
         "confidence_notes": market["confidence_notes"],
+        "basis": market["basis"],
     }
 
 

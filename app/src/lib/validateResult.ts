@@ -3,6 +3,8 @@ import type { ResearchResult } from "../types";
 const MAX_CANDIDATES = 1_000;
 const SUPPORTED_SCHEMA = "2";
 const CONSTRAINT_STATUSES = ["pass", "fail", "unknown"] as const;
+const EVIDENCE_BASES = ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"] as const;
+const INFERRED_CONFIDENCE_CAP = 0.5;
 
 export class ResultValidationError extends Error {
   constructor(message: string) {
@@ -200,6 +202,7 @@ function validateStreetCareSummary(value: unknown, path: string, candidateId: st
     throw new ResultValidationError(`${path}.place references another candidate`);
   }
   string(place.local_authority, `${path}.place.local_authority`);
+  evidenceBasis(place.basis, 0, `${path}.place.basis`);
   const fly = record(place.fly_tipping, `${path}.place.fly_tipping`);
   range(fly.current_incidents_per_1000, `${path}.place.fly_tipping.current_incidents_per_1000`, 0, Infinity);
   range(fly.previous_incidents_per_1000, `${path}.place.fly_tipping.previous_incidents_per_1000`, 0, Infinity);
@@ -310,7 +313,8 @@ function validateHousingSummary(value: unknown, path: string, candidateId: strin
     throw new ResultValidationError(`${path}.market purchase sample cannot be unknown`);
   }
   if (market.listing_search_url !== null) url(market.listing_search_url, `${path}.market.listing_search_url`);
-  range(market.confidence, `${path}.market.confidence`, 0, 1);
+  const marketConfidence = range(market.confidence, `${path}.market.confidence`, 0, 1);
+  evidenceBasis(market.basis, marketConfidence, `${path}.market.basis`);
   string(market.confidence_notes, `${path}.market.confidence_notes`);
   const sources = array(market.sources, `${path}.market.sources`);
   if (sources.length === 0) throw new ResultValidationError(`${path}.market.sources cannot be empty`);
@@ -365,7 +369,8 @@ function validateRailSummary(value: unknown, path: string, candidateId: string):
     nullableString(journey.last_useful_departure, `${journeyPath}.last_useful_departure`);
     nullableRange(journey.punctuality_percent, `${journeyPath}.punctuality_percent`, 0, 100);
     nullableRange(journey.cancellation_percent, `${journeyPath}.cancellation_percent`, 0, 100);
-    range(journey.confidence, `${journeyPath}.confidence`, 0, 1);
+    const journeyConfidence = range(journey.confidence, `${journeyPath}.confidence`, 0, 1);
+    evidenceBasis(journey.basis, journeyConfidence, `${journeyPath}.basis`);
     const sources = array(journey.sources, `${journeyPath}.sources`);
     if (sources.length === 0) throw new ResultValidationError(`${journeyPath}.sources cannot be empty`);
     sources.forEach((value, sourceIndex) => {
@@ -391,7 +396,7 @@ function validateMetric(value: unknown, path: string): void {
     [
       "metric", "category", "raw_value", "unit", "normalized_score", "weight", "active",
       "confidence", "evidence_id", "source", "source_url", "source_date",
-      "confidence_notes", "category_contribution",
+      "confidence_notes", "category_contribution", "basis",
     ],
     path,
   );
@@ -409,6 +414,15 @@ function validateMetric(value: unknown, path: string): void {
   string(metric.source_date, `${path}.source_date`);
   string(metric.confidence_notes, `${path}.confidence_notes`);
   range(metric.category_contribution, `${path}.category_contribution`, 0, 100);
+  evidenceBasis(metric.basis, metric.confidence as number, `${path}.basis`);
+}
+
+function evidenceBasis(value: unknown, confidence: number, path: string): string {
+  const text = oneOf(value, EVIDENCE_BASES, path);
+  if (text === "agent_inferred" && confidence > INFERRED_CONFIDENCE_CAP) {
+    throw new ResultValidationError(`${path} is agent-inferred but claims confidence above ${INFERRED_CONFIDENCE_CAP}`);
+  }
+  return text;
 }
 
 function validateRouteBoundary(value: unknown, path: string): void {

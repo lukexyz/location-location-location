@@ -9,6 +9,7 @@ function metric(key: string, rawValue: number, category = "amenities"): MetricRe
     normalized_score: 50, weight: 2, active: true, confidence: 0.7,
     evidence_id: `${key}-evidence`, source: "test", source_url: "https://example.test/",
     source_date: "2026-08-01", confidence_notes: `${key} note`, category_contribution: 1,
+    basis: "synthetic",
   };
 }
 

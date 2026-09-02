@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Any
 from urllib.parse import urlsplit
 
-from .validation import validate_evidence
+from .validation import validate_basis, validate_evidence
 
 
 AUDIT_FIELDS = (
@@ -78,7 +78,10 @@ def validate_street_care_research(
             raise ValueError("street-care places must be objects")
         _exact_keys(
             place,
-            {"id", "candidate_id", "local_authority", "fly_tipping", "local_reports", "visit_audit"},
+            {
+                "id", "candidate_id", "local_authority", "fly_tipping", "local_reports",
+                "visit_audit", "basis",
+            },
             "street-care place",
         )
         place_id = _nonempty(place, "id")
@@ -92,6 +95,9 @@ def validate_street_care_research(
             raise ValueError("each researched candidate must have one street-care place")
         candidate_ids.add(candidate_id)
         _nonempty(place, "local_authority")
+        # Proxy evidence is capped at 0.55 by the assessment, so the inferred cap applies
+        # to the basis label itself rather than to a stated confidence.
+        validate_basis(place, 0.0, "street-care place")
         _validate_fly_tipping(place.get("fly_tipping"))
         _validate_local_reports(place.get("local_reports"))
         _validate_visit_audit(place.get("visit_audit"), assessment_date)
@@ -223,6 +229,7 @@ def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str,
 def _street_observation(
     place: dict[str, Any], assessment: dict[str, Any]
 ) -> dict[str, Any]:
+    evidence_basis = "user_observed"
     if assessment["basis"] == "recent_visit_audit":
         audit = place["visit_audit"]
         source = {
@@ -238,6 +245,7 @@ def _street_observation(
         )
         notes = f"Personal audit is {assessment['audit_age_days']} days old"
     else:
+        evidence_basis = place["basis"]
         source = place["fly_tipping"]["source"]
         scope = f"{place['local_authority']} proxy applied to candidate"
         transformation = (
@@ -261,8 +269,12 @@ def _street_observation(
         "source_date": source["source_date"],
         "transformation": transformation,
         "licence": source["licence"],
-        "confidence": assessment["confidence"],
+        "confidence": (
+            min(assessment["confidence"], 0.5)
+            if evidence_basis == "agent_inferred" else assessment["confidence"]
+        ),
         "confidence_notes": notes,
+        "basis": evidence_basis,
     }
 
 

@@ -46,7 +46,7 @@
     },
     "market": {
       "type": "object",
-      "required": ["id", "candidate_id", "typical_cost_gbp", "statistic", "geography", "period_start", "period_end", "sample_size", "listing_search_url", "confidence", "confidence_notes", "sources"],
+      "required": ["id", "candidate_id", "typical_cost_gbp", "statistic", "geography", "period_start", "period_end", "sample_size", "listing_search_url", "confidence", "confidence_notes", "sources", "basis"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "candidate_id": {"type": "string", "minLength": 1},
@@ -59,7 +59,8 @@
         "listing_search_url": {"type": ["string", "null"], "format": "uri"},
         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
         "confidence_notes": {"type": "string", "minLength": 1},
-        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}}
+        "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+        "basis": {"enum": ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"]}
       },
       "additionalProperties": false
     }

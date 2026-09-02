@@ -154,7 +154,7 @@
     },
     "metric": {
       "type": "object",
-      "required": ["metric", "category", "raw_value", "unit", "normalized_score", "weight", "active", "confidence", "evidence_id", "source", "source_url", "source_date", "confidence_notes", "category_contribution"],
+      "required": ["metric", "category", "raw_value", "unit", "normalized_score", "weight", "active", "confidence", "evidence_id", "source", "source_url", "source_date", "confidence_notes", "category_contribution", "basis"],
       "properties": {
         "metric": {"type": "string", "minLength": 1},
         "category": {"type": "string", "minLength": 1},
@@ -169,7 +169,8 @@
         "source_url": {"type": "string", "format": "uri"},
         "source_date": {"type": "string", "format": "date"},
         "confidence_notes": {"type": "string", "minLength": 1},
-        "category_contribution": {"type": "number", "minimum": 0, "maximum": 100}
+        "category_contribution": {"type": "number", "minimum": 0, "maximum": 100},
+        "basis": {"enum": ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"]}
       },
       "additionalProperties": false
     }

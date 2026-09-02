@@ -733,3 +733,9 @@ The project is on target with the scope-corrected vision and the build claims ab
 - Exports re-hash every request ledger id with a random salt. The original id was a hash of the exact provider request body, and with a rounded origin inside a known isochrone the body could be brute-forced from an export; the salted hash keeps the ledger's count, timing, and cache facts without that link.
 - Destination anonymisation now rewrites every field, matches any letter case and the hyphenated slug form agents use in identifiers, and withholds London arrival stations, which named the destination terminal.
 - Personal visit audits, with their notes and walking scope, are removed from exports unless `--keep-visit-audits` is given. Removal re-derives the street-care observation through the same merge so the export's score matches its components and falls back to cited proxies.
+
+### P12 completion note
+
+- Every observation, rail journey, housing market, and street-care place now carries a required `basis`: `measured`, `transformed`, `agent_inferred`, `user_observed`, or `synthetic`. The Overpass adapter writes `measured`; derived observations inherit the basis of the journey, market, or place they came from; a recent visit audit is `user_observed`; the public demo is `synthetic` in-band rather than only in prose.
+- An `agent_inferred` record cannot claim confidence above 0.5. The JSON Schemas, the Python validators, and the browser validator all enforce it, so an estimate with a URL attached can no longer pass as a measurement.
+- The dossier shows the basis for every metric, journey, market, and street-care place, flags agent-inferred metrics with an EST badge and an amber note, and the skill tells the agent how to choose the basis and never to leave it out.

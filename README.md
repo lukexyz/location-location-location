@@ -70,7 +70,7 @@ and never claims a property exists because an area looks affordable.
 | **Map** | Route envelope, numbered score pins, the selected place. OpenStreetMap basemap with visible attribution. |
 | **Candidate register** | Researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
 | **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |
-| **Evidence dossier** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, source, and date. |
+| **Evidence dossier** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, basis, source, and date. |
 | **Playful readouts** | Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, Pavement Pride. Restatements of cited evidence that add nothing to the score and say "no evidence" when there is none. |
 | **Status rail** | Schema and scoring versions, resolution date, and the privacy readout: local read, no upload, map tiles remote. |
 
@@ -110,7 +110,9 @@ and lower the separate confidence figure instead of pretending to be average.
 | `research-runs/`, `cache/` | Private, gitignored output of your own runs. |
 
 Agents gather and reconcile evidence; code applies the boundary, the catchments,
-the hard limits, and the scores. Switching agent cannot change a number.
+the hard limits, and the scores. Switching agent cannot change a number. Every imported fact carries a basis of
+measured, transformed, agent-inferred, or user-observed, and an agent-inferred
+value cannot claim confidence above 0.5.
 
 ## Sources and services
 

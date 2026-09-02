@@ -14,6 +14,16 @@ describe("parseResultBundle", () => {
     );
   });
 
+  it("rejects agent-inferred evidence that claims high confidence", () => {
+    const inferred = structuredClone(demoData);
+    const metric = inferred.candidates[0].categories[0].metrics[0];
+    metric.basis = "agent_inferred";
+    metric.confidence = 0.9;
+    expect(() => parseResultBundle(inferred)).toThrow(/agent-inferred but claims confidence above 0.5/);
+    metric.confidence = 0.5;
+    expect(() => parseResultBundle(inferred)).not.toThrow();
+  });
+
   it("rejects duplicate candidate identities", () => {
     const duplicate = structuredClone(demoData);
     duplicate.candidates[1].id = duplicate.candidates[0].id;

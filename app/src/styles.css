@@ -120,6 +120,8 @@ button:focus-visible, summary:focus-visible, a:focus-visible, .leaflet-marker-ic
 .metric-row summary { display: grid; grid-template-columns: 1fr auto 3rem; gap: .6rem; align-items: center; padding: .65rem .1rem; list-style: none; cursor: pointer; }.metric-row summary::-webkit-details-marker { display: none; }
 .metric-name { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; }.metric-raw { color: var(--muted); font: .58rem Consolas, monospace; }.metric-score { text-align: right; font: .78rem Consolas, monospace; }
 .metric-raw .favorable-observation { color: var(--acid); text-shadow: 0 0 10px rgba(189, 255, 120, .22); }
+.basis-flag { margin-right: .35rem; padding: .05rem .25rem; border: 1px solid var(--amber); color: var(--amber); font: .5rem Consolas, monospace; font-style: normal; letter-spacing: .08em; vertical-align: middle; }
+.basis-note { margin: .5rem 0 0; color: var(--amber); font: .64rem/1.5 Consolas, monospace; }
 .metric-detail { padding: .2rem .1rem .8rem; }.metric-track { height: 3px; margin-bottom: .7rem; }
 .metric-detail dl { display: grid; grid-template-columns: repeat(2, 1fr); gap: .45rem; margin: 0; }.metric-detail dl div { min-width: 0; }.metric-detail dt { color: var(--muted); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; }.metric-detail dd { overflow-wrap: anywhere; margin: .12rem 0 0; font: .65rem/1.4 Consolas, monospace; }.metric-detail p { margin: .6rem 0 0; color: var(--muted); font: .65rem/1.5 Consolas, monospace; }
 .metric-detail a { color: var(--ink); text-underline-offset: 2px; }

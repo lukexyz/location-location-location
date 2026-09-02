@@ -8,6 +8,14 @@ from math import log1p
 
 SCORING_VERSION = "1"
 
+# How a fact came to be: measured by code from a source, transformed from published
+# figures by a stated rule, estimated by an agent, observed by the person, or
+# synthetic demonstration data. Agent estimates cannot claim high confidence.
+EVIDENCE_BASES: tuple[str, ...] = (
+    "measured", "transformed", "agent_inferred", "user_observed", "synthetic",
+)
+INFERRED_CONFIDENCE_CAP = 0.5
+
 # Recognisable settlement anchor kinds, most significant first.
 PLACE_KINDS: tuple[str, ...] = ("city", "town", "suburb", "village", "neighbourhood")
 

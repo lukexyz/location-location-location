@@ -7,7 +7,7 @@ from datetime import date, datetime
 from typing import Any, Iterable
 from urllib.parse import urlsplit
 
-from .validation import validate_evidence
+from .validation import validate_basis, validate_evidence
 
 
 COMPONENT_FIELDS = (
@@ -130,6 +130,7 @@ def validate_rail_research(
             or not 0 <= confidence <= 1
         ):
             raise ValueError("rail journey confidence must be between 0 and 1")
+        validate_basis(journey, float(confidence), "rail journey")
         source_kinds = _validate_sources(journey.get("sources"))
         if (
             journey["punctuality_percent"] is not None
@@ -165,6 +166,7 @@ def _commute_observation(journey: dict[str, Any]) -> dict[str, Any]:
         "licence": timetable["licence"],
         "confidence": journey["confidence"],
         "confidence_notes": journey["confidence_notes"],
+        "basis": journey["basis"],
     }
 
 

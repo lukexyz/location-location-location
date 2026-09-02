@@ -1,31 +1,96 @@
 {
   "schema_version": "1",
   "provider": "synthetic cited fixture",
-  "requirements": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat", "bedrooms": 2},
+  "requirements": {
+    "mode": "buy",
+    "budget_gbp": 500000,
+    "property_type": "flat",
+    "bedrooms": 2
+  },
   "markets": [
     {
-      "id": "welwyn-housing-market", "candidate_id": "welwyn-garden-city", "typical_cost_gbp": 390000, "statistic": "median",
-      "geography": {"kind": "radius", "label": "2 km around Welwyn Garden City", "radius_km": 2},
-      "period_start": "2023-08-01", "period_end": "2026-07-31", "sample_size": 28,
+      "id": "welwyn-housing-market",
+      "candidate_id": "welwyn-garden-city",
+      "typical_cost_gbp": 390000,
+      "statistic": "median",
+      "geography": {
+        "kind": "radius",
+        "label": "2 km around Welwyn Garden City",
+        "radius_km": 2
+      },
+      "period_start": "2023-08-01",
+      "period_end": "2026-07-31",
+      "sample_size": 28,
       "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
-      "confidence": 0.85, "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-      "sources": [{"kind": "transactions", "label": "Synthetic LOCATION³ sold-price fixture", "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json", "retrieved_at": "2026-08-01T12:00:00Z", "source_date": "2026-08-01", "licence": "CC0-1.0"}]
+      "confidence": 0.85,
+      "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+      "sources": [
+        {
+          "kind": "transactions",
+          "label": "Synthetic LOCATION³ sold-price fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
     },
     {
-      "id": "hemel-housing-market", "candidate_id": "hemel-hempstead", "typical_cost_gbp": 475000, "statistic": "median",
-      "geography": {"kind": "radius", "label": "2 km around Hemel Hempstead", "radius_km": 2},
-      "period_start": "2023-08-01", "period_end": "2026-07-31", "sample_size": 22,
+      "id": "hemel-housing-market",
+      "candidate_id": "hemel-hempstead",
+      "typical_cost_gbp": 475000,
+      "statistic": "median",
+      "geography": {
+        "kind": "radius",
+        "label": "2 km around Hemel Hempstead",
+        "radius_km": 2
+      },
+      "period_start": "2023-08-01",
+      "period_end": "2026-07-31",
+      "sample_size": 22,
       "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
-      "confidence": 0.82, "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-      "sources": [{"kind": "transactions", "label": "Synthetic LOCATION³ sold-price fixture", "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json", "retrieved_at": "2026-08-01T12:00:00Z", "source_date": "2026-08-01", "licence": "CC0-1.0"}]
+      "confidence": 0.82,
+      "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
+      "sources": [
+        {
+          "kind": "transactions",
+          "label": "Synthetic LOCATION³ sold-price fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
     },
     {
-      "id": "maidenhead-housing-market", "candidate_id": "maidenhead", "typical_cost_gbp": 330000, "statistic": "median",
-      "geography": {"kind": "radius", "label": "5 km around Maidenhead", "radius_km": 5},
-      "period_start": "2023-08-01", "period_end": "2026-07-31", "sample_size": 16,
+      "id": "maidenhead-housing-market",
+      "candidate_id": "maidenhead",
+      "typical_cost_gbp": 330000,
+      "statistic": "median",
+      "geography": {
+        "kind": "radius",
+        "label": "5 km around Maidenhead",
+        "radius_km": 5
+      },
+      "period_start": "2023-08-01",
+      "period_end": "2026-07-31",
+      "sample_size": 16,
       "listing_search_url": null,
-      "confidence": 0.68, "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
-      "sources": [{"kind": "transactions", "label": "Synthetic LOCATION³ sold-price fixture", "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json", "retrieved_at": "2026-08-01T12:00:00Z", "source_date": "2026-08-01", "licence": "CC0-1.0"}]
+      "confidence": 0.68,
+      "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+      "sources": [
+        {
+          "kind": "transactions",
+          "label": "Synthetic LOCATION³ sold-price fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
     }
   ]
 }

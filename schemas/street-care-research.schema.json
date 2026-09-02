@@ -76,14 +76,15 @@
     },
     "place": {
       "type": "object",
-      "required": ["id", "candidate_id", "local_authority", "fly_tipping", "local_reports", "visit_audit"],
+      "required": ["id", "candidate_id", "local_authority", "fly_tipping", "local_reports", "visit_audit", "basis"],
       "properties": {
         "id": {"type": "string", "minLength": 1},
         "candidate_id": {"type": "string", "minLength": 1},
         "local_authority": {"type": "string", "minLength": 1},
         "fly_tipping": {"$ref": "#/$defs/flyTipping"},
         "local_reports": {"$ref": "#/$defs/localReports"},
-        "visit_audit": {"$ref": "#/$defs/visitAudit"}
+        "visit_audit": {"$ref": "#/$defs/visitAudit"},
+        "basis": {"enum": ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"]}
       },
       "additionalProperties": false
     }
