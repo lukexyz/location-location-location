@@ -624,3 +624,8 @@ The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 202
 
 - `scripts/export_run.py` previews what a shared bundle would still reveal, then writes a redacted copy: origin rounded to a chosen precision, optional removal of budget, property requirements, market evidence, and the affordability metric, and optional replacement of destination labels wherever they appear, including the prose of merged commute observations.
 - Redaction is applied to the profile and evidence and the result is re-scored through `write_bundle`, so an export is always a schema-valid, internally consistent bundle rather than a hand-edited file. The route envelope, limits, and preferences are retained and the preview says so.
+
+### P8 completion note
+
+- The README is now product documentation: masthead, the problem it answers, the run in seven steps, an instrument tour, a metric glossary with the exact curves from `catalog.py`, architecture and source tables, commands, cost and privacy boundaries, GL4SS attribution, and the MIT versus ODbL/OGL licence split.
+- Screenshots come from a skipped-by-default Playwright spec (`CAPTURE_SCREENSHOTS=1`) that renders the synthetic demo on desktop and mobile with the attributed OpenStreetMap basemap, so they can be refreshed the same way every time.

@@ -1,8 +1,129 @@
-# LOCATION³
+```text
+ ██╗      ██████╗  ██████╗ █████╗ ████████╗██╗ ██████╗ ███╗   ██╗ ³
+ ██║     ██╔═══██╗██╔════╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║
+ ██║     ██║   ██║██║     ███████║   ██║   ██║██║   ██║██╔██╗ ██║
+ ██║     ██║   ██║██║     ██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
+ ███████╗╚██████╔╝╚██████╗██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
+ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+ THE PLACE-FINDING INSTRUMENT
+```
 
-A local, user-run instrument for finding places to live.
+**LOCATION³** is a local, user-run instrument for deciding *where* to live before
+deciding *which home*. You give it an approximate origin, a travel-time limit,
+your destinations, a housing budget, and the things that make everyday life good
+for you. It researches only the places inside that boundary, records where every
+fact came from, scores them deterministically, and shows the trade-offs on a map.
 
-Requires Python 3.11 or newer.
+It is a decision-support tool, not an oracle. Every score explains itself, every
+fact carries a citation and a confidence, and missing evidence is shown as
+missing rather than averaged away.
+
+![The instrument: map, candidate register, and evidence dossier](docs/screenshots/chromium-overview.png)
+
+## Why it exists
+
+Property portals answer "which homes are advertised right now?" They are poor at
+"where would my life work?" Their filters stop at price, bedrooms, and a circle
+on a map. They do not combine a realistic door-to-door commute, a fifteen-minute
+walk to a café, the nearest green space, how well the streets are kept, or how
+much a bookmaker on every corner bothers you.
+
+LOCATION³ recommends *areas* first. It narrows a commuter region to a defensible
+shortlist, explains why each place scored what it did, and then hands you off to
+an external listing search for the homes themselves. It never scrapes portals
+and never claims a property exists because an area looks affordable.
+
+## How a run works
+
+1. **Preview.** `research_location.py` prints exactly what will leave your
+   machine: the origin sent to the routing provider, the boundary polygon and
+   brand patterns sent to Overpass, the metrics measured, and the call ceiling.
+   Nothing is fetched until you add `--execute`.
+2. **Bound.** One OpenRouteService isochrone becomes the search envelope, for
+   example everywhere within a 30-minute drive.
+3. **Collect.** One combined Overpass call discovers cities, towns, suburbs,
+   villages, and neighbourhoods inside the envelope and, around each of them,
+   fetches cafés, betting shops, yoga, configurable premium grocers, public green
+   space, and the walkable street network. Two live calls, total, with an
+   expiring local cache so a rerun costs nothing.
+4. **Measure.** Deterministic Python counts amenities within a 15-minute walk
+   along the mapped pedestrian network, measures green-space distance, and
+   records each observation with its source, licence, retrieval date,
+   transformation, and confidence. Observations say when a straight-line proxy
+   had to stand in.
+5. **Enrich the shortlist.** Cited rail journeys, housing market evidence, and
+   street-care evidence are imported as separate zero-network steps, each with
+   its own preview and schema.
+6. **Score.** Documented curves map each observation to 0–100, categories are
+   weighted means, and the overall score is a weighted mean of categories. Hard
+   limits are evaluated first. Confidence is reported separately.
+7. **Explore.** The viewer draws the boundary and pins, ranks the register,
+   opens an evidence dossier per place, and lets you preview what-if importance
+   without touching the researched result.
+
+## The instrument
+
+| Part | What it tells you |
+| --- | --- |
+| **Map** | Route envelope, numbered score pins, the selected place. OpenStreetMap basemap with visible attribution. |
+| **Candidate register** | Researched rank, hard-limit status, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
+| **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |
+| **Evidence dossier** | Overall fit, confidence, hard limits, playful readouts, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, source, and date. |
+| **Playful readouts** | Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, Pavement Pride. Restatements of cited evidence that add nothing to the score and say "no evidence" when there is none. |
+| **Status rail** | Schema and scoring versions, resolution date, and the privacy readout: local read, no upload, map tiles remote. |
+
+![What-if importance preview with researched ranks retained](docs/screenshots/chromium-whatif.png)
+
+![An evidence dossier with a metric expanded](docs/screenshots/chromium-dossier.png)
+
+## Metric glossary
+
+Weights are 0–5 defaults in `preferences.toml`, overridable per run. A weight of
+0 makes a metric informational. Any metric can also carry a hard limit.
+
+| Metric | Category | Observation | Curve |
+| --- | --- | --- | --- |
+| Door-to-door commute | Core fit | Minutes including station access, waiting, rail, changes, and the London last mile | Piecewise: 20 min → 100, 45 → 75, 75 → 40, 120 → 0 |
+| Housing affordability | Core fit | Typical cost ÷ budget, from cited sold-price or rent evidence | Piecewise: 0.65 → 100, 0.85 → 85, 1.0 → 60, 1.2 → 20, 1.5 → 0 |
+| Street care | Ground condition | Cautious 0–100 proxy from fly-tipping, report resolution, and a recent visit audit | Identity |
+| Green-space access | Ground condition | Walking minutes to the nearest public park, common, or recreation ground | Piecewise: 0 → 100, 5 → 95, 15 → 70, 30 → 25, 45 → 0 |
+| Betting shops | Local signal | Count within a 15-minute walk | Log saturation at 5, reversed |
+| Cafés | Local signal | Count within a 15-minute walk | Log saturation at 12 |
+| Yoga studios | Local signal | Count within a 15-minute walk | Log saturation at 5 |
+| Premium grocers | Local signal | Count of configured brands within a 15-minute walk | Log saturation at 4 |
+
+Categories are balanced by their own weights so several amenity counts cannot
+outvote commute and affordability. Missing metrics are left out of the arithmetic
+and lower the separate confidence figure instead of pretending to be average.
+
+## Architecture
+
+| Layer | Responsibility |
+| --- | --- |
+| `skills/location-research/` | The one research workflow. Codex (`$location-research`) and Claude Code (`/location-research`) entry points are thin pointers to it. |
+| `scripts/` and `src/location3/` | Deterministic Python: routing and Overpass adapters, walking-network catchments, scoring curves, schema validation, provenance, caching with a request ledger, importers, and export. |
+| `schemas/` | Draft 2020-12 contracts for profile, evidence, results, provenance, and the rail, housing, and street-care inputs. Every file is validated before it is written. |
+| `app/` | React, TypeScript, Vite, and Leaflet viewer. Reads a `results.json` in the browser tab, validates it, and never uploads it. |
+| `fixtures/demo/` | The synthetic demonstration run, regenerated byte-for-byte by `scripts/build_demo.py`. |
+| `research-runs/`, `cache/` | Private, gitignored output of your own runs. |
+
+Agents gather and reconcile evidence; code applies the boundary, the catchments,
+the hard limits, and the scores. Switching agent cannot change a number.
+
+## Sources and services
+
+| Source | Used for | Terms |
+| --- | --- | --- |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) via the [Overpass API](https://overpass-api.de/) | Settlements, amenities, green space, pedestrian network | ODbL 1.0; attribution shown on the map and in every observation |
+| [OpenRouteService](https://openrouteservice.org/) | Isochrone search envelope | Free tier with your own key in `ORS_API_KEY`; never stored in a bundle |
+| [HM Land Registry Price Paid Data](https://www.gov.uk/government/statistical-data-sets/price-paid-data-downloads) and ONS rents | Cited housing evidence you import | Open Government Licence |
+| [Defra fly-tipping statistics](https://www.gov.uk/government/statistics/fly-tipping-statistics-for-england) and [FixMyStreet](https://data.mysociety.org/datasets/fms-geographic/) | Cited street-care evidence you import | As published; treated as a low-resolution prior |
+| National Rail timetables and [ORR performance](https://dataportal.orr.gov.uk/performance) | Cited rail evidence you import | As published |
+| [Leaflet](https://leafletjs.com/) and OpenStreetMap tiles | Map rendering | BSD-2; [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) |
+
+## Running it
+
+Requires Python 3.11 or newer, Node 22 or newer, and an OpenRouteService key.
 
 ```powershell
 python scripts/run_fixture.py
@@ -10,75 +131,66 @@ python -m unittest discover -s tests
 uvx ruff@0.15.0 check src scripts tests
 ```
 
-The demo writes a private, gitignored report to `research-runs/demo/report.html`.
-Public defaults live in `preferences.toml`; optional local overrides live in the
-gitignored `preferences.local.toml`.
+The fixture run writes a private, gitignored report to
+`research-runs/demo/report.html`. Public defaults live in `preferences.toml`;
+optional local overrides live in the gitignored `preferences.local.toml`.
 
-Preview a bounded location research run (no network or writes):
+### Research
+
+Preview a bounded run (no network, no writes):
 
 ```powershell
 python scripts/research_location.py --latitude LAT --longitude LON --minutes 30
 ```
 
-Optional repeatable flags include `--destination
-"LABEL|MODE|ARRIVAL|MAX_MINUTES"`, `--constraint "METRIC<=VALUE"`, and `--weight
-"METRIC=VALUE"`; housing flags are also available. The preview discloses those
-choices, the configurable premium-grocer fragments, and the two-call ceiling.
-Set a local `ORS_API_KEY`, review the preview, then add `--execute`. The single
-Overpass call also fetches the walkable street network around each discovered
-settlement, so amenity counts follow a 15-minute walk along mapped footways and
-streets; observations say explicitly when a straight-line proxy was used instead.
-Codex users can invoke the same workflow with `$location-research`; Claude Code
-users can invoke it with `/location-research`. Both entry points defer to the
-single workflow in `skills/location-research/SKILL.md`.
+Repeatable flags: `--destination "LABEL|MODE|ARRIVAL|MAX_MINUTES"`,
+`--constraint "METRIC<=VALUE"`, `--weight "METRIC=VALUE"`, plus `--housing`,
+`--budget`, `--property-type`, and `--bedrooms`. The preview discloses those
+choices, the premium-grocer fragments, and the two-call ceiling. Set a local
+`ORS_API_KEY`, review the preview, then add `--execute`. The single Overpass call
+also fetches the walkable street network around each discovered settlement, so
+amenity counts follow a 15-minute walk along mapped footways and streets;
+observations say explicitly when a straight-line proxy was used instead.
 
-Preview a cited rail import for that run (no network or writes), then add
-`--execute` after review:
+Codex users can invoke the same workflow with `$location-research`; Claude Code
+users can invoke it with `/location-research`. Both defer to
+`skills/location-research/SKILL.md`.
+
+### Shortlist enrichment
+
+Each importer is zero-network, previews first, and writes a sibling run:
 
 ```powershell
 python scripts/import_rail.py --run-dir research-runs/NAME --input rail.json
-```
-
-The input must match `schemas/rail-research.schema.json` and may reference only
-candidates already in the run.
-
-Preview a cited housing import (also zero-network), then add `--execute` after
-reviewing its requirements, geographic resolution, and citations:
-
-```powershell
 python scripts/import_housing.py --run-dir research-runs/NAME-rail --input housing.json
-```
-
-The private input must match `schemas/housing-research.schema.json`. It supplies
-the buy or monthly-rent budget, property requirements, and one market estimate
-per researched shortlist candidate. The importer computes affordability; it
-does not check live inventory, and any property-portal URL remains an external
-search action.
-
-Preview cited street-care evidence for the latest enriched run, then add
-`--execute` after reviewing its limitations:
-
-```powershell
 python scripts/import_street_care.py --run-dir research-runs/NAME-rail-housing --input street-care.json
 ```
 
-The private input must match `schemas/street-care-research.schema.json`.
-Fly-tipping remains a low-confidence local-authority prior, raw report volume is
-informational, and only a structured visit audit no more than 180 days old
-overrides the proxy score.
+Inputs must match `schemas/rail-research.schema.json`,
+`schemas/housing-research.schema.json`, and
+`schemas/street-care-research.schema.json`, and may reference only candidates
+already in the run. Housing affordability is market evidence; live inventory is
+never checked and any portal URL is an external search action. Street care keeps
+fly-tipping as a low-confidence local-authority prior, report volume as
+informational, and lets only a structured visit audit no more than 180 days old
+override the proxy.
 
-Sharing a run is a separate, deliberate step. Preview a redacted export, read
-what it still reveals, then add `--execute`:
+### Sharing a run
+
+Sharing is a separate, deliberate step. Preview a redacted export, read what it
+still reveals, then add `--execute`:
 
 ```powershell
 python scripts/export_run.py --run-dir research-runs/NAME --origin-decimals 2 --strip-housing --anonymise-destinations
 ```
 
 The export rounds the approximate origin, can drop the budget and property
-requirements together with the affordability evidence, can replace destination
-labels, then re-scores the redacted evidence through the same schema gates so the
-shared `results.json` stays consistent. The route envelope, travel limits, and
-preferences remain, and the command never uploads anything.
+requirements with the affordability evidence, can replace destination labels,
+and re-scores the redacted evidence through the same schema gates so the shared
+`results.json` stays consistent. The route envelope, limits, and preferences
+remain, and the command never uploads anything.
+
+### Viewer
 
 ```powershell
 npm install
@@ -88,25 +200,15 @@ npm run dev
 The viewer starts with demonstration data: three real commuter-belt towns
 (Welwyn Garden City, Hemel Hempstead, and Maidenhead) carrying clearly labelled
 synthetic evidence, so nothing in the demo is a measurement of those towns.
-Importing a `results.json` reads it only
-inside the current browser tab; it is not uploaded or stored. Map tiles remain an
-external network request. Compatible results include their route boundary and
-provider assumptions; the viewer draws that boundary, exposes weighted score
-contributions, and can sort the register without changing authoritative ranks.
-The **Tune importance** panel previews a what-if: sliders reweight the metrics in
-the browser using the same arithmetic as the Python scorer, the order and bright
-scores update, and the researched rank numbers stay in place. Evidence is never
-re-measured; rerun the research to make new importance authoritative. The parity
-of that arithmetic is tested against `demo-results.reweighted.json`, a second
-scoring that `scripts/build_demo.py` writes from the same fixture.
+Importing a `results.json` reads it only inside the current browser tab. Map
+tiles remain an external network request. What-if tuning uses the same
+arithmetic as the Python scorer and is tested against
+`demo-results.reweighted.json`, a second scoring that `scripts/build_demo.py`
+writes from the same fixture.
 
-Every generated profile, evidence bundle, result, and provenance manifest is
-validated against the Draft 2020-12 contracts in `schemas/` before it is written.
-Python retains the cross-file and mathematical checks that JSON Schema cannot
-express. Browser contract-parity tests use AJV only during development; it is not
-included in the public viewer bundle.
+![The same instrument on a phone](docs/screenshots/mobile-overview.png)
 
-Run the viewer checks with:
+### Checks and deployment
 
 ```powershell
 npm run test:web
@@ -116,9 +218,37 @@ npm run build
 
 Pushes and pull requests to `main` run the **Verify** workflow: Python lint and
 unit tests, demo reproducibility, viewer unit tests, browser and accessibility
-tests, and the production build.
+tests, and the production build. Refresh the documentation screenshots with
+`CAPTURE_SCREENSHOTS=1 npx playwright test screenshots.spec.ts` from `app/`.
 
 The Pages deployment is deliberately manual. After selecting **GitHub Actions**
 as the repository's Pages source, run **Deploy viewer to Pages** from the Actions
 tab. The workflow tests the viewer and deploys only `app/dist`, which contains
-the synthetic public demo—not ignored preferences or private research runs.
+the synthetic public demo, never ignored preferences or private research runs.
+
+## Cost and privacy boundaries
+
+- Changing controls never triggers a chargeable request. Only `--execute` calls a
+  provider, at most twice per run, after a preview of what will be sent.
+- Free-tier exhaustion fails closed. There is no paid overage to opt into.
+- Profiles, origins, destinations, budgets, visit audits, caches, and results stay
+  in gitignored local directories. The viewer never uploads an imported file.
+- Provider keys live in your environment and are never written into a bundle,
+  the ledger, or the static site.
+- The public demo is synthetic and says so in the interface.
+
+## Inspiration and licence
+
+The full-bleed map, machined chrome, technical typography, and the deliberate
+"resolve costs something" posture are inspired by
+[GL4SS](https://github.com/elder-plinius/GL4SS). LOCATION³ is an independent
+implementation: no GL4SS code, prose, shaders, names, or assets are used, so its
+AGPL terms do not apply here.
+
+Application code is released under the [MIT License](LICENSE). Generated data is
+not: OpenStreetMap-derived observations remain under the
+[ODbL](https://opendatacommons.org/licenses/odbl/), and government statistics
+you import remain under the
+[Open Government Licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/)
+or the terms of their publisher. Each observation records its own licence so a
+bundle can be audited after the fact.
