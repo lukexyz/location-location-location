@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
 from hashlib import sha256
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
 from .catalog import EVIDENCE_BASES, INFERRED_CONFIDENCE_CAP, METRICS, PLACE_KINDS
+from .fields import http_url, iso_date, iso_datetime, nonempty, require
 
 
 TRAVEL_MODES = {"public_transport", "driving", "cycling", "walking"}
@@ -15,13 +15,13 @@ BOUNDARY_TYPES = {"isochrone", "fixture_polygon"}
 
 
 def validate_profile(profile: dict[str, Any]) -> None:
-    if _require(profile, "schema_version", str) != "1":
+    if require(profile, "schema_version", str) != "1":
         raise ValueError("unsupported profile schema_version")
-    _require(profile, "run_id", str)
-    search = _require(profile, "search", dict)
+    require(profile, "run_id", str)
+    search = require(profile, "search", dict)
     _validate_search(search)
-    weights = _require(profile, "weights", dict)
-    category_weights = _require(profile, "category_weights", dict)
+    weights = require(profile, "weights", dict)
+    category_weights = require(profile, "category_weights", dict)
     if set(weights) != set(METRICS):
         raise ValueError("profile weights do not match the metric catalogue")
     if not category_weights:
@@ -76,37 +76,37 @@ def validate_profile(profile: dict[str, Any]) -> None:
 
 
 def _validate_search(search: dict[str, Any]) -> None:
-    origin = _require(search, "approximate_origin", dict)
-    latitude = _require(origin, "latitude", (int, float))
-    longitude = _require(origin, "longitude", (int, float))
+    origin = require(search, "approximate_origin", dict)
+    latitude = require(origin, "latitude", (int, float))
+    longitude = require(origin, "longitude", (int, float))
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
         raise ValueError("approximate_origin is out of range")
-    _nonempty(origin, "precision")
+    nonempty(origin, "precision")
 
-    boundary = _require(search, "route_boundary", dict)
+    boundary = require(search, "route_boundary", dict)
     if boundary.get("type") not in BOUNDARY_TYPES:
         raise ValueError("route_boundary type is unsupported")
-    _nonempty(boundary, "provider")
-    _nonempty(boundary, "traffic_treatment")
-    _datetime(_nonempty(boundary, "retrieved_at"), "route_boundary.retrieved_at")
+    nonempty(boundary, "provider")
+    nonempty(boundary, "traffic_treatment")
+    iso_datetime(nonempty(boundary, "retrieved_at"), "route_boundary.retrieved_at")
     if boundary.get("departure_time") is not None:
-        _datetime(boundary["departure_time"], "route_boundary.departure_time")
+        iso_datetime(boundary["departure_time"], "route_boundary.departure_time")
     if "duration_minutes" in boundary:
-        minutes = _require(boundary, "duration_minutes", int)
+        minutes = require(boundary, "duration_minutes", int)
         if not 1 <= minutes <= 300:
             raise ValueError("route_boundary duration_minutes is out of range")
-    validate_polygon_geometry(_require(boundary, "geometry", dict))
+    validate_polygon_geometry(require(boundary, "geometry", dict))
 
-    housing = _require(search, "housing", dict)
+    housing = require(search, "housing", dict)
     if housing:
         if set(housing) != {"mode", "budget_gbp", "property_type", "bedrooms"}:
             raise ValueError("housing requirements fields do not match the schema")
         if housing["mode"] not in {"buy", "rent"}:
             raise ValueError("housing mode must be buy or rent")
-        budget = _require(housing, "budget_gbp", (int, float))
+        budget = require(housing, "budget_gbp", (int, float))
         if budget <= 0:
             raise ValueError("housing budget_gbp must be positive")
-        _nonempty(housing, "property_type")
+        nonempty(housing, "property_type")
         bedrooms = housing["bedrooms"]
         if bedrooms is not None and (
             not isinstance(bedrooms, int) or isinstance(bedrooms, bool) or bedrooms < 0
@@ -114,16 +114,16 @@ def _validate_search(search: dict[str, Any]) -> None:
             raise ValueError("housing bedrooms must be null or a non-negative integer")
 
     labels: set[str] = set()
-    for destination in _require(search, "destinations", list):
+    for destination in require(search, "destinations", list):
         if not isinstance(destination, dict):
             raise ValueError("destinations must be objects")
-        label = _nonempty(destination, "label").casefold()
+        label = nonempty(destination, "label").casefold()
         if label in labels:
             raise ValueError("destination labels must be unique")
         labels.add(label)
         if destination.get("travel_mode") not in TRAVEL_MODES:
             raise ValueError("destination travel_mode is unsupported")
-        _nonempty(destination, "arrival")
+        nonempty(destination, "arrival")
         max_minutes = destination.get("max_minutes")
         if max_minutes is not None and (
             not isinstance(max_minutes, int) or isinstance(max_minutes, bool)
@@ -131,7 +131,7 @@ def _validate_search(search: dict[str, Any]) -> None:
         ):
             raise ValueError("destination max_minutes must be null or 1-300")
 
-    providers = _require(search, "providers", dict)
+    providers = require(search, "providers", dict)
     if any(
         not isinstance(key, str) or not key or not isinstance(value, str) or not value
         for key, value in providers.items()
@@ -169,17 +169,17 @@ def validate_polygon_geometry(geometry: dict[str, Any]) -> None:
 
 
 def validate_evidence(bundle: dict[str, Any]) -> None:
-    if _require(bundle, "schema_version", str) != "1":
+    if require(bundle, "schema_version", str) != "1":
         raise ValueError("unsupported evidence schema_version")
-    candidates = _require(bundle, "candidates", list)
-    observations = _require(bundle, "observations", list)
+    candidates = require(bundle, "candidates", list)
+    observations = require(bundle, "observations", list)
     candidate_ids: set[str] = set()
     for candidate in candidates:
-        candidate_id = _require(candidate, "id", str)
-        _require(candidate, "name", str)
-        location = _require(candidate, "location", dict)
-        latitude = _require(location, "latitude", (int, float))
-        longitude = _require(location, "longitude", (int, float))
+        candidate_id = require(candidate, "id", str)
+        require(candidate, "name", str)
+        location = require(candidate, "location", dict)
+        latitude = require(location, "latitude", (int, float))
+        longitude = require(location, "longitude", (int, float))
         if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
             raise ValueError("candidate location is out of range")
         if "place_kind" in candidate and candidate["place_kind"] not in PLACE_KINDS:
@@ -190,29 +190,29 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
 
     observation_ids: set[str] = set()
     for observation in observations:
-        observation_id = _require(observation, "id", str)
+        observation_id = require(observation, "id", str)
         if observation_id in observation_ids:
             raise ValueError(f"duplicate observation id: {observation_id}")
         observation_ids.add(observation_id)
-        if _require(observation, "candidate_id", str) not in candidate_ids:
+        if require(observation, "candidate_id", str) not in candidate_ids:
             raise ValueError("observation references an unknown candidate")
-        metric = _require(observation, "metric", str)
+        metric = require(observation, "metric", str)
         if metric not in METRICS:
             raise ValueError(f"unknown evidence metric: {metric}")
-        _require(observation, "value", (int, float))
-        if _require(observation, "unit", str) != METRICS[metric].unit:
+        require(observation, "value", (int, float))
+        if require(observation, "unit", str) != METRICS[metric].unit:
             raise ValueError(f"unexpected unit for {metric}")
-        confidence = _require(observation, "confidence", (int, float))
+        confidence = require(observation, "confidence", (int, float))
         if not 0 <= confidence <= 1:
             raise ValueError("observation confidence must be between 0 and 1")
         validate_basis(observation, confidence, "observation")
         for key in (
             "geographic_scope", "source", "transformation", "licence", "confidence_notes",
         ):
-            _nonempty(observation, key)
-        _http_url(_nonempty(observation, "source_url"), "source_url")
-        retrieved_at = _datetime(_nonempty(observation, "retrieved_at"), "retrieved_at")
-        source_date = _date(_nonempty(observation, "source_date"), "source_date")
+            nonempty(observation, key)
+        http_url(nonempty(observation, "source_url"), "source_url")
+        retrieved_at = iso_datetime(nonempty(observation, "retrieved_at"), "retrieved_at")
+        source_date = iso_date(nonempty(observation, "source_date"), "source_date")
         if source_date > retrieved_at.date():
             raise ValueError("source_date cannot be later than retrieved_at")
 
@@ -301,20 +301,20 @@ def validate_basis(record: dict[str, Any], confidence: float, label: str) -> str
 def validate_manifest(
     manifest: dict[str, Any], artifacts: Mapping[str, bytes] | None = None
 ) -> None:
-    if _require(manifest, "schema_version", str) != "1":
+    if require(manifest, "schema_version", str) != "1":
         raise ValueError("unsupported manifest schema_version")
-    _nonempty(manifest, "run_id")
-    _datetime(_nonempty(manifest, "generated_at"), "generated_at")
-    _nonempty(manifest, "scoring_version")
-    tool_versions = _require(manifest, "tool_versions", dict)
+    nonempty(manifest, "run_id")
+    iso_datetime(nonempty(manifest, "generated_at"), "generated_at")
+    nonempty(manifest, "scoring_version")
+    tool_versions = require(manifest, "tool_versions", dict)
     if not tool_versions or any(
         not isinstance(key, str) or not isinstance(value, str) or not key or not value
         for key, value in tool_versions.items()
     ):
         raise ValueError("tool_versions must contain non-empty string entries")
-    _require(manifest, "geographic_coverage", dict)
-    ledger = _require(manifest, "request_ledger", list)
-    cache_used = _require(manifest, "cache_used", bool)
+    require(manifest, "geographic_coverage", dict)
+    ledger = require(manifest, "request_ledger", list)
+    cache_used = require(manifest, "cache_used", bool)
     _string_list(manifest, "sources")
     _string_list(manifest, "licences")
     _string_list(manifest, "warnings")
@@ -327,26 +327,26 @@ def validate_manifest(
         }
         if set(entry) - allowed:
             raise ValueError("request ledger contains unapproved fields")
-        _nonempty(entry, "provider")
-        request_id = _nonempty(entry, "request_id")
+        nonempty(entry, "provider")
+        request_id = nonempty(entry, "request_id")
         if not _checksum_value(request_id):
             raise ValueError("request_id must be a SHA-256 identifier")
-        endpoint = _http_url(_nonempty(entry, "endpoint"), "endpoint")
+        endpoint = http_url(nonempty(entry, "endpoint"), "endpoint")
         parsed_endpoint = urlsplit(endpoint)
         if parsed_endpoint.query or parsed_endpoint.fragment or parsed_endpoint.username:
             raise ValueError("request ledger endpoints must not contain sensitive URL parts")
-        _datetime(_nonempty(entry, "requested_at"), "requested_at")
+        iso_datetime(nonempty(entry, "requested_at"), "requested_at")
         if entry.get("cache") not in {"hit", "miss"}:
             raise ValueError("request ledger cache must be hit or miss")
-        status = _require(entry, "status", int)
+        status = require(entry, "status", int)
         if not 0 <= status <= 599:
             raise ValueError("request ledger status is out of range")
         if "cache_expires_at" in entry:
-            _datetime(_nonempty(entry, "cache_expires_at"), "cache_expires_at")
+            iso_datetime(nonempty(entry, "cache_expires_at"), "cache_expires_at")
     if cache_used != any(entry["cache"] == "hit" for entry in ledger):
         raise ValueError("cache_used does not match the request ledger")
 
-    checksums = _require(manifest, "checksums", dict)
+    checksums = require(manifest, "checksums", dict)
     expected = {"profile.json", "evidence.json", "results.json"}
     if set(checksums) != expected:
         raise ValueError("manifest checksums must cover the three bundle contracts")
@@ -395,48 +395,8 @@ def validate_provenance(
         raise ValueError("manifest licences do not match evidence")
 
 
-def _require(container: dict[str, Any], key: str, expected_type: Any) -> Any:
-    value = container.get(key)
-    if isinstance(value, bool) and expected_type is not bool:
-        raise ValueError(f"{key} has the wrong type")
-    if not isinstance(value, expected_type):
-        raise ValueError(f"{key} has the wrong type or is missing")
-    return value
-
-
-def _nonempty(container: dict[str, Any], key: str) -> str:
-    value = _require(container, key, str)
-    if not value.strip():
-        raise ValueError(f"{key} cannot be empty")
-    return value
-
-
-def _datetime(value: str, field: str) -> datetime:
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date-time") from error
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError(f"{field} must include a timezone")
-    return parsed
-
-
-def _date(value: str, field: str) -> date:
-    try:
-        return date.fromisoformat(value)
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date") from error
-
-
-def _http_url(value: str, field: str) -> str:
-    parsed = urlsplit(value)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise ValueError(f"{field} must be an HTTP URL")
-    return value
-
-
 def _string_list(container: dict[str, Any], key: str) -> list[str]:
-    values = _require(container, key, list)
+    values = require(container, key, list)
     if any(not isinstance(value, str) or not value.strip() for value in values):
         raise ValueError(f"{key} must contain non-empty strings")
     return values

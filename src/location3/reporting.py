@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from hashlib import sha256
 from html import escape
+from importlib.metadata import PackageNotFoundError, version
 import json
 from pathlib import Path
+import platform
 from typing import Any, Sequence
 
 from . import __version__
@@ -31,7 +33,7 @@ def write_bundle(
         "run_id": profile["run_id"],
         "generated_at": results["generated_at"],
         "scoring_version": results["scoring_version"],
-        "tool_versions": {"location3": __version__},
+        "tool_versions": tool_versions(),
         "geographic_coverage": profile["search"]["route_boundary"],
         "request_ledger": request_ledger or [],
         "cache_used": any(
@@ -65,6 +67,19 @@ def write_bundle(
     (output / "provenance.json").write_bytes(_json_bytes(manifest))
     (output / "report.html").write_text(_render_html(results), encoding="utf-8")
     return manifest
+
+
+def tool_versions() -> dict[str, str]:
+    """Record what produced the bundle so a result can be reproduced later."""
+    try:
+        jsonschema_version = version("jsonschema")
+    except PackageNotFoundError:  # pragma: no cover - the package is a hard dependency
+        jsonschema_version = "unknown"
+    return {
+        "location3": __version__,
+        "python": platform.python_version(),
+        "jsonschema": jsonschema_version,
+    }
 
 
 def _json_bytes(value: dict[str, Any]) -> bytes:

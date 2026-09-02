@@ -23,6 +23,7 @@ jobs:
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.11.6"
+          python-version: "3.12"
       - name: Install locked dependencies
         run: uv sync --frozen
       - name: Lint
@@ -55,3 +56,9 @@ jobs:
         run: npm run test:e2e
       - name: Build public viewer
         run: npm run build
+      - name: Confirm the public build carries no private run material
+        run: |
+          if grep -rIl -e "research-runs/" -e "ORS_API_KEY" -e "preferences.local" app/dist; then
+            echo "private material found in app/dist" && exit 1
+          fi
+          test "$(find app/dist -name '*.json' | wc -l)" -eq 0 || (echo "unexpected JSON in app/dist" && exit 1)

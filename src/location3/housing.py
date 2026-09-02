@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date, datetime
 from typing import Any
-from urllib.parse import urlsplit
 
 from .validation import validate_basis, validate_evidence, validate_profile
+from .fields import exact_keys, http_url, iso_date, iso_datetime, nonempty, positive_number
 
 
 MODES = {"buy", "rent"}
@@ -71,18 +70,18 @@ def validate_housing_research(
     *,
     allow_unknown_candidates: bool = False,
 ) -> None:
-    _exact_keys(
+    exact_keys(
         housing_research,
         {"schema_version", "provider", "requirements", "markets"},
         "housing research",
     )
     if housing_research.get("schema_version") != "1":
         raise ValueError("unsupported housing research schema_version")
-    _nonempty(housing_research, "provider")
+    nonempty(housing_research, "provider")
     requirements = housing_research.get("requirements")
     if not isinstance(requirements, dict):
         raise ValueError("housing research requirements must be an object")
-    _exact_keys(
+    exact_keys(
         requirements,
         {"mode", "budget_gbp", "property_type", "bedrooms"},
         "housing requirements",
@@ -90,8 +89,8 @@ def validate_housing_research(
     mode = requirements.get("mode")
     if mode not in MODES:
         raise ValueError("housing mode must be buy or rent")
-    _positive_number(requirements, "budget_gbp")
-    _nonempty(requirements, "property_type")
+    positive_number(requirements, "budget_gbp")
+    nonempty(requirements, "property_type")
     bedrooms = requirements.get("bedrooms")
     if bedrooms is not None and (
         not isinstance(bedrooms, int) or isinstance(bedrooms, bool) or bedrooms < 0
@@ -107,7 +106,7 @@ def validate_housing_research(
     for market in markets:
         if not isinstance(market, dict):
             raise ValueError("housing markets must be objects")
-        _exact_keys(
+        exact_keys(
             market,
             {
                 "id", "candidate_id", "typical_cost_gbp", "statistic",
@@ -117,21 +116,21 @@ def validate_housing_research(
             },
             "housing market",
         )
-        market_id = _nonempty(market, "id")
+        market_id = nonempty(market, "id")
         if market_id in market_ids:
             raise ValueError(f"duplicate housing market id: {market_id}")
         market_ids.add(market_id)
-        candidate_id = _nonempty(market, "candidate_id")
+        candidate_id = nonempty(market, "candidate_id")
         if not allow_unknown_candidates and candidate_id not in allowed_candidate_ids:
             raise ValueError("housing market is outside the candidate shortlist")
         if candidate_id in candidate_ids:
             raise ValueError("each researched candidate must have one housing market")
         candidate_ids.add(candidate_id)
-        _positive_number(market, "typical_cost_gbp")
+        positive_number(market, "typical_cost_gbp")
         if market.get("statistic") not in {"median", "mean"}:
             raise ValueError("housing statistic must be median or mean")
-        start = _date(_nonempty(market, "period_start"), "period_start")
-        end = _date(_nonempty(market, "period_end"), "period_end")
+        start = iso_date(nonempty(market, "period_start"), "period_start")
+        end = iso_date(nonempty(market, "period_end"), "period_end")
         if end < start:
             raise ValueError("housing period_end cannot precede period_start")
         sample_size = market.get("sample_size")
@@ -145,7 +144,7 @@ def validate_housing_research(
             raise ValueError("purchase evidence requires a sample_size")
         listing_url = market.get("listing_search_url")
         if listing_url is not None:
-            _http_url(listing_url, "listing_search_url")
+            http_url(listing_url, "listing_search_url")
         confidence = market.get("confidence")
         if (
             not isinstance(confidence, (int, float))
@@ -154,7 +153,7 @@ def validate_housing_research(
         ):
             raise ValueError("housing confidence must be between 0 and 1")
         validate_basis(market, float(confidence), "housing market")
-        _nonempty(market, "confidence_notes")
+        nonempty(market, "confidence_notes")
         _validate_geography(market.get("geography"), mode)
         source_kinds = _validate_sources(market.get("sources"))
         if required_source_kind not in source_kinds:
@@ -195,9 +194,9 @@ def _affordability_observation(
 def _validate_geography(value: Any, mode: str) -> None:
     if not isinstance(value, dict):
         raise ValueError("housing geography must be an object")
-    _exact_keys(value, {"kind", "label", "radius_km"}, "housing geography")
+    exact_keys(value, {"kind", "label", "radius_km"}, "housing geography")
     kind = value.get("kind")
-    _nonempty(value, "label")
+    nonempty(value, "label")
     radius = value.get("radius_km")
     if mode == "buy":
         if kind != "radius":
@@ -222,67 +221,20 @@ def _validate_sources(value: Any) -> set[str]:
     for source in value:
         if not isinstance(source, dict):
             raise ValueError("housing sources must be objects")
-        _exact_keys(
+        exact_keys(
             source,
             {"kind", "label", "url", "retrieved_at", "source_date", "licence"},
             "housing source",
         )
-        kind = _nonempty(source, "kind")
+        kind = nonempty(source, "kind")
         if kind in kinds:
             raise ValueError(f"duplicate housing source kind: {kind}")
         kinds.add(kind)
         for field in ("label", "licence"):
-            _nonempty(source, field)
-        _http_url(_nonempty(source, "url"), "source url")
-        retrieved_at = _datetime(_nonempty(source, "retrieved_at"), "retrieved_at")
-        source_date = _date(_nonempty(source, "source_date"), "source_date")
+            nonempty(source, field)
+        http_url(nonempty(source, "url"), "source url")
+        retrieved_at = iso_datetime(nonempty(source, "retrieved_at"), "retrieved_at")
+        source_date = iso_date(nonempty(source, "source_date"), "source_date")
         if source_date > retrieved_at.date():
             raise ValueError("housing source_date cannot be later than retrieved_at")
     return kinds
-
-
-def _nonempty(container: dict[str, Any], key: str) -> str:
-    value = container.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError(f"{key} must be a non-empty string")
-    return value
-
-
-def _exact_keys(container: dict[str, Any], expected: set[str], label: str) -> None:
-    if set(container) != expected:
-        raise ValueError(f"{label} fields do not match the schema")
-
-
-def _positive_number(container: dict[str, Any], key: str) -> float:
-    value = container.get(key)
-    if (
-        not isinstance(value, (int, float))
-        or isinstance(value, bool)
-        or value <= 0
-    ):
-        raise ValueError(f"{key} must be a positive number")
-    return float(value)
-
-
-def _http_url(value: str, field: str) -> str:
-    parsed = urlsplit(value)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise ValueError(f"{field} must be an HTTP URL")
-    return value
-
-
-def _date(value: str, field: str) -> date:
-    try:
-        return date.fromisoformat(value)
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date") from error
-
-
-def _datetime(value: str, field: str) -> datetime:
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date-time") from error
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError(f"{field} must include a timezone")
-    return parsed

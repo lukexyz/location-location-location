@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import log1p
+from .fields import piecewise
 
 
 SCORING_VERSION = "1"
@@ -34,7 +35,7 @@ class MetricDefinition:
         """Map a raw observation onto an inspectable 0–100 desirability scale."""
         value = float(raw_value)
         if self.curve == "piecewise":
-            result = _piecewise(value, self.anchors)
+            result = piecewise(value, self.anchors)
         elif self.curve == "log_saturation":
             if self.saturation is None or self.saturation <= 0:
                 raise ValueError(f"{self.key} has an invalid saturation point")
@@ -48,20 +49,6 @@ class MetricDefinition:
         if self.negative:
             result = 100.0 - result
         return round(max(0.0, min(100.0, result)), 2)
-
-
-def _piecewise(value: float, anchors: tuple[tuple[float, float], ...]) -> float:
-    if len(anchors) < 2:
-        raise ValueError("A piecewise curve needs at least two anchors")
-    if value <= anchors[0][0]:
-        return anchors[0][1]
-    if value >= anchors[-1][0]:
-        return anchors[-1][1]
-    for (left_x, left_y), (right_x, right_y) in zip(anchors, anchors[1:]):
-        if left_x <= value <= right_x:
-            fraction = (value - left_x) / (right_x - left_x)
-            return left_y + fraction * (right_y - left_y)
-    raise AssertionError("unreachable")
 
 
 METRICS: dict[str, MetricDefinition] = {

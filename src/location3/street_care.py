@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date
 from typing import Any
-from urllib.parse import urlsplit
 
 from .validation import validate_basis, validate_evidence
+from .fields import (
+    exact_keys, http_url, iso_date, iso_datetime, nonempty, nonnegative_number,
+    nullable_nonnegative, piecewise,
+)
 
 
 AUDIT_FIELDS = (
@@ -56,16 +59,16 @@ def merge_street_care_research(
 def validate_street_care_research(
     street_research: dict[str, Any], allowed_candidate_ids: set[str]
 ) -> None:
-    _exact_keys(
+    exact_keys(
         street_research,
         {"schema_version", "provider", "assessment_date", "places"},
         "street-care research",
     )
     if street_research.get("schema_version") != "1":
         raise ValueError("unsupported street-care research schema_version")
-    _nonempty(street_research, "provider")
-    assessment_date = _date(
-        _nonempty(street_research, "assessment_date"), "assessment_date"
+    nonempty(street_research, "provider")
+    assessment_date = iso_date(
+        nonempty(street_research, "assessment_date"), "assessment_date"
     )
     places = street_research.get("places")
     if not isinstance(places, list) or not places:
@@ -76,7 +79,7 @@ def validate_street_care_research(
     for place in places:
         if not isinstance(place, dict):
             raise ValueError("street-care places must be objects")
-        _exact_keys(
+        exact_keys(
             place,
             {
                 "id", "candidate_id", "local_authority", "fly_tipping", "local_reports",
@@ -84,17 +87,17 @@ def validate_street_care_research(
             },
             "street-care place",
         )
-        place_id = _nonempty(place, "id")
+        place_id = nonempty(place, "id")
         if place_id in place_ids:
             raise ValueError(f"duplicate street-care place id: {place_id}")
         place_ids.add(place_id)
-        candidate_id = _nonempty(place, "candidate_id")
+        candidate_id = nonempty(place, "candidate_id")
         if candidate_id not in allowed_candidate_ids:
             raise ValueError("street-care place is outside the candidate shortlist")
         if candidate_id in candidate_ids:
             raise ValueError("each researched candidate must have one street-care place")
         candidate_ids.add(candidate_id)
-        _nonempty(place, "local_authority")
+        nonempty(place, "local_authority")
         # Proxy evidence is capped at 0.55 by the assessment, so the inferred cap applies
         # to the basis label itself rather than to a stated confidence.
         validate_basis(place, 0.0, "street-care place")
@@ -105,7 +108,7 @@ def validate_street_care_research(
         if place["local_reports"]:
             sources.append(place["local_reports"]["source"])
         if any(
-            _date(source["source_date"], "source_date") > assessment_date
+            iso_date(source["source_date"], "source_date") > assessment_date
             for source in sources
         ):
             raise ValueError("street-care sources cannot be later than assessment_date")
@@ -113,10 +116,10 @@ def validate_street_care_research(
 
 def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str, Any]:
     """Derive the score, basis, confidence, and inspectable components."""
-    assessed = _date(assessment_date, "assessment_date")
+    assessed = iso_date(assessment_date, "assessment_date")
     audit = place["visit_audit"]
     if audit is not None:
-        age_days = (assessed - _date(audit["audited_at"], "audited_at")).days
+        age_days = (assessed - iso_date(audit["audited_at"], "audited_at")).days
         if age_days <= AUDIT_MAX_AGE_DAYS:
             components = [
                 {
@@ -149,7 +152,7 @@ def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str,
         "fly_tipping_rate",
         fly["current_incidents_per_1000"],
         "incidents_per_1000",
-        _piecewise(
+        piecewise(
             fly["current_incidents_per_1000"],
             ((0, 90), (10, 80), (25, 65), (50, 45), (100, 20), (200, 0)),
         ),
@@ -162,7 +165,7 @@ def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str,
         "fly_tipping_trend",
         trend_percent,
         "percent_change",
-        _piecewise(
+        piecewise(
             trend_percent,
             ((-50, 90), (-20, 75), (0, 60), (20, 40), (50, 20), (100, 0)),
         ),
@@ -195,7 +198,7 @@ def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str,
                     "median_resolution_time",
                     resolution,
                     "days",
-                    _piecewise(
+                    piecewise(
                         resolution,
                         ((0, 100), (2, 90), (7, 70), (14, 50), (30, 20), (60, 0)),
                     ),
@@ -220,7 +223,7 @@ def assess_street_care(place: dict[str, Any], assessment_date: str) -> dict[str,
         "audit_age_days": (
             None
             if audit is None
-            else (assessed - _date(audit["audited_at"], "audited_at")).days
+            else (assessed - iso_date(audit["audited_at"], "audited_at")).days
         ),
         "components": components,
     }
@@ -281,16 +284,16 @@ def _street_observation(
 def _validate_fly_tipping(value: Any) -> None:
     if not isinstance(value, dict):
         raise ValueError("fly_tipping must be an object")
-    _exact_keys(
+    exact_keys(
         value,
         {"current_incidents_per_1000", "previous_incidents_per_1000", "current_period", "previous_period", "reporting_basis", "source"},
         "fly_tipping",
     )
     for field in ("current_incidents_per_1000", "previous_incidents_per_1000"):
-        _nonnegative_number(value, field)
-    _nonempty(value, "current_period")
-    _nonempty(value, "previous_period")
-    _nonempty(value, "reporting_basis")
+        nonnegative_number(value, field)
+    nonempty(value, "current_period")
+    nonempty(value, "previous_period")
+    nonempty(value, "reporting_basis")
     _validate_source(value.get("source"), "fly-tipping source")
 
 
@@ -299,15 +302,15 @@ def _validate_local_reports(value: Any) -> None:
         return
     if not isinstance(value, dict):
         raise ValueError("local_reports must be null or an object")
-    _exact_keys(
+    exact_keys(
         value,
         {"scope_kind", "geographic_scope", "reports_per_1000", "unresolved_percent", "median_resolution_days", "period_start", "period_end", "source"},
         "local_reports",
     )
     if value.get("scope_kind") not in REPORT_SCOPES:
         raise ValueError("local report scope_kind is unsupported")
-    _nonempty(value, "geographic_scope")
-    _nullable_nonnegative(value, "reports_per_1000")
+    nonempty(value, "geographic_scope")
+    nullable_nonnegative(value, "reports_per_1000")
     unresolved = value.get("unresolved_percent")
     if unresolved is not None and (
         not isinstance(unresolved, (int, float))
@@ -315,9 +318,9 @@ def _validate_local_reports(value: Any) -> None:
         or not 0 <= unresolved <= 100
     ):
         raise ValueError("unresolved_percent must be null or between 0 and 100")
-    _nullable_nonnegative(value, "median_resolution_days")
-    start = _date(_nonempty(value, "period_start"), "period_start")
-    end = _date(_nonempty(value, "period_end"), "period_end")
+    nullable_nonnegative(value, "median_resolution_days")
+    start = iso_date(nonempty(value, "period_start"), "period_start")
+    end = iso_date(nonempty(value, "period_end"), "period_end")
     if end < start:
         raise ValueError("local report period_end cannot precede period_start")
     if all(
@@ -333,20 +336,20 @@ def _validate_visit_audit(value: Any, assessment_date: date) -> None:
         return
     if not isinstance(value, dict):
         raise ValueError("visit_audit must be null or an object")
-    _exact_keys(
+    exact_keys(
         value,
         {"audited_at", "geographic_scope", "ratings", "notes"},
         "visit_audit",
     )
-    audited_at = _date(_nonempty(value, "audited_at"), "audited_at")
+    audited_at = iso_date(nonempty(value, "audited_at"), "audited_at")
     if audited_at > assessment_date:
         raise ValueError("visit audit cannot be later than assessment_date")
-    _nonempty(value, "geographic_scope")
-    _nonempty(value, "notes")
+    nonempty(value, "geographic_scope")
+    nonempty(value, "notes")
     ratings = value.get("ratings")
     if not isinstance(ratings, dict):
         raise ValueError("visit audit ratings must be an object")
-    _exact_keys(ratings, set(AUDIT_FIELDS), "visit audit ratings")
+    exact_keys(ratings, set(AUDIT_FIELDS), "visit audit ratings")
     for field in AUDIT_FIELDS:
         rating = ratings[field]
         if not isinstance(rating, int) or isinstance(rating, bool) or not 0 <= rating <= 4:
@@ -356,18 +359,18 @@ def _validate_visit_audit(value: Any, assessment_date: date) -> None:
 def _validate_source(value: Any, label: str) -> None:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must be an object")
-    _exact_keys(
+    exact_keys(
         value,
         {"label", "url", "retrieved_at", "source_date", "licence"},
         label,
     )
-    _nonempty(value, "label")
-    _http_url(_nonempty(value, "url"), "source url")
-    retrieved = _datetime(_nonempty(value, "retrieved_at"), "retrieved_at")
-    source_date = _date(_nonempty(value, "source_date"), "source_date")
+    nonempty(value, "label")
+    http_url(nonempty(value, "url"), "source url")
+    retrieved = iso_datetime(nonempty(value, "retrieved_at"), "retrieved_at")
+    source_date = iso_date(nonempty(value, "source_date"), "source_date")
     if source_date > retrieved.date():
         raise ValueError("street-care source_date cannot be later than retrieved_at")
-    _nonempty(value, "licence")
+    nonempty(value, "licence")
 
 
 def _component(
@@ -395,63 +398,3 @@ def _percent_change(previous: float, current: float) -> float:
     if previous == 0:
         return 0.0 if current == 0 else 100.0
     return ((current - previous) / previous) * 100
-
-
-def _piecewise(value: float, anchors: tuple[tuple[float, float], ...]) -> float:
-    if value <= anchors[0][0]:
-        return anchors[0][1]
-    if value >= anchors[-1][0]:
-        return anchors[-1][1]
-    for (left_x, left_y), (right_x, right_y) in zip(anchors, anchors[1:]):
-        if left_x <= value <= right_x:
-            fraction = (value - left_x) / (right_x - left_x)
-            return left_y + fraction * (right_y - left_y)
-    raise AssertionError("unreachable")
-
-
-def _exact_keys(container: dict[str, Any], expected: set[str], label: str) -> None:
-    if set(container) != expected:
-        raise ValueError(f"{label} fields do not match the schema")
-
-
-def _nonempty(container: dict[str, Any], key: str) -> str:
-    value = container.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError(f"{key} must be a non-empty string")
-    return value
-
-
-def _nonnegative_number(container: dict[str, Any], key: str) -> float:
-    value = container.get(key)
-    if not isinstance(value, (int, float)) or isinstance(value, bool) or value < 0:
-        raise ValueError(f"{key} must be a non-negative number")
-    return float(value)
-
-
-def _nullable_nonnegative(container: dict[str, Any], key: str) -> None:
-    if container.get(key) is not None:
-        _nonnegative_number(container, key)
-
-
-def _http_url(value: str, field: str) -> str:
-    parsed = urlsplit(value)
-    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-        raise ValueError(f"{field} must be an HTTP URL")
-    return value
-
-
-def _date(value: str, field: str) -> date:
-    try:
-        return date.fromisoformat(value)
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date") from error
-
-
-def _datetime(value: str, field: str) -> datetime:
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as error:
-        raise ValueError(f"{field} must be an ISO 8601 date-time") from error
-    if parsed.tzinfo is None or parsed.utcoffset() is None:
-        raise ValueError(f"{field} must include a timezone")
-    return parsed
