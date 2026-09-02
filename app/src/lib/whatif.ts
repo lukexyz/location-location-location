@@ -18,6 +18,8 @@ export interface TuningBaseline {
   metricCategories: Record<string, string>;
   /** Metric keys in stable display order. */
   metrics: string[];
+  /** Category keys that own at least one tunable metric, in display order. */
+  categories: string[];
 }
 
 export interface WhatIfCategory {
@@ -38,6 +40,12 @@ export interface WhatIfScore {
   unmeasuredCategories: string[];
   /** Share of the intended category weight the preview score actually covers. */
   coveragePercent: number;
+  /**
+   * Total active metric weight behind the confidence figure. When it is zero
+   * nothing was weighted, so the confidence is a formality (Python reports
+   * 100) and the viewer shows "no evidence" instead of a percentage.
+   */
+  evidenceWeight: number;
   constraintStatus: ConstraintStatus;
 }
 
@@ -75,7 +83,8 @@ export function deriveBaseline(result: ResearchResult): TuningBaseline {
       const byCategory = metricCategories[left].localeCompare(metricCategories[right]);
       return byCategory || left.localeCompare(right);
     });
-  return { metricWeights, categoryWeights, metricCategories, metrics };
+  const categories = [...new Set(metrics.map((metric) => metricCategories[metric]))];
+  return { metricWeights, categoryWeights, metricCategories, metrics, categories };
 }
 
 /**
@@ -92,10 +101,19 @@ export function round2(value: number): number {
   return Number(value.toFixed(2));
 }
 
+function metricWeight(key: string, weights: WeightMap, baseline: TuningBaseline): number {
+  return clampWeight(weights[key] ?? baseline.metricWeights[key] ?? 0);
+}
+
+function categoryWeight(category: string, categoryWeights: WeightMap | undefined, baseline: TuningBaseline): number {
+  return clampWeight(categoryWeights?.[category] ?? baseline.categoryWeights[category] ?? 0);
+}
+
 export function scoreWhatIf(
   candidate: CandidateResult,
   weights: WeightMap,
   baseline: TuningBaseline,
+  categoryWeights?: WeightMap,
 ): WhatIfScore {
   const byMetric = new Map(presentMetrics(candidate).map((metric) => [metric.metric, metric]));
   const grouped = new Map<string, WhatIfCategory["metrics"]>();
@@ -104,9 +122,9 @@ export function scoreWhatIf(
   let possibleConfidence = 0;
 
   for (const key of baseline.metrics) {
-    const weight = clampWeight(weights[key] ?? baseline.metricWeights[key] ?? 0);
+    const weight = metricWeight(key, weights, baseline);
     const category = baseline.metricCategories[key];
-    const active = weight > 0 && (baseline.categoryWeights[category] ?? 0) > 0;
+    const active = weight > 0 && categoryWeight(category, categoryWeights, baseline) > 0;
     if (!active) continue;
     possibleConfidence += weight;
     const metric = byMetric.get(key);
@@ -133,7 +151,7 @@ export function scoreWhatIf(
     categories.push({
       category,
       score: round2(score),
-      weight: baseline.categoryWeights[category],
+      weight: categoryWeight(category, categoryWeights, baseline),
       overallContribution: 0,
       metrics,
     });
@@ -155,13 +173,12 @@ export function scoreWhatIf(
   const measured = new Set(categories.map((category) => category.category));
   const unmeasuredCategories = Object.keys(baseline.categoryWeights).sort().filter((category) =>
     !measured.has(category)
-    && baseline.categoryWeights[category] > 0
+    && categoryWeight(category, categoryWeights, baseline) > 0
     && baseline.metrics.some((key) =>
-      baseline.metricCategories[key] === category
-      && clampWeight(weights[key] ?? baseline.metricWeights[key] ?? 0) > 0),
+      baseline.metricCategories[key] === category && metricWeight(key, weights, baseline) > 0),
   );
   const intendedWeight = totalCategoryWeight
-    + unmeasuredCategories.reduce((total, category) => total + baseline.categoryWeights[category], 0);
+    + unmeasuredCategories.reduce((total, category) => total + categoryWeight(category, categoryWeights, baseline), 0);
   const coveragePercent = intendedWeight ? round2(100 * totalCategoryWeight / intendedWeight) : 100;
 
   return {
@@ -172,6 +189,7 @@ export function scoreWhatIf(
     missingMetrics: missingMetrics.sort(),
     unmeasuredCategories,
     coveragePercent,
+    evidenceWeight: possibleConfidence,
     constraintStatus: candidate.hard_constraints.status,
   };
 }
@@ -185,8 +203,10 @@ export function orderWhatIf(scores: WhatIfScore[]): WhatIfScore[] {
   );
 }
 
-export function weightsDiffer(weights: WeightMap, baseline: TuningBaseline): boolean {
-  return baseline.metrics.some((metric) => clampWeight(weights[metric] ?? baseline.metricWeights[metric]) !== baseline.metricWeights[metric]);
+export function weightsDiffer(weights: WeightMap, baseline: TuningBaseline, categoryWeights?: WeightMap): boolean {
+  return baseline.metrics.some((metric) => metricWeight(metric, weights, baseline) !== baseline.metricWeights[metric])
+    || baseline.categories.some((category) =>
+      categoryWeight(category, categoryWeights, baseline) !== baseline.categoryWeights[category]);
 }
 
 export function clampWeight(value: number): number {

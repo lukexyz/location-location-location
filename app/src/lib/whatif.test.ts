@@ -34,22 +34,45 @@ describe("what-if reweighting", () => {
     expect(weightsDiffer(baseline.metricWeights, baseline)).toBe(false);
   });
 
-  it("matches a Python rerun with different importance, including a metric demoted to informational", () => {
-    const altered = deriveBaseline(reweighted).metricWeights;
+  it("matches a Python rerun with different metric and category importance, including a metric demoted to informational", () => {
+    const rerun = deriveBaseline(reweighted);
+    const altered = rerun.metricWeights;
+    const alteredCategories = rerun.categoryWeights;
     expect(altered).not.toEqual(baseline.metricWeights);
-    expect(weightsDiffer(altered, baseline)).toBe(true);
+    expect(alteredCategories).toEqual({ essentials: 3, environment: 5, amenities: 4 });
+    expect(weightsDiffer(altered, baseline, alteredCategories)).toBe(true);
     for (const candidate of demo.candidates) {
       const expected = reweighted.candidates.find((item) => item.id === candidate.id)!;
-      const preview = scoreWhatIf(candidate, altered, baseline);
+      const preview = scoreWhatIf(candidate, altered, baseline, alteredCategories);
       expect(preview.overallScore).toBeCloseTo(expected.overall_score, 2);
       expect(preview.confidence).toBeCloseTo(expected.confidence, 2);
-      expect(preview.categories.map((category) => [category.category, category.score]))
-        .toEqual(expected.categories.map((category) => [category.category, category.score]));
+      expect(preview.categories.map((category) => [category.category, category.score, category.weight, category.overallContribution]))
+        .toEqual(expected.categories.map((category) => [category.category, category.score, category.weight, category.overall_contribution]));
     }
-    const ordered = orderWhatIf(demo.candidates.map((candidate) => scoreWhatIf(candidate, altered, baseline)));
+    const ordered = orderWhatIf(demo.candidates.map((candidate) => scoreWhatIf(candidate, altered, baseline, alteredCategories)));
     expect(ordered.map((score) => score.id)).toEqual(
       [...reweighted.candidates].sort((left, right) => left.rank - right.rank).map((candidate) => candidate.id),
     );
+  });
+
+  it("treats a changed category weight alone as an active what-if", () => {
+    expect(weightsDiffer(baseline.metricWeights, baseline, baseline.categoryWeights)).toBe(false);
+    expect(weightsDiffer({}, baseline, { amenities: baseline.categoryWeights.amenities + 1 })).toBe(true);
+    const preview = scoreWhatIf(demo.candidates[0], {}, baseline, { amenities: 0 });
+    expect(preview.categories.map((category) => category.category)).toEqual(["environment", "essentials"]);
+    expect(preview.unmeasuredCategories).toEqual([]);
+    expect(preview.coveragePercent).toBe(100);
+  });
+
+  it("reports no evidence weight rather than full confidence when every weight is zero", () => {
+    const none = Object.fromEntries(baseline.metrics.map((metric) => [metric, 0]));
+    const preview = scoreWhatIf(demo.candidates[0], none, baseline);
+    expect(preview.evidenceWeight).toBe(0);
+    expect(preview.overallScore).toBe(0);
+    expect(preview.categories).toEqual([]);
+    const zeroCategories = Object.fromEntries(baseline.categories.map((category) => [category, 0]));
+    expect(scoreWhatIf(demo.candidates[0], baseline.metricWeights, baseline, zeroCategories).evidenceWeight).toBe(0);
+    expect(scoreWhatIf(demo.candidates[0], baseline.metricWeights, baseline).evidenceWeight).toBeGreaterThan(0);
   });
 
   it("never edits the authoritative bundle and clamps weights to 0–5", () => {

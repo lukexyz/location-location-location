@@ -75,6 +75,28 @@ test("playful readouts restate cited evidence", async ({ page }) => {
   await expect(page.getByText("no evidence")).toHaveCount(0);
 });
 
+test("sorting and what-if sliders never refit the map or discard a pan", async ({ page }) => {
+  await expect(page.locator(".score-marker")).toHaveCount(3);
+  const map = page.locator(".map-canvas");
+  const box = (await map.boundingBox())!;
+  const centre = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  await page.mouse.move(centre.x, centre.y);
+  await page.mouse.down();
+  await page.mouse.move(centre.x + 60, centre.y + 40, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+  const pane = page.locator(".leaflet-map-pane");
+  const afterPan = await pane.evaluate((element) => element.style.transform);
+  await page.getByRole("group", { name: "Sort candidates" }).getByRole("button", { name: "Name" }).click();
+  await page.waitForTimeout(300);
+  expect(await pane.evaluate((element) => element.style.transform)).toBe(afterPan);
+  await page.getByText("Tune importance").click();
+  await page.getByLabel(/Cafés/).fill("5");
+  await expect(page.getByText("WHAT-IF ACTIVE")).toBeVisible();
+  await page.waitForTimeout(300);
+  expect(await pane.evaluate((element) => element.style.transform)).toBe(afterPan);
+});
+
 test("importance sliders preview a what-if order while researched ranks stay put", async ({ page }) => {
   await page.getByText("Tune importance").click();
   await page.getByLabel(/Door-to-door commute/).fill("0");

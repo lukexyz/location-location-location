@@ -7,32 +7,38 @@ import { RankedList } from "./components/RankedList";
 import type { SortMode } from "./components/RankedList";
 import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
-import { parseResultBundle, ResultValidationError } from "./lib/validateResult";
+import { MAX_CANDIDATES, parseResultBundle, ResultValidationError } from "./lib/validateResult";
 import { deriveBaseline, orderWhatIf, scoreWhatIf, weightsDiffer } from "./lib/whatif";
 import type { WeightMap, WhatIfScore } from "./lib/whatif";
 import type { LoadState, ResearchResult } from "./types";
 
 const demoResult = parseResultBundle(demoData);
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+// The demo weighs about 14 KB per candidate; 25 MB leaves headroom for the
+// 1,000-candidate limit so the two limits cannot contradict each other.
+export const MAX_FILE_SIZE_MB = 25;
+const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+const DEMO_STATE: LoadState = {
+  kind: "demo",
+  message: "Demonstration data active: real towns, synthetic evidence",
+};
 
 export default function App() {
   const [result, setResult] = useState<ResearchResult>(demoResult);
+  const [fieldSerial, setFieldSerial] = useState(0);
   const [selectedId, setSelectedId] = useState(demoResult.candidates[0].id);
   const [sortMode, setSortMode] = useState<SortMode>("rank");
   const [weights, setWeights] = useState<WeightMap>({});
-  const [loadState, setLoadState] = useState<LoadState>({
-    kind: "demo",
-    message: "Demonstration data active: real towns, synthetic evidence",
-  });
+  const [categoryWeights, setCategoryWeights] = useState<WeightMap>({});
+  const [loadState, setLoadState] = useState<LoadState>(DEMO_STATE);
   const fileInput = useRef<HTMLInputElement>(null);
   const baseline = useMemo(() => deriveBaseline(result), [result]);
-  const whatIfActive = weightsDiffer(weights, baseline);
+  const whatIfActive = weightsDiffer(weights, baseline, categoryWeights);
   const whatIf = useMemo(() => {
     if (!whatIfActive) return undefined;
     return new Map<string, WhatIfScore>(
-      result.candidates.map((candidate) => [candidate.id, scoreWhatIf(candidate, weights, baseline)]),
+      result.candidates.map((candidate) => [candidate.id, scoreWhatIf(candidate, weights, baseline, categoryWeights)]),
     );
-  }, [result, weights, baseline, whatIfActive]);
+  }, [result, weights, categoryWeights, baseline, whatIfActive]);
   const candidates = useMemo(() => {
     const ordered = [...result.candidates];
     if (sortMode === "name") return ordered.sort((left, right) => left.name.localeCompare(right.name));
@@ -49,18 +55,28 @@ export default function App() {
     return ordered.sort((left, right) => left.rank - right.rank);
   }, [result, sortMode, whatIf]);
   const selected = candidates.find((candidate) => candidate.id === selectedId) ?? candidates[0];
+  const demoActive = result === demoResult;
+
+  function loadBundle(next: ResearchResult, state: LoadState) {
+    setResult(next);
+    setFieldSerial((serial) => serial + 1);
+    setWeights({});
+    setCategoryWeights({});
+    setSortMode("rank");
+    setSelectedId([...next.candidates].sort((a, b) => a.rank - b.rank)[0].id);
+    setLoadState(state);
+  }
 
   async function importResult(file: File | undefined) {
     if (!file) return;
     try {
       if (file.size > MAX_FILE_SIZE) {
-        throw new ResultValidationError("That file exceeds the 5 MB local import limit.");
+        throw new ResultValidationError(
+          `That file exceeds the ${MAX_FILE_SIZE_MB} MB local import limit; the viewer also accepts at most ${MAX_CANDIDATES.toLocaleString("en-GB")} candidates per bundle.`,
+        );
       }
       const next = parseResultBundle(JSON.parse(await file.text()));
-      setResult(next);
-      setWeights({});
-      setSelectedId([...next.candidates].sort((a, b) => a.rank - b.rank)[0].id);
-      setLoadState({ kind: "loaded", message: `${file.name} loaded in this tab only` });
+      loadBundle(next, { kind: "loaded", message: `${file.name} loaded in this tab only` });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to read that result bundle.";
       setLoadState({ kind: "error", message });
@@ -70,17 +86,20 @@ export default function App() {
   }
 
   function restoreDemo() {
-    setResult(demoResult);
+    loadBundle(demoResult, DEMO_STATE);
+  }
+
+  function restoreImportance() {
     setWeights({});
-    setSelectedId(demoResult.candidates[0].id);
-    setLoadState({ kind: "demo", message: "Demonstration data active: real towns, synthetic evidence" });
+    setCategoryWeights({});
   }
 
   return (
     <div className="app-shell">
       <a className="skip-link" href="#candidate-register">Skip to candidate results</a>
       <MapView
-        candidates={candidates}
+        candidates={result.candidates}
+        fieldKey={`${result.run_id}:${result.generated_at}:${fieldSerial}`}
         routeBoundary={result.route_boundary}
         selectedId={selected.id}
         onSelect={setSelectedId}
@@ -96,10 +115,10 @@ export default function App() {
         </div>
         <div className={`load-state ${loadState.kind}`} role="status" aria-live="polite">
           <i aria-hidden="true" />
-          <span>{loadState.message}</span>
+          <span title={loadState.message}>{loadState.message}</span>
         </div>
         <div className="header-actions">
-          {loadState.kind !== "demo" && (
+          {!demoActive && (
             <button className="utility-button" type="button" onClick={restoreDemo}>RESET DEMO</button>
           )}
           <button
@@ -150,8 +169,10 @@ export default function App() {
           <TunePanel
             baseline={baseline}
             weights={weights}
+            categoryWeights={categoryWeights}
             onChange={setWeights}
-            onReset={() => setWeights({})}
+            onCategoryChange={setCategoryWeights}
+            onReset={restoreImportance}
           />
         </RankedList>
         <Dossier

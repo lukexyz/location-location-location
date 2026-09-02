@@ -28,6 +28,8 @@ test.describe("documentation screenshots", () => {
       await page.getByLabel(/Cafés/).fill("5");
       await page.getByLabel(/Door-to-door commute/).fill("1");
       await expect(page.getByText("WHAT-IF ACTIVE")).toBeVisible();
+      // Filling the last slider scrolls the tune panel; show it from its first category.
+      await page.locator(".tune-panel").evaluate((panel) => { panel.scrollTop = 0; });
       await page.waitForTimeout(500);
       await page.screenshot({ path: resolve(outputDirectory, "chromium-whatif.png") });
       await page.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }).click();

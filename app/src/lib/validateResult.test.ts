@@ -43,6 +43,15 @@ describe("parseResultBundle", () => {
     expect(() => parseResultBundle(invalid)).toThrow(/component times/);
   });
 
+  it("accepts a named rail operator and rejects an empty one", () => {
+    const named = structuredClone(demoData);
+    (named.candidates[0].rail_summary.journeys[0] as Record<string, unknown>).operator = "Greater Anglia";
+    expect(parseResultBundle(named).candidates[0].rail_summary?.journeys[0].operator).toBe("Greater Anglia");
+    const blank = structuredClone(demoData);
+    (blank.candidates[0].rail_summary.journeys[0] as Record<string, unknown>).operator = "";
+    expect(() => parseResultBundle(blank)).toThrow(/operator must be a non-empty string/);
+  });
+
   it("rejects housing ratios and inventory claims that contradict the evidence", () => {
     const badRatio = structuredClone(demoData);
     badRatio.candidates[0].housing_summary.budget_ratio += 0.1;

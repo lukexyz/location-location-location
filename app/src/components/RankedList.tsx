@@ -20,8 +20,17 @@ interface RankedListProps {
 
 export type SortMode = "rank" | "score" | "confidence" | "name";
 
+const SORT_MODES: SortMode[] = ["rank", "score", "confidence", "name"];
+
 export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, onSelect, children }: RankedListProps) {
   const listRef = useRef<HTMLOListElement>(null);
+  // Short enough to sit four abreast in the narrowest register without truncating.
+  const sortLabels: Record<SortMode, string> = {
+    rank: whatIf ? "What-if" : "Rank",
+    score: "Score",
+    confidence: "Confidence",
+    name: "Name",
+  };
 
   function moveFocus(index: number, key: string) {
     const buttons = listRef.current?.querySelectorAll<HTMLButtonElement>(".rank-entry");
@@ -41,22 +50,23 @@ export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, o
           <span className="eyebrow">{whatIf ? "WHAT-IF ORDER" : "RESOLVED FIELD"}</span>
           <h2 id="rank-heading">Candidate register</h2>
         </div>
-        <div className="rank-controls">
-          <span className="count-readout">{String(candidates.length).padStart(2, "0")}</span>
-          <label>
-            <span>Sort</span>
-            <select
-              aria-label="Sort candidates"
-              value={sortMode}
-              onChange={(event) => onSort(event.currentTarget.value as SortMode)}
-            >
-              <option value="rank">{whatIf ? "What-if" : "Recommended"}</option>
-              <option value="score">Suitability</option>
-              <option value="confidence">Confidence</option>
-              <option value="name">Name</option>
-            </select>
-          </label>
-        </div>
+        <span className="count-readout" aria-label={`${candidates.length} candidates`}>
+          {String(candidates.length).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="sort-keys" role="group" aria-label="Sort candidates">
+        <span className="sort-keys-label" aria-hidden="true">Sort</span>
+        {SORT_MODES.map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            className="sort-key"
+            aria-pressed={sortMode === mode}
+            onClick={() => onSort(mode)}
+          >
+            {sortLabels[mode]}
+          </button>
+        ))}
       </div>
       {children}
       <ol className="rank-list" ref={listRef}>

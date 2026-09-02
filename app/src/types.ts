@@ -98,6 +98,8 @@ export interface RailJourney {
   last_useful_departure: string | null;
   punctuality_percent: number | null;
   cancellation_percent: number | null;
+  /** Train operator as named by ORR, present once measured reliability was applied. */
+  operator?: string;
   confidence: number;
   confidence_notes: string;
   sources: RailSource[];

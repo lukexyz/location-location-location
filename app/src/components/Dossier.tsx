@@ -1,4 +1,4 @@
-import { basisLabel, compactDate, label, rawValue } from "../lib/format";
+import { basisLabel, compactDate, coordinates, label, rawValue } from "../lib/format";
 import { deriveReadouts } from "../lib/readouts";
 import type { WhatIfScore } from "../lib/whatif";
 import type { CandidateResult, ConstraintStatus, HousingSummary, MetricResult, RailJourney, RouteBoundary, StreetCareSummary } from "../types";
@@ -10,6 +10,12 @@ const CONSTRAINT_TONE: Record<ConstraintStatus, "good" | "warn" | "bad"> = {
   pass: "good", unknown: "warn", fail: "bad",
 };
 
+/**
+ * The dossier reads top-down in the order a decision needs: the score and its
+ * instruments, what is wrong or missing, the limits, the score's components,
+ * then the cited evidence behind them. Playful readouts restate that evidence
+ * and come last.
+ */
 export function Dossier({
   candidate,
   routeBoundary,
@@ -21,19 +27,19 @@ export function Dossier({
 }) {
   const status = candidate.hard_constraints.status;
   const coverage = candidate.score_coverage_percent;
+  const warningCount = candidate.warnings.length + candidate.missing_metrics.length;
   return (
     <aside className="dossier panel-cut" aria-labelledby="dossier-heading">
       <header className="dossier-heading">
         <div>
           <span className="eyebrow">EVIDENCE DOSSIER / {String(candidate.rank).padStart(2, "0")}</span>
           <h2 id="dossier-heading">{candidate.name}</h2>
-          <div className="coordinates">
-            {candidate.location.latitude.toFixed(3)}N / {candidate.location.longitude.toFixed(3)}E
-          </div>
+          <div className="coordinates">{coordinates(candidate.location.latitude, candidate.location.longitude)}</div>
         </div>
         <div
           className={`score-dial ${status === "fail" ? "failed" : status === "unknown" ? "unverified" : ""}`}
           style={{ "--score": candidate.overall_score } as React.CSSProperties}
+          role="img"
           aria-label={`Overall suitability ${candidate.overall_score.toFixed(1)} out of 100`}
         >
           <strong>{candidate.overall_score.toFixed(1)}</strong>
@@ -49,7 +55,7 @@ export function Dossier({
         {whatIf && (
           <Readout
             label="What-if"
-            value={`${whatIf.overallScore.toFixed(1)} · ${whatIf.confidence.toFixed(0)}%`}
+            value={`${whatIf.overallScore.toFixed(1)} · ${whatIfConfidence(whatIf)}`}
             tone="preview"
           />
         )}
@@ -67,63 +73,49 @@ export function Dossier({
       </div>
 
       <div className="dossier-scroll">
-        <section className="readout-block" aria-labelledby={`readouts-${candidate.id}`}>
-          <h3 id={`readouts-${candidate.id}`} className="visually-hidden">Playful readouts</h3>
-          <ul className="readout-grid">
-            {deriveReadouts(candidate).map((readout) => (
-              <li key={readout.key} className={readout.available ? undefined : "is-empty"}>
-                <span className="eyebrow">{readout.title.toUpperCase()}</span>
-                <strong>{readout.value}</strong>
-                <small>{readout.detail}</small>
-              </li>
-            ))}
-          </ul>
-          <p className="readout-footnote">Readouts restate cited evidence; they add nothing to the score.</p>
-        </section>
+        {whatIf && <WhatIfReadout whatIf={whatIf} />}
 
-        {routeBoundary && <RouteBoundaryReadout boundary={routeBoundary} />}
+        {warningCount > 0 && (
+          <details className="warning-strip" aria-labelledby="warning-heading">
+            <summary>
+              <span className="warning-count" aria-hidden="true">{warningCount}</span>
+              <span>
+                <h3 id="warning-heading">Evidence warnings</h3>
+                <span className="warning-summary">
+                  {plural(candidate.warnings.length, "warning")}
+                  {candidate.missing_metrics.length > 0 ? ` · ${plural(candidate.missing_metrics.length, "missing metric")}` : ""}
+                </span>
+              </span>
+              <b aria-hidden="true">LIST</b>
+            </summary>
+            <ul>
+              {candidate.warnings.map((warning) => <li key={warning}>{warning}</li>)}
+              {candidate.missing_metrics.map((metric) => <li key={metric}>Missing: {label(metric)}</li>)}
+            </ul>
+          </details>
+        )}
 
         {candidate.hard_constraints.results.length > 0 && (
           <section className="constraint-block" aria-labelledby="constraints-heading">
             <h3 id="constraints-heading">Hard limits</h3>
             {candidate.hard_constraints.results.map((constraint) => (
               <div
-                className="constraint-row"
+                className="constraint-item"
                 key={`${constraint.metric}:${constraint.destination_label ?? "all"}`}
               >
-                <span>
-                  {label(constraint.metric)}
-                  {constraint.destination_label ? ` / ${constraint.destination_label}` : ""}
-                </span>
-                <strong className={`text-${CONSTRAINT_TONE[constraint.status]}`}>
-                  {constraint.actual ?? "no evidence"} {constraint.operator} {constraint.value}
-                </strong>
+                <div className="constraint-row">
+                  <span>
+                    {label(constraint.metric)}
+                    {constraint.destination_label ? ` / ${constraint.destination_label}` : ""}
+                  </span>
+                  <strong className={`text-${CONSTRAINT_TONE[constraint.status]}`}>
+                    {constraint.actual ?? "no evidence"} {constraint.operator} {constraint.value}
+                  </strong>
+                </div>
+                {constraint.warning && <p className="constraint-warning">{constraint.warning}</p>}
               </div>
             ))}
           </section>
-        )}
-
-        {candidate.rail_summary && (
-          <section className="rail-block" aria-labelledby={`rail-${candidate.id}`}>
-            <header>
-              <div>
-                <span className="eyebrow">SHORTLIST / CITED JOURNEYS</span>
-                <h3 id={`rail-${candidate.id}`}>Rail intelligence</h3>
-              </div>
-              <strong>{candidate.rail_summary.fastest_total_minutes} min</strong>
-            </header>
-            {candidate.rail_summary.journeys.map((journey) => (
-              <RailJourneyReadout journey={journey} key={journey.id} />
-            ))}
-          </section>
-        )}
-
-        {candidate.housing_summary && (
-          <HousingReadout housing={candidate.housing_summary} candidateId={candidate.id} />
-        )}
-
-        {candidate.street_care_summary && (
-          <StreetCareReadout streetCare={candidate.street_care_summary} candidateId={candidate.id} />
         )}
 
         {candidate.categories.map((category) => (
@@ -175,18 +167,75 @@ export function Dossier({
           </section>
         )}
 
-        {(candidate.warnings.length > 0 || candidate.missing_metrics.length > 0) && (
-          <section className="warning-block" aria-labelledby="warning-heading">
-            <h3 id="warning-heading">Evidence warnings</h3>
-            <ul>
-              {candidate.warnings.map((warning) => <li key={warning}>{warning}</li>)}
-              {candidate.missing_metrics.map((metric) => <li key={metric}>Missing: {label(metric)}</li>)}
-            </ul>
+        {candidate.rail_summary && (
+          <section className="rail-block" aria-labelledby={`rail-${candidate.id}`}>
+            <header>
+              <div>
+                <span className="eyebrow">SHORTLIST / CITED JOURNEYS</span>
+                <h3 id={`rail-${candidate.id}`}>Rail intelligence</h3>
+              </div>
+              <strong>{candidate.rail_summary.fastest_total_minutes} min</strong>
+            </header>
+            {candidate.rail_summary.journeys.map((journey) => (
+              <RailJourneyReadout journey={journey} key={journey.id} />
+            ))}
           </section>
         )}
+
+        {candidate.housing_summary && (
+          <HousingReadout housing={candidate.housing_summary} candidateId={candidate.id} />
+        )}
+
+        {candidate.street_care_summary && (
+          <StreetCareReadout streetCare={candidate.street_care_summary} candidateId={candidate.id} />
+        )}
+
+        {routeBoundary && <RouteBoundaryReadout boundary={routeBoundary} />}
+
+        <section className="readout-block" aria-labelledby={`readouts-${candidate.id}`}>
+          <h3 id={`readouts-${candidate.id}`} className="visually-hidden">Playful readouts</h3>
+          <ul className="readout-grid">
+            {deriveReadouts(candidate).map((readout) => (
+              <li key={readout.key} className={readout.available ? undefined : "is-empty"}>
+                <span className="eyebrow">{readout.title.toUpperCase()}</span>
+                <strong>{readout.value}</strong>
+                <small>{readout.detail}</small>
+              </li>
+            ))}
+          </ul>
+          <p className="readout-footnote">Readouts restate cited evidence; they add nothing to the score.</p>
+        </section>
       </div>
     </aside>
   );
+}
+
+function whatIfConfidence(whatIf: WhatIfScore): string {
+  // With no active weight there is no evidence behind the figure; never show 100%.
+  return whatIf.evidenceWeight > 0 ? `${whatIf.confidence.toFixed(0)}%` : "—";
+}
+
+function WhatIfReadout({ whatIf }: { whatIf: WhatIfScore }) {
+  return (
+    <section className="whatif-panel" aria-label="What-if preview">
+      <span className="eyebrow">WHAT-IF PREVIEW / RESEARCHED RANK RETAINED</span>
+      <p>
+        Previewed score {whatIf.overallScore.toFixed(1)} at confidence {whatIfConfidence(whatIf)}
+        {whatIf.evidenceWeight > 0 ? "" : " (no evidence weighted)"}, covering {whatIf.coveragePercent.toFixed(0)}% of
+        the intended category weight.
+      </p>
+      {whatIf.missingMetrics.length > 0 && (
+        <p className="text-warn">Missing at this importance: {whatIf.missingMetrics.map(label).join(", ")}.</p>
+      )}
+      {whatIf.unmeasuredCategories.length > 0 && (
+        <p className="text-warn">Weighted but unmeasured: {whatIf.unmeasuredCategories.map(label).join(", ")}.</p>
+      )}
+    </section>
+  );
+}
+
+function plural(count: number, singular: string): string {
+  return `${count} ${singular}${count === 1 ? "" : "s"}`;
 }
 
 function RouteBoundaryReadout({ boundary }: { boundary: RouteBoundary }) {
@@ -241,8 +290,8 @@ function HousingReadout({ housing, candidateId }: { housing: HousingSummary; can
         </a>
       )}
       <div className="housing-sources">
-        {market.sources.map((source) => (
-          <a href={source.url} key={source.kind} rel="noreferrer" target="_blank">
+        {market.sources.map((source, index) => (
+          <a href={source.url} key={`${index}:${source.kind}`} rel="noreferrer" target="_blank">
             {source.kind}: {source.label} ({compactDate(source.source_date)})
           </a>
         ))}
@@ -283,8 +332,8 @@ function StreetCareReadout({ streetCare, candidateId }: { streetCare: StreetCare
         <div><dt>Median resolution</dt><dd>{reports?.median_resolution_days == null ? "unavailable" : `${reports.median_resolution_days} days`}</dd></div>
       </dl>
       <div className="street-components">
-        {streetCare.components.map((component) => (
-          <div key={component.key}>
+        {streetCare.components.map((component, index) => (
+          <div key={`${index}:${component.key}`}>
             <span>{label(component.key)}</span>
             <b>{component.included ? component.normalized_score?.toFixed(1) : "info only"}</b>
           </div>
@@ -323,7 +372,7 @@ function RailJourneyReadout({ journey }: { journey: RailJourney }) {
         <span><strong>{journey.origin_station}</strong> → {journey.london_arrival_station}</span>
         <b>{journey.total_minutes} min</b>
       </summary>
-      <p className="rail-window">{journey.destination_label} / {journey.service_window}</p>
+      <p className="rail-window">{journey.destination_label} / {journey.service_window}{journey.operator ? ` / ${journey.operator}` : ""}</p>
       <dl className="rail-grid">
         <div><dt>Station access</dt><dd>{journey.access_minutes} min</dd></div>
         <div><dt>Expected wait</dt><dd>{journey.expected_wait_minutes} min</dd></div>
@@ -332,15 +381,15 @@ function RailJourneyReadout({ journey }: { journey: RailJourney }) {
         <div><dt>Changes</dt><dd>{journey.changes}</dd></div>
         <div><dt>Frequency</dt><dd>{journey.services_per_hour}/hr</dd></div>
         <div><dt>Last useful train</dt><dd>{lastTrain}</dd></div>
-        <div><dt>Time to 3</dt><dd>{railPercent(journey.punctuality_percent)}</dd></div>
+        <div><dt>Punctuality (time to 3)</dt><dd>{railPercent(journey.punctuality_percent)}</dd></div>
         <div><dt>Cancellations</dt><dd>{railPercent(journey.cancellation_percent)}</dd></div>
         <div><dt>Confidence</dt><dd>{Math.round(journey.confidence * 100)}%</dd></div>
         <div><dt>Basis</dt><dd className={journey.basis === "agent_inferred" ? "text-warn" : undefined}>{basisLabel(journey.basis)}</dd></div>
       </dl>
       <p className="rail-note">{journey.confidence_notes}</p>
       <div className="rail-sources">
-        {journey.sources.map((source) => (
-          <a href={source.url} key={source.kind} rel="noreferrer" target="_blank">
+        {journey.sources.map((source, index) => (
+          <a href={source.url} key={`${index}:${source.kind}`} rel="noreferrer" target="_blank">
             {source.kind}: {source.label} ({compactDate(source.source_date)})
           </a>
         ))}
@@ -361,7 +410,7 @@ function MetricRow({ metric }: { metric: MetricResult }) {
         <span className="metric-name">{label(metric.metric)}</span>
         <span className="metric-raw">
           {favorableObservation ? (
-            <><span className="favorable-observation">0</span> in 15 min</>
+            <><span className="favorable-observation">0</span> {rawValue(0, metric.unit).replace(/^0 /, "")}</>
           ) : rawValue(metric.raw_value, metric.unit)}
         </span>
         <span className="metric-score">

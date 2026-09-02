@@ -75,6 +75,35 @@ describe("playful readouts", () => {
     }
   });
 
+  it("says green space was not measured rather than claiming none exists", () => {
+    const green = deriveReadouts(candidate({ categories: [] }))[2];
+    expect(green.key).toBe("green_escape");
+    expect(green.detail).toBe("No green-space evidence in this run.");
+    expect(green.detail).not.toMatch(/was found/);
+  });
+
+  it("derives the café catchment wording from the metric unit instead of assuming 15 minutes", () => {
+    const twenty = candidate({
+      categories: [{
+        category: "amenities", score: 50, weight: 2, overall_contribution: 10,
+        metrics: [
+          { ...metric("cafes", 2), unit: "count_20_min_walk" },
+          { ...metric("betting_shops", 1), unit: "count_20_min_walk" },
+        ],
+      }],
+    });
+    const [sourdough, croissant] = deriveReadouts(twenty);
+    expect(sourdough.detail).toBe("2 cafés to 1 betting shop within a 20-minute walk.");
+    expect(croissant.value).toBe("2 cafés in 20 min");
+    const desert = candidate({
+      categories: [{
+        category: "amenities", score: 50, weight: 2, overall_contribution: 10,
+        metrics: [{ ...metric("cafes", 0), unit: "count_20_min_walk" }],
+      }],
+    });
+    expect(deriveReadouts(desert)[1].value).toBe("Beyond 20 min");
+  });
+
   it("keeps an unpublished last train explicit even when a journey exists", () => {
     const result = parseResultBundle(demoData);
     const withRail = result.candidates.find((item) => item.rail_summary);

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
-import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap } from "react-leaflet";
+import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+import { pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
 const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
@@ -11,14 +12,19 @@ const MARKER_TEXT: Record<ConstraintStatus, string> = {
 };
 
 interface MapViewProps {
+  /** Candidates in bundle order; sorting the register must not move the map. */
   candidates: CandidateResult[];
+  /** Changes only when a different bundle is loaded, which is the only time the map refits. */
+  fieldKey: string;
   routeBoundary?: RouteBoundary;
   selectedId: string;
   onSelect: (id: string) => void;
 }
 
-export function MapView({ candidates, routeBoundary, selectedId, onSelect }: MapViewProps) {
+export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSelect }: MapViewProps) {
   const first = candidates[0].location;
+  const [zoom, setZoom] = useState(9);
+  const pinSize = pinSizeForZoom(zoom);
   return (
     <section className="map-field" aria-label="Candidate map">
       <MapContainer
@@ -40,18 +46,27 @@ export function MapView({ candidates, routeBoundary, selectedId, onSelect }: Map
             style={{ color: "#b6ff73", weight: 2, opacity: 0.72, fillOpacity: 0.045, dashArray: "7 6" }}
           />
         )}
-        <BoundsController candidates={candidates} routeBoundary={routeBoundary} />
-        <SelectionController candidates={candidates} selectedId={selectedId} />
-        {candidates.map((candidate) => (
-          <Marker
-            key={candidate.id}
-            position={[candidate.location.latitude, candidate.location.longitude]}
-            icon={scoreIcon(candidate, candidate.id === selectedId)}
-            title={`${candidate.name}: score ${candidate.overall_score.toFixed(1)}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
-            alt={candidate.name}
-            eventHandlers={{ click: () => onSelect(candidate.id) }}
-          />
-        ))}
+        <FieldController
+          candidates={candidates}
+          fieldKey={fieldKey}
+          routeBoundary={routeBoundary}
+          selectedId={selectedId}
+        />
+        <ZoomTracker onZoom={setZoom} />
+        {candidates.map((candidate) => {
+          const selected = candidate.id === selectedId;
+          return (
+            <Marker
+              key={candidate.id}
+              position={[candidate.location.latitude, candidate.location.longitude]}
+              icon={scoreIcon(candidate, selected, pinSize)}
+              zIndexOffset={selected ? 1000 : 0}
+              title={`${candidate.name}: rank ${candidate.rank}, score ${candidate.overall_score.toFixed(1)}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
+              alt={`${candidate.name}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
+              eventHandlers={{ click: () => onSelect(candidate.id) }}
+            />
+          );
+        })}
       </MapContainer>
       <div className="map-vignette" aria-hidden="true" />
       <div
@@ -66,53 +81,63 @@ export function MapView({ candidates, routeBoundary, selectedId, onSelect }: Map
   );
 }
 
-function BoundsController({
+/**
+ * Fits the whole field once per bundle and flies only to a selection the user
+ * made. Sorting, what-if sliders, and the initial top-ranked selection never
+ * move the map, so a pan or zoom survives every control change.
+ */
+function FieldController({
   candidates,
+  fieldKey,
   routeBoundary,
-}: {
-  candidates: CandidateResult[];
-  routeBoundary?: RouteBoundary;
-}) {
-  const map = useMap();
-  useEffect(() => {
-    const bounds = L.latLngBounds(
-      candidates.map(({ location }) => [location.latitude, location.longitude]),
-    );
-    if (routeBoundary) bounds.extend(L.geoJSON(routeBoundary.geometry).getBounds());
-    map.fitBounds(bounds, { padding: [90, 90], maxZoom: 11, animate: false });
-  }, [candidates, map, routeBoundary]);
-  return null;
-}
-
-function SelectionController({
-  candidates,
   selectedId,
 }: {
   candidates: CandidateResult[];
+  fieldKey: string;
+  routeBoundary?: RouteBoundary;
   selectedId: string;
 }) {
   const map = useMap();
-  const previousSelection = useRef(selectedId);
+  const latest = useRef({ candidates, routeBoundary, selectedId });
+  latest.current = { candidates, routeBoundary, selectedId };
+  const settledSelection = useRef(selectedId);
+
   useEffect(() => {
-    if (previousSelection.current === selectedId) return;
-    previousSelection.current = selectedId;
-    const selected = candidates.find((candidate) => candidate.id === selectedId);
+    const { candidates: field, routeBoundary: boundary, selectedId: initial } = latest.current;
+    const bounds = L.latLngBounds(field.map(({ location }) => [location.latitude, location.longitude]));
+    if (boundary) bounds.extend(L.geoJSON(boundary.geometry).getBounds());
+    map.fitBounds(bounds, { padding: [90, 90], maxZoom: 11, animate: false });
+    // The bundle's own top candidate is selected on load; that is not a user choice.
+    settledSelection.current = initial;
+  }, [fieldKey, map]);
+
+  useEffect(() => {
+    if (settledSelection.current === selectedId) return;
+    settledSelection.current = selectedId;
+    const selected = latest.current.candidates.find((candidate) => candidate.id === selectedId);
     if (selected) {
       map.flyTo([selected.location.latitude, selected.location.longitude], Math.max(map.getZoom(), 10), {
         duration: 0.7,
       });
     }
-  }, [candidates, map, selectedId]);
+  }, [map, selectedId]);
   return null;
 }
 
-function scoreIcon(candidate: CandidateResult, selected: boolean): L.DivIcon {
+function ZoomTracker({ onZoom }: { onZoom: (zoom: number) => void }) {
+  const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
+  useEffect(() => onZoom(map.getZoom()), [map, onZoom]);
+  return null;
+}
+
+function scoreIcon(candidate: CandidateResult, selected: boolean, size: number): L.DivIcon {
   const state = MARKER_STATE[candidate.hard_constraints.status];
   const score = Math.round(candidate.overall_score);
+  const half = size / 2;
   return L.divIcon({
     className: "score-marker-shell",
-    html: `<span class="score-marker ${state}${selected ? " selected" : ""}"><b>${score}</b><i>${candidate.rank}</i></span>`,
-    iconSize: [58, 58],
-    iconAnchor: [29, 29],
+    html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px"><b>${score}</b><i>${candidate.rank}</i></span>`,
+    iconSize: [size, size],
+    iconAnchor: [half, half],
   });
 }

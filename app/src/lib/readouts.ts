@@ -1,3 +1,4 @@
+import { catchmentPhrase, catchmentShort } from "./format";
 import type { CandidateResult, MetricResult, RailJourney } from "../types";
 
 /**
@@ -56,7 +57,7 @@ function sourdoughToSlots(candidate: CandidateResult): Readout {
   if (!cafes || !betting) {
     return unavailable("sourdough_to_slots", title, "Needs both café and betting-shop counts.");
   }
-  const detail = `${plural(cafes.raw_value, "café")} to ${plural(betting.raw_value, "betting shop")} within a 15-minute walk.`;
+  const detail = `${plural(cafes.raw_value, "café")} to ${plural(betting.raw_value, "betting shop")} within ${catchmentPhrase(cafes.unit)}.`;
   if (betting.raw_value === 0) {
     return {
       key: "sourdough_to_slots", title, available: true, detail,
@@ -76,7 +77,9 @@ function emergencyCroissantRadius(candidate: CandidateResult): Readout {
   if (!cafes) return unavailable("emergency_croissant_radius", title, "No café count was researched.");
   return {
     key: "emergency_croissant_radius", title, available: true,
-    value: cafes.raw_value === 0 ? "Beyond 15 min" : `${plural(cafes.raw_value, "café")} in 15 min`,
+    value: cafes.raw_value === 0
+      ? `Beyond ${catchmentShort(cafes.unit)}`
+      : `${plural(cafes.raw_value, "café")} in ${catchmentShort(cafes.unit)}`,
     detail: cafes.confidence_notes,
   };
 }
@@ -84,7 +87,8 @@ function emergencyCroissantRadius(candidate: CandidateResult): Readout {
 function greenEscape(candidate: CandidateResult): Readout {
   const green = findMetric(candidate, "green_space");
   const title = "Green Escape";
-  if (!green) return unavailable("green_escape", title, "No public green space was found within reach.");
+  // Absence of the metric means it was not measured, not that no green space exists.
+  if (!green) return unavailable("green_escape", title, "No green-space evidence in this run.");
   return {
     key: "green_escape", title, available: true,
     value: `${green.raw_value} min walk`,

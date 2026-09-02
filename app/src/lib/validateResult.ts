@@ -1,6 +1,6 @@
 import type { ResearchResult } from "../types";
 
-const MAX_CANDIDATES = 1_000;
+export const MAX_CANDIDATES = 1_000;
 const SUPPORTED_SCHEMA = "2";
 const CONSTRAINT_STATUSES = ["pass", "fail", "unknown"] as const;
 const EVIDENCE_BASES = ["measured", "transformed", "agent_inferred", "user_observed", "synthetic"] as const;
@@ -369,6 +369,7 @@ function validateRailSummary(value: unknown, path: string, candidateId: string):
     nullableString(journey.last_useful_departure, `${journeyPath}.last_useful_departure`);
     nullableRange(journey.punctuality_percent, `${journeyPath}.punctuality_percent`, 0, 100);
     nullableRange(journey.cancellation_percent, `${journeyPath}.cancellation_percent`, 0, 100);
+    if (journey.operator !== undefined) string(journey.operator, `${journeyPath}.operator`);
     const journeyConfidence = range(journey.confidence, `${journeyPath}.confidence`, 0, 1);
     evidenceBasis(journey.basis, journeyConfidence, `${journeyPath}.basis`);
     const sources = array(journey.sources, `${journeyPath}.sources`);
