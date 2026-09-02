@@ -629,3 +629,54 @@ The P1–P3 gameplan is complete and pushed as c1cdc85. An audit against the 202
 
 - The README is now product documentation: masthead, the problem it answers, the run in seven steps, an instrument tour, a metric glossary with the exact curves from `catalog.py`, architecture and source tables, commands, cost and privacy boundaries, GL4SS attribution, and the MIT versus ODbL/OGL licence split.
 - Screenshots come from a skipped-by-default Playwright spec (`CAPTURE_SCREENSHOTS=1`) that renders the synthetic demo on desktop and mobile with the attributed OpenStreetMap basemap, so they can be refreshed the same way every time.
+
+## 2026-09-02 — Context, Learnings, and Open Work After P4–P8
+
+### Where the project stands
+
+The P1–P3 stabilisation is pushed as c1cdc85. The P4–P8 pass sits on `main` as six local commits (61c8544 through 903c27c) and has not been pushed. At 903c27c the tree is clean and the whole stack is green: ruff, 52 Python tests, 33 viewer tests, 28 desktop and mobile browser tests with axe, byte-identical demo fixtures, and the production build.
+
+The audited gaps from the 2026-09-01 brief are now closed except the deferred items below. The demo shows three real towns with synthetic evidence and is labelled that way everywhere; that labelling must survive any future demo change.
+
+### Learnings from this pass
+
+- **Overpass `around` on a named set is the bounded-query tool.** Filtering amenities, green space, and the highway network by `(around.places:N)` on the discovered place nodes keeps one call, stops a large drive-time polygon from pulling every café in a city, and makes the pedestrian network affordable to fetch.
+- **Snap to one nearest node, not the best of several.** Minimising network distance plus straight-line offset let features cut corners through the snap radius. Densifying long way segments and snapping to the single nearest node keeps every measurement explainable as "walk to that node, then the short offset".
+- **Fallbacks belong in the observation text.** A cached response without network data, or a place node far from any walkable way, silently reverting to a proxy would have hidden a quality change. Each observation now states its scope, its transformation, and the reason for any proxy.
+- **Cross-language parity needs a second scoring, not a re-derivation.** Testing the viewer's arithmetic only at the researched weights would have passed a scorer that ignored weights. The demo builder now emits a differently weighted Python scoring, and CI keeps it reproducible.
+- **Rounding is part of the contract.** Python rounds ties to even on the exact binary value; JavaScript's `Math.round` and `toFixed` do not. Two-decimal parity failed at exactly those boundaries until the viewer mirrored Python's rule.
+- **Redaction must be re-scored, not edited.** Removing housing evidence by hand would leave contributions and warnings inconsistent. Applying redactions to profile and evidence and re-running `write_bundle` keeps every export schema-valid.
+- **Labels leak into prose.** The rail merge stamps destination labels into commute observations' `geographic_scope`; anonymisation has to rewrite free-text fields, not just the label field.
+- **Renaming demo places by text replacement breaks identifiers.** A slug with a hyphen became a TypeScript variable name. Rename data first, then check test files separately.
+- **Windows heredocs and `write_text` both bite.** Long multi-line shell heredocs failed to parse; patch scripts written to a scratch file were reliable. `Path.write_text` produced CRLF files that git then warned about; pass `newline="
+"` when generating committed text.
+- **Screenshots need a repeatable capture path.** A Playwright spec skipped unless `CAPTURE_SCREENSHOTS=1` gives identical framing every time and avoids hand-cropped images drifting from the product.
+
+### Remaining work
+
+Ordered by value; none is blocking a push of the current checkpoint.
+
+1. **Official source adapters.** Land Registry price-paid data has no coordinates, so a bounded query needs candidate postcode districts or an ONS postcode-centroid extract cached locally. ORR performance tables and timetable feeds change URLs and formats; an adapter must preview, cap, cite, and fail closed like the research command. Until then rail, housing, and street-care evidence stay hand-written cited inputs.
+2. **Green-space walking distance.** Green space still uses the bounding-box proxy because its 45-minute reach would need a network extract roughly nine times larger. Options: a smaller 20-minute green-space horizon measured on the network with the proxy beyond it, or per-candidate walking isochrones from the routing provider, which would raise the call cap and must be previewed.
+3. **Screenshot regression baselines.** Generate Linux baselines inside CI and publish them as artifacts before committing any, so Windows renders never become the reference.
+4. **Per-destination isochrones.** Each hard travel limit could be drawn as its own envelope. It costs one routing call per destination, so it belongs behind the preview with an updated cap.
+5. **Category importance in the what-if panel.** Metric sliders exist; category weights are still fixed to the researched values. Adding them is small now that parity is proven.
+6. **Docs polish.** Trim the screenshot PNGs, add a short "first run in five minutes" walkthrough with a redacted real run, and link the skill entry points from the README tour.
+
+### Feature ideas
+
+- **Visit audit form in the viewer** that emits schema-valid street-care JSON for the importer without uploading anything.
+- **Run-to-run diff** showing how each place's evidence, confidence, and score changed between two bundles, with the reason attributed to a changed observation.
+- **Compare mode** pinning two or three places side by side with the same dossier rows aligned.
+- **"What is missing" checklist** per place listing the evidence that would most raise its confidence, derived from missing metrics and low-confidence observations.
+- **Basemap toggle** between the current OpenStreetMap raster and an attributed dark or satellite layer with a policy-compliant fallback, to move closer to the intended instrument look.
+- **Later metric modules** from the original brief: crime and anti-social behaviour, flood risk, air and noise, broadband, schools, EPC evidence, planning pressure, healthcare access, cycling and walkability, and third places.
+- **Optional multi-run library** in the viewer that remembers imported bundles in browser storage only, with an explicit clear control.
+
+### Decisions to keep
+
+- The straight-line proxy is a labelled fallback, never the default; any future catchment change must keep the observation text honest about which method produced the count.
+- Playful readouts remain presentation only. If a readout ever needs its own score, it must become a metric in `catalog.py` with a documented curve.
+- What-if previews never write back. Making new importance authoritative always means rerunning the research command.
+- Exports are re-scored bundles. No script may hand-edit a `results.json`.
+- The public demo may name real places only while every number is synthetic and labelled as such in the interface, fixtures, and README.
