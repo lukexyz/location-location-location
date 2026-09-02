@@ -25,6 +25,9 @@ REWEIGHTED_IMPORTANCE = {
     "yoga_studios": 4,
     "premium_grocers": 3,
 }
+# Category importance for the same parity fixture, so the viewer's category sliders
+# are proven against Python too.
+REWEIGHTED_CATEGORY_IMPORTANCE = {"essentials": 3, "environment": 5, "amenities": 4}
 
 
 def main() -> int:
@@ -51,6 +54,7 @@ def main() -> int:
     # drift from this scorer.
     reweighted_profile = json.loads(json.dumps(profile))
     reweighted_profile["weights"].update(REWEIGHTED_IMPORTANCE)
+    reweighted_profile["category_weights"].update(REWEIGHTED_CATEGORY_IMPORTANCE)
     reweighted = score_research(reweighted_profile, evidence, "2026-08-01T12:00:00+00:00")
     reweighted_output = ROOT / "app/src/data/demo-results.reweighted.json"
     _write(reweighted_output, reweighted)

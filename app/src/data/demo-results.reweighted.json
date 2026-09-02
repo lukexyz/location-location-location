@@ -57,9 +57,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 9.96,
+          "overall_contribution": 16.6,
           "score": 49.81,
-          "weight": 2.0
+          "weight": 4.0
         },
         {
           "category": "environment",
@@ -99,9 +99,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 27.68,
+          "overall_contribution": 38.44,
           "score": 92.25,
-          "weight": 3.0
+          "weight": 5.0
         },
         {
           "category": "essentials",
@@ -141,9 +141,9 @@
               "weight": 5.0
             }
           ],
-          "overall_contribution": 42.59,
+          "overall_contribution": 21.3,
           "score": 85.18,
-          "weight": 5.0
+          "weight": 3.0
         }
       ],
       "confidence": 82.96,
@@ -223,7 +223,7 @@
       },
       "missing_metrics": [],
       "name": "Welwyn Garden City",
-      "overall_score": 80.23,
+      "overall_score": 76.34,
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 58,
@@ -442,9 +442,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 13.38,
+          "overall_contribution": 22.3,
           "score": 66.9,
-          "weight": 2.0
+          "weight": 4.0
         },
         {
           "category": "environment",
@@ -484,9 +484,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 22.33,
+          "overall_contribution": 31.01,
           "score": 74.42,
-          "weight": 3.0
+          "weight": 5.0
         },
         {
           "category": "essentials",
@@ -526,9 +526,9 @@
               "weight": 5.0
             }
           ],
-          "overall_contribution": 35.3,
+          "overall_contribution": 17.65,
           "score": 70.61,
-          "weight": 5.0
+          "weight": 3.0
         }
       ],
       "confidence": 77.63,
@@ -608,7 +608,7 @@
       },
       "missing_metrics": [],
       "name": "Hemel Hempstead",
-      "overall_score": 71.01,
+      "overall_score": 70.96,
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 38,
@@ -808,9 +808,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 18.37,
+          "overall_contribution": 30.61,
           "score": 91.84,
-          "weight": 2.0
+          "weight": 4.0
         },
         {
           "category": "environment",
@@ -850,9 +850,9 @@
               "weight": 3.0
             }
           ],
-          "overall_contribution": 17.56,
+          "overall_contribution": 24.38,
           "score": 58.52,
-          "weight": 3.0
+          "weight": 5.0
         },
         {
           "category": "essentials",
@@ -892,9 +892,9 @@
               "weight": 5.0
             }
           ],
-          "overall_contribution": 44.98,
+          "overall_contribution": 22.49,
           "score": 89.96,
-          "weight": 5.0
+          "weight": 3.0
         }
       ],
       "confidence": 71.83,
@@ -974,7 +974,7 @@
       },
       "missing_metrics": [],
       "name": "Maidenhead",
-      "overall_score": 80.9,
+      "overall_score": 77.49,
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 72,
