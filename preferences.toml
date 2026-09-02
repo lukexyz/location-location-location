@@ -1,5 +1,13 @@
 version = 1
 
+[scoring]
+unknown_data_policy = "warn"
+
+[category_weights]
+essentials = 5
+environment = 3
+amenities = 2
+
 [weights]
 door_to_door_commute = 5
 housing_affordability = 5

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/research-manifest.schema.json",
+  "title": "ResearchManifest",
+  "type": "object",
+  "required": ["schema_version", "run_id", "generated_at", "scoring_version", "tool_versions", "geographic_coverage", "request_ledger", "cache_used", "sources", "licences", "warnings", "checksums"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "run_id": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "scoring_version": {"type": "string"},
+    "tool_versions": {"type": "object", "additionalProperties": {"type": "string"}},
+    "geographic_coverage": {"type": "object"},
+    "request_ledger": {"type": "array"},
+    "cache_used": {"type": "boolean"},
+    "sources": {"type": "array", "items": {"type": "string"}},
+    "licences": {"type": "array", "items": {"type": "string"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "checksums": {
+      "type": "object",
+      "required": ["profile.json", "evidence.json", "results.json"],
+      "additionalProperties": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1",
+  "run_id": "demo-three-places",
+  "search": {
+    "approximate_origin": {"latitude": 51.5, "longitude": -0.1, "precision": "demo"},
+    "route_boundary": {"type": "fixture_polygon", "description": "Synthetic 65-minute commute boundary"},
+    "housing": {"mode": "buy", "budget_gbp": 500000, "property_type": "flat"},
+    "destinations": [{"label": "Central destination", "travel_mode": "public_transport", "arrival": "Tuesday 09:00"}],
+    "providers": {"routing": "fixture", "housing": "fixture", "places": "fixture"}
+  },
+  "weights": {
+    "door_to_door_commute": 5,
+    "housing_affordability": 5,
+    "street_care": 3,
+    "green_space": 3,
+    "betting_shops": 2,
+    "cafes": 2,
+    "yoga_studios": 1,
+    "premium_grocers": 1
+  },
+  "category_weights": {"essentials": 5, "environment": 3, "amenities": 2},
+  "unknown_data_policy": "warn",
+  "hard_constraints": [{"metric": "door_to_door_commute", "operator": "<=", "value": 65}]
+}

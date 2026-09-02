@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://location3.local/schemas/research-profile.schema.json",
+  "title": "ResearchProfile",
+  "type": "object",
+  "required": ["schema_version", "run_id", "search", "weights", "category_weights", "unknown_data_policy", "hard_constraints"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "search": {
+      "type": "object",
+      "required": ["approximate_origin", "route_boundary", "housing", "destinations", "providers"],
+      "properties": {
+        "approximate_origin": {"type": "object"},
+        "route_boundary": {"type": "object"},
+        "housing": {"type": "object"},
+        "destinations": {"type": "array"},
+        "providers": {"type": "object"}
+      }
+    },
+    "weights": {"$ref": "#/$defs/weights"},
+    "category_weights": {"$ref": "#/$defs/weights"},
+    "unknown_data_policy": {"const": "warn"},
+    "hard_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["metric", "operator", "value"],
+        "properties": {
+          "metric": {"type": "string"},
+          "operator": {"enum": ["<=", ">="]},
+          "value": {"type": "number"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "weights": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "number", "minimum": 0}
+    }
+  },
+  "additionalProperties": false
+}
