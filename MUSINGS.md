@@ -1121,3 +1121,42 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - The first real end-to-end run from a pasted line, now including the photos command handing a `NAME-photos` bundle to the served viewer.
 - A Wikipedia lead image is not always the postcard shot. A `--prefer CANDIDATE=File:...` override on the photos command would let a user choose a different Commons file per place.
 - The card sits bottom-left of the map rather than beside its pin; anchoring it to the pin would need projection maths and a test in the browser.
+
+## 2026-09-03 — Code Evaluation Against the Vision After P20–P38
+
+### Verdict
+
+Every step of the vision's seven-step visitor journey exists in code, the three-part split holds, and the principles are enforced rather than described: a request ledger caps a research run at two live calls, hard constraints are three-state and sort unknown below pass, every observation carries a basis, coverage makes missing evidence visible, runs and exports are gitignored and previewed. The demo is deployed with the new look. What has never happened is the thing the product is: a real search, from a pasted line on a clean machine, through the agent conversation, to a private result in the viewer. Everything anyone has seen runs on synthetic evidence; the demo's 33 observations all carry `basis: synthetic`. By features the build is close to the vision. By proof it is one real run away.
+
+### Scorecard
+
+| Vision element | State | Evidence |
+| --- | --- | --- |
+| Demo is a shop window: sample banner, big call to action, no research, no credentials | Done | `StartPanel.tsx`, live at the Pages URL |
+| Modal with Claude Code and Codex commands, what happens next, what stays private | Done | `onboarding.ts` `bootstrapCommand`, both agents |
+| One-line bootstrap that clones, installs, reports the machine, opens the agent with the skill | Done, untested on a clean machine | `scripts/bootstrap.sh`, `bootstrap.ps1`, 4 tests |
+| Works without a routing key, labelled fallback boundary, key offered as an upgrade | Done | `research_cli.py:312`, `routing.py:182` |
+| Agent asks origin, destinations, budget, importance, hard limits, then previews | Done in the skill, never exercised live | `SKILL.md` steps 1–3 |
+| Preview before every outbound call | Done for all seven commands | research, rail, housing, street care, ORR, photos, export CLIs |
+| Two live provider calls per run | Done for research and ORR; photos are a separate opt-in with a cap of four per place | `cache.py:21` `RequestLedger`, `photos.py:30` |
+| Progress surface with real stage names and counts | Done | `progress.py` six stages, `ProgressModal.tsx` |
+| Deterministic core: boundaries, catchments, curves, weights, confidence, provenance, schemas | Done | `catalog.py` eight metrics in three categories, `walking.py`, `scoring.py`, nine schemas |
+| Hard constraints remove, weighted preferences rank survivors | Done | `scoring.py:17` status rank, `:370` unknown propagation |
+| Missing evidence never reads as fine | Done | `scoring.py:181–208` coverage and unmeasured categories, amber in the viewer |
+| Agent never assigns a score; estimates are labelled | Done | `basis` enum in four schemas; agent inputs are validated data, scored in Python |
+| Private by default, redacted export previewed first | Done | `export_cli.py`, rounded origin, gitignored runs |
+| Viewer: ranked map, dossiers, what-if, warnings, import | Done | `App.tsx`, `TunePanel.tsx`, `Dossier.tsx` |
+| Playfulness on top of evidence | Done | photo cards with licences, graded pins, the front door |
+| A real, finished result on real towns in the demo | Half | real towns, real photos, synthetic evidence |
+| Measured evidence from published sources | Partial | Overpass and ORS live; ORR is the one official adapter; rail, housing, and street care are agent-written inputs |
+
+### What is left
+
+1. **The first real run.** Paste the line on a clean Mac and a clean Windows machine, with and without `ORS_API_KEY`, talk to the agent, approve, and load the result. Fix whatever breaks. Nothing else on this list matters until this has happened once.
+2. **A real demo.** Run a bounded search for the three demo towns for real, redact it, and ship that evidence instead of the synthetic fixture, so the shop window shows what the product actually produces. Keep the synthetic fixture for tests.
+3. **Deploy on push.** Pages is a manual dispatch after Verify; chain it so a green `main` deploys itself.
+4. **Backlog carried forward.** A `--prefer` override for the photo command, the card anchored to its pin, and a second measured source beyond ORR if one presents itself.
+
+### Drift
+
+Nothing has moved against the vision. The photos command adds a third host and its own call cap, outside the two-call principle, but it is opt-in, previewed, cached, and cited, which is the spirit of the rule. The viewer took five passes of styling to land on one basemap and one line; the lesson is recorded in P36.
