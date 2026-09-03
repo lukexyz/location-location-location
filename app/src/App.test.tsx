@@ -223,14 +223,14 @@ describe("viewer", () => {
   it("offers the front door only while the sample is active", async () => {
     const user = userEvent.setup();
     render(<App />);
-    expect(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Run your own search/i })).toBeInTheDocument();
     expect(screen.getByText(/REAL TOWNS, SYNTHETIC EVIDENCE/)).toBeInTheDocument();
     const file = new File([JSON.stringify(demoData)], "mine.json", { type: "application/json" });
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText("mine.json loaded in this tab only")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /RUN YOUR OWN SEARCH/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Run your own search/i })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Reset demo" }));
-    expect(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Run your own search/i })).toBeInTheDocument();
   });
 
   it("opens a modal with one copyable line per agent and shell, and never fetches", async () => {
@@ -240,7 +240,7 @@ describe("viewer", () => {
     vi.stubGlobal("fetch", fetchSpy);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }));
+    await user.click(screen.getByRole("button", { name: /Run your own search/i }));
     const dialog = screen.getByRole("dialog", { name: "Run your own search" });
     expect(dialog).toHaveAttribute("aria-modal", "true");
     expect(screen.getByRole("heading", { name: "Run your own search" })).toHaveFocus();

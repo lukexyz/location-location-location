@@ -16,7 +16,7 @@ test("has no automatically detectable WCAG A or AA violations", async ({ page })
 });
 
 test("the front door modal has no automatically detectable violations", async ({ page }) => {
-  await page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }).click();
+  await page.getByRole("button", { name: /Run your own search/i }).click();
   await expect(page.getByRole("dialog", { name: "Run your own search" })).toBeVisible();
   const scan = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])

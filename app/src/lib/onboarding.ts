@@ -34,11 +34,9 @@ export function detectShell(platform: string | undefined): Shell {
 }
 
 export const NEXT_STEPS: ReadonlyArray<string> = [
-  "The repository is cloned into a folder called location-location-location, and its Python and Node dependencies install.",
-  "Your agent opens in that folder with the research skill loaded. It asks for an approximate origin, where you need to get to, your housing budget, what matters to you, and which limits are absolute.",
-  "Before anything leaves your machine the command prints exactly what will be sent and to whom. Nothing is fetched until you approve it, and there are at most two provider calls per run.",
-  "Cited rail, housing, and street-care evidence is gathered by your agent on the subscription you already pay for. Deterministic Python turns it into scores; the agent never assigns one.",
-  "This viewer opens on your private result: ranked map, evidence per place, and what-if importance.",
+  "That line clones the repository into a folder called location-location-location, installs it, and opens your agent with the research skill loaded.",
+  "Your agent asks for an approximate origin, where you need to get to, your housing budget, and what matters to you. Before anything leaves your machine it shows exactly what will be sent and to whom; nothing is fetched until you approve it, and there are at most two provider calls per run.",
+  "Your agent gathers cited rail, housing, and street-care evidence on the subscription you already pay for. Deterministic Python turns it into scores; the agent never assigns one. This viewer then opens on your private result.",
 ];
 
 export const PRIVACY_NOTES: ReadonlyArray<string> = [

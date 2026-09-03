@@ -975,6 +975,12 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The page title and description say the same, and the README's part table and captions use the new names. Class names, ids, and ARIA labels did not move, so every test that changed did so only for the words it matches.
 - Verified: typecheck and build clean, 78 Vitest tests, screenshots reviewed at 1280.
 
+### P23 completion note
+
+- The invite is one short line ("Want this for your own criteria?") beside the button, capped at 600px and centred between the cards, so it covers far less map. The button reads "Run your own search" in sentence case with the "one line · your agent · free" strap underneath.
+- The modal's two choices are labelled rows ("Your agent", "Your shell") of segmented keys, the command block is the hero with a lime "Copy" button in its header that flips to "Copied", and "What happens next" is three steps that still say the agent never assigns a score and there are at most two provider calls. The close button and the copy button lost their shouting.
+- Verified: typecheck and build clean, 78 Vitest tests, 38 Playwright tests (36 passed, the 2 screenshot captures skipped) with axe clean on both modals, screenshots at 1440, 1280, and 390 with the modal open and closed.
+
 ### Decisions
 
 - Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.

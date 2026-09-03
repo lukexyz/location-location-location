@@ -47,7 +47,7 @@ test("an imported result can be reset on desktop and mobile", async ({ page }) =
 });
 
 test("the front door opens a modal with a copyable one-line command", async ({ page }) => {
-  await page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }).click();
+  await page.getByRole("button", { name: /Run your own search/i }).click();
   const dialog = page.getByRole("dialog", { name: "Run your own search" });
   await expect(dialog).toBeVisible();
   await expect(page.getByTestId("bootstrap-command")).toContainText(/bootstrap\.(ps1|sh)/);
@@ -57,7 +57,7 @@ test("the front door opens a modal with a copyable one-line command", async ({ p
   await expect(page.getByTestId("bootstrap-command")).toContainText("curl -fsSL");
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeFocused();
+  await expect(page.getByRole("button", { name: /Run your own search/i })).toBeFocused();
 });
 
 test("a local progress feed opens the research modal and loads the finished result", async ({ page }) => {

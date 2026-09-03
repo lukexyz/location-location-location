@@ -15,11 +15,11 @@ export function StartBanner({ onOpen }: BannerProps) {
   return (
     <section className="start-banner panel-cut" aria-labelledby="start-banner-heading">
       <div className="start-banner-copy">
-        <span className="eyebrow">SAMPLE RUN / REAL TOWNS, SYNTHETIC EVIDENCE</span>
-        <h2 id="start-banner-heading">This is what a finished search looks like. Yours runs on your machine, with your criteria.</h2>
+        <span className="eyebrow">SAMPLE RUN · REAL TOWNS, SYNTHETIC EVIDENCE</span>
+        <h2 id="start-banner-heading">Want this for your own criteria?</h2>
       </div>
       <button className="start-button" type="button" onClick={onOpen}>
-        <strong>RUN YOUR OWN SEARCH</strong>
+        <strong>Run your own search</strong>
         <span>ONE LINE · YOUR AGENT · FREE</span>
       </button>
     </section>
@@ -90,7 +90,7 @@ export function StartDialog({ onClose }: DialogProps) {
             <span className="eyebrow">YOUR OWN SEARCH / RUNS LOCALLY</span>
             <h2 id="start-dialog-heading" tabIndex={-1}>Run your own search</h2>
           </div>
-          <button className="utility-button" type="button" onClick={onClose} aria-label="Close">CLOSE</button>
+          <button className="utility-button" type="button" onClick={onClose} aria-label="Close">Close</button>
         </header>
         <p className="start-intro">
           The demo shows a finished result on real towns with synthetic evidence. Your search runs on your own machine:
@@ -98,46 +98,51 @@ export function StartDialog({ onClose }: DialogProps) {
           Nothing is uploaded.
         </p>
 
-        <div className="start-tabs" role="tablist" aria-label="Choose your agent">
-          {AGENTS.map((item) => (
-            <button
-              key={item.id}
-              id={`agent-tab-${item.id}`}
-              className="sort-key"
-              type="button"
-              role="tab"
-              aria-selected={agent === item.id}
-              aria-controls="start-command-panel"
-              onClick={() => setAgent(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="start-choice">
+          <span className="eyebrow" id="start-agent-label">Your agent</span>
+          <div className="start-tabs segmented" role="tablist" aria-labelledby="start-agent-label">
+            {AGENTS.map((item) => (
+              <button
+                key={item.id}
+                id={`agent-tab-${item.id}`}
+                className="sort-key"
+                type="button"
+                role="tab"
+                aria-selected={agent === item.id}
+                aria-controls="start-command-panel"
+                onClick={() => setAgent(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="start-shells" role="group" aria-label="Choose your shell">
-          {SHELLS.map((item) => (
-            <button
-              key={item.id}
-              className="sort-key"
-              type="button"
-              aria-pressed={shell === item.id}
-              onClick={() => setShell(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="start-choice">
+          <span className="eyebrow" id="start-shell-label">Your shell</span>
+          <div className="start-shells segmented" role="group" aria-labelledby="start-shell-label">
+            {SHELLS.map((item) => (
+              <button
+                key={item.id}
+                className="sort-key"
+                type="button"
+                aria-pressed={shell === item.id}
+                onClick={() => setShell(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <section id="start-command-panel" role="tabpanel" aria-labelledby={`agent-tab-${agent}`} className="start-command">
-          <span className="eyebrow">PASTE INTO A TERMINAL</span>
-          <pre data-testid="bootstrap-command"><code>{command}</code></pre>
-          <div className="start-command-actions">
-            <button className="import-button" type="button" aria-label="Copy the command" onClick={() => void copyCommand()}>
-              <span>COPY</span>
-              <strong>ONE LINE</strong>
-            </button>
+          <div className="start-command-head">
+            <span className="eyebrow">Paste into a terminal</span>
             <span className="start-copied" role="status" aria-live="polite">{copied ?? ""}</span>
+            <button className="utility-button copy-button" type="button" aria-label="Copy the command" onClick={() => void copyCommand()}>
+              {copied === "Copied to the clipboard" ? "Copied" : "Copy"}
+            </button>
           </div>
+          <pre data-testid="bootstrap-command"><code>{command}</code></pre>
           <p className="start-note">
             Once inside, the skill is <code>{chosen.invocation}</code>. {REQUIREMENTS}
           </p>
