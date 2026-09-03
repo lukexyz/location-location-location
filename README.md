@@ -69,7 +69,7 @@ and never claims a property exists because an area looks affordable.
 
 | Part | What it tells you |
 | --- | --- |
-| **Map** | The search area in full colour with the rest of the map faded to greyscale, an orange boundary, numbered score pins with the place's name beside each, and a key. OpenStreetMap basemap with visible attribution. |
+| **Map** | A full-colour map with the search area ringed by a dotted orange line, numbered score pins with the place's name beside each, and a key. OpenStreetMap basemap with visible attribution. |
 | **Place card** | Pops open when you pick a pin or a row: the place's photo with its author and licence, rank, limit badge, fit, commute, typical price, the strongest everyday signal, and a way into the evidence. Photos come from the optional photos command below; a bundle without them gets a gradient. |
 | **Shortlist** | Places, drive limit, average confidence, and fact count at a glance; then researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
 | **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |

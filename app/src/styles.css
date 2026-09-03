@@ -69,16 +69,12 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 }
 
 .map-field, .map-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-/* The map is a map: OpenStreetMap in colour, with only a touch of warmth so the pins and panels sit on it. A mask layer dims everything outside the search boundary (see focusMask). */
+/* The map is a map: OpenStreetMap in colour everywhere, with only a touch of warmth so the pins and panels sit on it. Nothing is dimmed or masked; the dotted boundary and the pins do the pointing. */
 .map-field { z-index: 0; background: #ece9df; }
 .map-canvas { background: #ece9df; }
 .leaflet-tile-pane { filter: saturate(1.05) contrast(0.97) brightness(0.985); }
-/* Outside the boundary the map goes soft greyscale, never dark: grey mask layers blend with the tiles' saturation, feathered outward from the line (see FocusFilters), and a faint fog lifts the far layer. Nothing inside the line is touched. */
-.focus-filters { position: absolute; width: 0; height: 0; overflow: hidden; }
-.focus-mask { mix-blend-mode: saturation; }
-.focus-mask.fog { mix-blend-mode: normal; }
-.focus-mask.near { filter: url(#focus-near); }
-.focus-mask.far { filter: url(#focus-far); }
+/* A whisper of a vignette at the very edge of the map display, below the pins and above the tiles, so the map reads as one framed surface. */
+.map-field::after { content: ""; position: absolute; inset: 0; z-index: 500; pointer-events: none; box-shadow: inset 0 0 22px rgba(28, 30, 29, 0.14); }
 .leaflet-control-attribution { color: #4f5a54 !important; background: rgba(255, 255, 255, 0.72) !important; font-size: 9px !important; }
 .leaflet-control-attribution a { color: #24312a !important; }
 .leaflet-bar { overflow: hidden; border: 1px solid var(--line) !important; border-radius: var(--radius-small) !important; box-shadow: var(--shadow) !important; }
@@ -310,8 +306,6 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
   .start-columns { grid-template-columns: 1fr; }.start-dialog { padding: .9rem; }.start-choice { grid-template-columns: 1fr; gap: .3rem; }
   .rank-panel { max-height: none; }.rank-list { flex: 0 1 auto; max-height: 18rem; }.tune-panel { overflow: visible; }.dossier { max-height: none; }
   .dossier-scroll { overflow: visible; }
-  /* The boundary is a few hundred pixels wide on a phone, so the feathering scales down with it. */
-  .focus-mask.near { filter: url(#focus-near-phone); }.focus-mask.far { filter: url(#focus-far-phone); }
   .sort-keys { grid-template-columns: auto repeat(4, minmax(0, 1fr)); }.sort-keys-label { display: block; }
   .status-rail { position: relative; gap: .8rem; overflow: hidden; }.status-rail span:nth-child(2), .status-rail span:nth-child(3) { display: none; }.privacy-readout { overflow: hidden; text-overflow: ellipsis; }
 }
@@ -417,7 +411,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .legend-pin { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid #2b2e2d; }
 .legend-pin.unverified { background: var(--acid); border-style: dashed; }
 .legend-pin.excluded { background: var(--slate); }
-.legend-line { width: 18px; height: 3px; border-radius: 2px; background: var(--primary); }
+.legend-line { width: 20px; height: 4px; background: radial-gradient(circle, var(--primary) 1.6px, transparent 1.9px) 0 0 / 5px 4px repeat-x; }
 .place-card ~ .map-legend { display: none; }
 @media (max-width: 760px) {
   .map-legend { display: none; }

@@ -1089,6 +1089,12 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - README: the part table, a Photos section, the serve route, and a privacy bullet. Screenshots refreshed.
 - Verified: typecheck and build clean, 89 Vitest tests, 46 Playwright tests with axe clean, screenshots at 1280 and 390.
 
+### P35 and P36 completion note (the map goes back to being a map)
+
+- Luke's phone showed the outside as near-black: the saturation blend mode behind P29 is not honoured by every renderer, and where it is dropped the grey mask layers simply paint grey. P35 tried dimmed Esri satellite imagery outside with the colour tiles clipped to the boundary; built and tested, it looked like a collage and was never committed. Three single-basemap mockups (inverted night map, pale paper map, satellite everywhere) went to Luke as screenshots.
+- Luke's call: the original map, the tiniest vignette around the edges, and a dotted orange line. So the focus mask, its SVG filters, and the blend modes are gone entirely; there is no second tile host. The boundary is a dotted orange line (`dashArray` "1 9", round caps, 4px) with a four-percent fill, and a `box-shadow` inset of 22px at fourteen-percent opacity sits below the pins as the whole vignette.
+- Lesson, kept for next time: every attempt to make the outside look different from the inside made the map worse on some device. One basemap, one line, and the pins pointing is what a map wants.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.
@@ -1099,9 +1105,9 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 
 ### State
 
-- The viewer is bright and warm: a full-colour map that fades to greyscale outside the search area, charcoal cards, orange for actions, yellow for numbers and names, teal for measures, a colour per category, stat tiles, a key, and a name beside every pin.
+- The viewer is bright and warm: a full-colour map with a dotted orange boundary and a barely-there edge vignette, charcoal cards, orange for actions, yellow for numbers and names, teal for measures, a colour per category, stat tiles, a key, and a name beside every pin.
 - Picking a place pops open a card with its photo, author and licence, rank, limit badge, four facts, and a way into the evidence. Photos are cited evidence fetched on the user's machine by an opt-in, previewed, cached command that works for any place the pipeline produces; the demo carries three real ones.
-- Nineteen commits after 0f4bb4d, none pushed. Python: 94 tests, ruff clean. Viewer: 89 Vitest tests, 46 Playwright tests with axe clean, CI grep clean on the build.
+- Twenty commits after 0f4bb4d, none pushed. Python: 94 tests, ruff clean. Viewer: 87 Vitest tests, 46 Playwright tests with axe clean, CI grep clean on the build.
 
 ### Not yet done
 

@@ -4,18 +4,14 @@ import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import { focusMask } from "../lib/focusMask";
 import { pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
-// Outside the boundary the map is desaturated rather than darkened, so it stays bright. Two grey layers
-// feathered by different amounts (see FocusFilters) blend with the tiles' saturation; a faint white fog
-// on the far layer lifts the outside a touch more.
-const FOCUS_LAYERS: ReadonlyArray<{ layer: string; fillColor: string; fillOpacity: number }> = [
-  { layer: "near", fillColor: "#8a8a8a", fillOpacity: 0.85 },
-  { layer: "far", fillColor: "#8a8a8a", fillOpacity: 0.75 },
-  { layer: "fog far", fillColor: "#ffffff", fillOpacity: 0.16 },
-];
+// The search boundary is the one vector besides the pins: a dotted orange line with a whisper of fill.
+const BOUNDARY_STYLE = {
+  color: "#f26b3a", weight: 4, opacity: 1, dashArray: "1 9", lineCap: "round" as const,
+  fillColor: "#f26b3a", fillOpacity: 0.04, className: "search-boundary",
+};
 
 const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
 const MARKER_TEXT: Record<ConstraintStatus, string> = {
@@ -51,20 +47,12 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="bottomright" />
-        {routeBoundary && FOCUS_LAYERS.map(({ layer, fillColor, fillOpacity }) => (
-          <GeoJSON
-            key={`mask:${layer}:${routeBoundary.retrieved_at}`}
-            data={focusMask(routeBoundary.geometry)}
-            interactive={false}
-            style={{ stroke: false, fillColor, fillOpacity, fillRule: "evenodd", className: `focus-mask ${layer}` }}
-          />
-        ))}
         {routeBoundary && (
           <GeoJSON
             key={routeBoundary.retrieved_at}
             data={routeBoundary.geometry}
             interactive={false}
-            style={{ color: "#f26b3a", weight: 3, opacity: 0.9, fillColor: "#f26b3a", fillOpacity: 0.05, className: "search-boundary" }}
+            style={BOUNDARY_STYLE}
           />
         )}
         <FieldController
@@ -89,7 +77,6 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           );
         })}
       </MapContainer>
-      <FocusFilters />
       {overlay}
       <ul className="map-legend" aria-label="Map key">
         <li><i className="legend-pin valid" aria-hidden="true" />Within limits</li>
@@ -98,30 +85,6 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
         <li><i className="legend-line" aria-hidden="true" />Search area</li>
       </ul>
     </section>
-  );
-}
-
-/**
- * The mask is eroded before it is blurred, which pushes the hole outward by the
- * erosion radius, so the dimming starts at the boundary line and fades away from
- * it; nothing inside the search is touched. Radii are in screen pixels and the
- * phone variants are smaller because the boundary is.
- */
-function FocusFilters() {
-  const filters: Array<[string, number, number]> = [
-    ["focus-near", 20, 10], ["focus-far", 70, 35], ["focus-near-phone", 10, 5], ["focus-far-phone", 32, 16],
-  ];
-  return (
-    <svg className="focus-filters" aria-hidden="true" focusable="false" width="0" height="0">
-      <defs>
-        {filters.map(([id, erode, blur]) => (
-          <filter key={id} id={id} x="-5%" y="-5%" width="110%" height="110%" colorInterpolationFilters="sRGB">
-            <feMorphology operator="erode" radius={erode} />
-            <feGaussianBlur stdDeviation={blur} />
-          </filter>
-        ))}
-      </defs>
-    </svg>
   );
 }
 

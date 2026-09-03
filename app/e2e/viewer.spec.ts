@@ -13,8 +13,10 @@ test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await page.getByRole("button", { name: /Hemel Hempstead/ }).click();
   await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
   await expect(page.locator(".score-marker.selected b")).toHaveText("73");
-  // The boundary and the three feathered mask layers that fade everything outside it; nothing else is drawn as a vector.
-  await expect(page.locator(".leaflet-overlay-pane path")).toHaveCount(4);
+  // The dotted boundary is the only vector besides the pins; nothing dims the map outside it.
+  await expect(page.locator(".leaflet-overlay-pane path")).toHaveCount(1);
+  await expect(page.locator(".search-boundary")).toHaveAttribute("stroke-dasharray", "1 9");
+  await expect(page.locator(".focus-mask")).toHaveCount(0);
 });
 
 test("route assumptions and contribution points are inspectable", async ({ page }) => {
