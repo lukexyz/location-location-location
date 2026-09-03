@@ -404,6 +404,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 
 /* Pin labels: the place's name beside its pin; the selected one turns yellow. On a phone only the selected label shows. */
 .pin-label { position: absolute; top: 50%; left: calc(100% + 6px); transform: translateY(-50%); padding: .22rem .6rem; color: var(--ink); background: rgba(28, 30, 29, .9); border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; font: 700 .7rem var(--voice-display); white-space: nowrap; pointer-events: none; }
+.pin-label.left { left: auto; right: calc(100% + 6px); }
 .score-marker.selected + .pin-label { color: var(--acid-ink); background: var(--acid); border-color: var(--acid); }
 
 /* Legend: a pill at the bottom of the map; the place card takes its spot while open. */

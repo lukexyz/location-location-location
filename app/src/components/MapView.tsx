@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+import { pinSizeForField, planLabels, samePlan } from "../lib/field";
+import type { FieldPlan, LabelSide } from "../lib/field";
 import { fitColour, fitScale, pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
@@ -32,8 +34,9 @@ interface MapViewProps {
 
 export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSelect, overlay }: MapViewProps) {
   const first = candidates[0].location;
-  const [zoom, setZoom] = useState(9);
-  const pinSize = pinSizeForZoom(zoom);
+  // Pin size and which pins carry a name are planned from the screen, so a crowded run stays legible.
+  const [plan, setPlan] = useState<FieldPlan>({ size: pinSizeForZoom(9), labelled: new Map(candidates.map((candidate) => [candidate.id, "right"])) });
+  const adoptPlan = useCallback((next: FieldPlan) => setPlan((current) => (samePlan(current, next) ? current : next)), []);
   // Pins within limits are graded green against the whole run: the best fit is the most vivid.
   const fit = fitScale(candidates.map((candidate) => candidate.overall_score));
   return (
@@ -63,14 +66,14 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           routeBoundary={routeBoundary}
           selectedId={selectedId}
         />
-        <ZoomTracker onZoom={setZoom} />
+        <FieldPlanner candidates={candidates} selectedId={selectedId} onPlan={adoptPlan} />
         {candidates.map((candidate) => {
           const selected = candidate.id === selectedId;
           return (
             <Marker
               key={candidate.id}
               position={[candidate.location.latitude, candidate.location.longitude]}
-              icon={scoreIcon(candidate, selected, pinSize, fit(candidate.overall_score))}
+              icon={scoreIcon(candidate, selected, plan.size, fit(candidate.overall_score), plan.labelled.get(candidate.id))}
               zIndexOffset={selected ? 1000 : 0}
               title={`${candidate.name}: rank ${candidate.rank}, score ${candidate.overall_score.toFixed(1)}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
               alt={`${candidate.name}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
@@ -115,7 +118,7 @@ function FieldController({
     const { candidates: field, routeBoundary: boundary, selectedId: initial } = latest.current;
     const bounds = L.latLngBounds(field.map(({ location }) => [location.latitude, location.longitude]));
     if (boundary) bounds.extend(L.geoJSON(boundary.geometry).getBounds());
-    map.fitBounds(bounds, { ...visibleFieldPadding(map.getSize().x), maxZoom: 11, animate: false });
+    map.fitBounds(bounds, { ...visibleFieldPadding(map.getSize().x), maxZoom: 14, animate: false });
     // The bundle's own top candidate is selected on load; that is not a user choice.
     settledSelection.current = initial;
   }, [fieldKey, map]);
@@ -146,9 +149,30 @@ export function visibleFieldPadding(width: number): { paddingTopLeft: [number, n
   return { paddingTopLeft: [rankWidth + 50, 190], paddingBottomRight: [dossierWidth + 50, 70] };
 }
 
-function ZoomTracker({ onZoom }: { onZoom: (zoom: number) => void }) {
-  const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
-  useEffect(() => onZoom(map.getZoom()), [map, onZoom]);
+/**
+ * Projects the field onto the screen after every move and zoom and hands back
+ * the pin size and the set of pins whose names fit without colliding.
+ */
+function FieldPlanner({
+  candidates,
+  selectedId,
+  onPlan,
+}: {
+  candidates: CandidateResult[];
+  selectedId: string;
+  onPlan: (plan: FieldPlan) => void;
+}) {
+  const map = useMap();
+  const replan = useCallback(() => {
+    const pins = candidates.map((candidate) => {
+      const point = map.latLngToContainerPoint([candidate.location.latitude, candidate.location.longitude]);
+      return { id: candidate.id, x: point.x, y: point.y, name: candidate.name, rank: candidate.rank };
+    });
+    const size = pinSizeForField(map.getZoom(), pins);
+    onPlan({ size, labelled: planLabels(pins, size, selectedId) });
+  }, [candidates, map, onPlan, selectedId]);
+  useMapEvents({ moveend: replan, zoomend: replan });
+  useEffect(replan, [replan]);
   return null;
 }
 
@@ -156,14 +180,14 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char);
 }
 
-function scoreIcon(candidate: CandidateResult, selected: boolean, size: number, fit: number): L.DivIcon {
+function scoreIcon(candidate: CandidateResult, selected: boolean, size: number, fit: number, label: LabelSide | undefined): L.DivIcon {
   const state = MARKER_STATE[candidate.hard_constraints.status];
   const score = Math.round(candidate.overall_score);
   const half = size / 2;
   return L.divIcon({
     className: "score-marker-shell",
     html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px;--fit:${fit.toFixed(2)};--fit-colour:${fitColour(fit)}"><b>${score}</b><i>${candidate.rank}</i></span>`
-      + `<span class="pin-label" aria-hidden="true">${escapeHtml(candidate.name)}</span>`,
+      + (label ? `<span class="pin-label ${label}" aria-hidden="true">${escapeHtml(candidate.name)}</span>` : ""),
     iconSize: [size, size],
     iconAnchor: [half, half],
   });

@@ -1160,3 +1160,21 @@ Every step of the vision's seven-step visitor journey exists in code, the three-
 ### Drift
 
 Nothing has moved against the vision. The photos command adds a third host and its own call cap, outside the two-call principle, but it is opt-in, previewed, cached, and cited, which is the spirit of the rule. The viewer took five passes of styling to land on one basemap and one line; the lesson is recorded in P36.
+
+## 2026-09-03 — Ripping Through What Is Left
+
+Luke said "let's rip". The evaluation's list runs in its own order.
+
+- P39: the first real run. No clean Mac is to hand, so the run happens here on Windows with no `ORS_API_KEY`, which is the harder path: the proxy boundary, one real Overpass call, the viewer loading the private result. Start small (ten minutes' drive) to size the Overpass query, then scale to the demo's three towns. Fix whatever breaks; record every break.
+- P40: a real demo. The three demo towns get real Overpass evidence from a real run, exported redacted, replacing the synthetic amenity and green-space observations in `fixtures/demo/evidence.json`. Rail, housing, and street care stay agent-written inputs, cited where a real figure can be had, and labelled otherwise. The synthetic fixture stays in tests.
+- P41: deploy on push. Pages chains after a green Verify on `main` and keeps the manual dispatch.
+- P42: the carried backlog: a `--prefer` override for the photo command and the card anchored to its pin.
+
+One commit per milestone, nothing pushed unless asked.
+
+### P39 completion note (the first real run)
+
+- The run: St Albans centre, ten minutes by car, a London St Pancras limit of 45 minutes, a two-bed flat under £500k, no `ORS_API_KEY`. The preview said exactly what it would do; `--execute` made one Overpass call, took 31 seconds, and wrote 19 candidates with 95 measured observations, every one `basis: measured`, dated today, with the walking-network caveat in its confidence note. The serve command's progress feed showed five stages, the viewer's modal offered "Load this result", and the private bundle loaded with no request beyond loopback and tiles. Nothing in the Python side broke.
+- What broke was the viewer's idea of scale. The field fit was capped at zoom 11 because the demo's 65-minute envelope never wanted more; a 4.7 km circle needs 12 or 13, so the cap is now 14. Then nineteen suburbs inside that circle drew 58-pixel pins on top of each other with every name drawn regardless. The field is now planned from the screen after every move and zoom: `pinSizeForField` shrinks the pin when a quarter of the pins sit closer than the zoom's size to their nearest neighbour, down to the 34-pixel floor the smallest zoom already used; `planLabels` names the selected place first, then the rest in rank order, trying the right of the pin and then the left, and drops any name that would touch a pin or a name already placed. The demo's three towns keep all three names (Hemel's moves left, since on the right it clipped Welwyn's pin by four pixels); the real run shows 14 of 19.
+- Every place in the run reads "limit unverified" in amber because the commute limit has no evidence yet; that is the rule working, not a fault. The rail, housing, and street-care steps were not exercised in this run; P40 does those for the demo towns.
+
