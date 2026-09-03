@@ -7,6 +7,9 @@ import { focusMask } from "../lib/focusMask";
 import { pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
+// Two copies of the mask, blurred by different amounts, so the dimming starts firmly at the boundary and tails off further out.
+const FOCUS_LAYERS = ["near", "far"] as const;
+
 const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
 const MARKER_TEXT: Record<ConstraintStatus, string> = {
   pass: "within limits", unknown: "limit unverified", fail: "outside hard limit",
@@ -39,20 +42,20 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="bottomright" />
-        {routeBoundary && (
+        {routeBoundary && FOCUS_LAYERS.map((layer) => (
           <GeoJSON
-            key={`mask:${routeBoundary.retrieved_at}`}
+            key={`mask:${layer}:${routeBoundary.retrieved_at}`}
             data={focusMask(routeBoundary.geometry)}
             interactive={false}
-            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.46, fillRule: "evenodd", className: "focus-mask" }}
+            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.3, fillRule: "evenodd", className: `focus-mask ${layer}` }}
           />
-        )}
+        ))}
         {routeBoundary && (
           <GeoJSON
             key={routeBoundary.retrieved_at}
             data={routeBoundary.geometry}
             interactive={false}
-            style={{ color: "#2f8f3c", weight: 2.5, opacity: 0.85, fillColor: "#5cc463", fillOpacity: 0.07, dashArray: "8 7" }}
+            style={{ color: "#2f8f3c", weight: 2, opacity: 0.7, fillColor: "#5cc463", fillOpacity: 0.06, dashArray: "8 7" }}
           />
         )}
         <FieldController

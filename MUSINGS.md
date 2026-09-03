@@ -1002,6 +1002,11 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The mask path carries a 16px CSS blur, so inside and outside blend across the boundary instead of cutting at it; its opacity rose to 46% to compensate. A light inset vignette (42% at the map's edges, nothing in the middle) sits over the whole map under every card. Neither layer animates or takes pointer events.
 - Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests, screenshots at 1280 and 390.
 
+### P27 completion note (a wider blend)
+
+- The 16px feather was barely visible, so the mask is now drawn twice at 30% each: a near layer blurred 26px and a far layer blurred 90px. The dimming starts firmly at the boundary and tails off over about 200px while the inside stays bright; a single wide blur had greyed the inside too. On phones the boundary is only a few hundred pixels wide, so the blurs drop to 12px and 40px. The dashed boundary line thinned to 2px at 70%.
+- Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests (the synchronisation test now expects three overlay paths), screenshots at 1280 and 390.
+
 ## 2026-09-03 — Where the Project Stands After the Reskin
 
 ### State
