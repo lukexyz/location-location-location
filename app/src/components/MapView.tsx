@@ -64,7 +64,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
             key={routeBoundary.retrieved_at}
             data={routeBoundary.geometry}
             interactive={false}
-            style={{ color: "#2f8f3c", weight: 2, opacity: 0.7, fillColor: "#5cc463", fillOpacity: 0.06, dashArray: "8 7" }}
+            style={{ color: "#f26b3a", weight: 3, opacity: 0.9, fillColor: "#f26b3a", fillOpacity: 0.05, className: "search-boundary" }}
           />
         )}
         <FieldController

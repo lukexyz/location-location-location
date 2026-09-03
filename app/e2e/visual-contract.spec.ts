@@ -24,9 +24,9 @@ test("preserves the instrument layout and colour contract", async ({ page }) => 
     };
   });
   expect(tokens).toEqual({
-    acid: "#b4f36b",
-    danger: "#ff8577",
-    panel: "rgba(20, 26, 29, 0.94)",
+    acid: "#f6c343",
+    danger: "#ff7a6b",
+    panel: "rgba(43, 46, 45, 0.94)",
   });
   expect(map.width).toBeCloseTo(viewport.width, 0);
 

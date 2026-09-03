@@ -1075,6 +1075,12 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - The card's name is a label, not a heading, so the evidence panel keeps the only heading for the place and the existing tests kept their meaning. The evidence heading became focusable for the "See the evidence" hand-off.
 - Verified: typecheck and build clean, 85 Vitest tests (five new), 44 Playwright tests including an axe scan with the card open and a geometry check that the card never touches the side cards, screenshots at 1280 and 390.
 
+### P33 completion note
+
+- The palette is warm now: charcoal cards (`rgba(43, 46, 45, .94)`) on a `#1c1e1d` ground, cream ink, and three working colours with jobs. Orange (`#f26b3a`) does: the call to action, the import and copy buttons, selected keys, the slider thumbs, the search boundary (now a solid line), the rank circle, and pins within limits. Yellow (`#f6c343`) says: scores, the fit dial, name pills, warnings, and the dashed pin for an unverified limit. Teal measures: the confidence and category bars. Coral is only for a breached limit or an error; a place outside its limits gets a slate pin with the strike. The plumbob keeps its own green.
+- Every dark-on-accent text colour became a token (`--primary-ink`, `--acid-ink`), so no literal lime or green remains in the stylesheet. The visual contract pins the new tokens.
+- Verified: typecheck and build clean, 85 Vitest tests, 44 Playwright tests with axe clean on both modals and the card, screenshots at 1280 and 390.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.
