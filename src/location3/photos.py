@@ -102,11 +102,23 @@ def photo_for(evidence: dict[str, Any], candidate_id: str) -> dict[str, Any] | N
 
 # --- Planning ------------------------------------------------------------------------
 
-def describe_photo_plan(candidates: list[dict[str, Any]], *, width: int = DEFAULT_WIDTH) -> list[str]:
+def describe_photo_plan(
+    candidates: list[dict[str, Any]],
+    *,
+    width: int = DEFAULT_WIDTH,
+    preferred: Mapping[str, str] | None = None,
+) -> list[str]:
     """What the command will send, one line per place, before anything is fetched."""
     lines = [f"Photo plan: one freely licensed Wikipedia lead image per place, {len(candidates)} places"]
     for candidate in candidates:
         location = candidate["location"]
+        title = (preferred or {}).get(candidate["id"])
+        if title:
+            lines.append(
+                f"  {candidate['name']}: Wikipedia page \"{title}\" as asked, not checked against "
+                f"coordinates ({urlsplit(WIKIPEDIA_API).netloc})"
+            )
+            continue
         lines.append(
             f"  {candidate['name']}: Wikipedia page lookup by name, checked against "
             f"{location['latitude']:.2f}, {location['longitude']:.2f} ({urlsplit(WIKIPEDIA_API).netloc})"
@@ -132,14 +144,22 @@ def fetch_photos(
     *,
     retrieved_at: str,
     width: int = DEFAULT_WIDTH,
+    preferred: Mapping[str, str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, bytes], list[str]]:
-    """Look every candidate up and return the research record, the image bytes, and notes."""
+    """Look every candidate up and return the research record, the image bytes, and notes.
+
+    `preferred` maps a candidate id to the Wikipedia page title to use instead of the
+    lookup by name, for a place whose name finds the wrong article or none.
+    """
     photos: list[dict[str, Any]] = []
     files: dict[str, bytes] = {}
     notes: list[str] = []
     for candidate in candidates:
         try:
-            found = _photo_for_candidate(candidate, transport, width=width)
+            found = _photo_for_candidate(
+                candidate, transport, width=width,
+                preferred_title=(preferred or {}).get(candidate["id"]),
+            )
         except RuntimeError as error:
             if "cap" in str(error):
                 raise
@@ -161,9 +181,9 @@ def fetch_photos(
 
 
 def _photo_for_candidate(
-    candidate: dict[str, Any], transport: HttpTransport, *, width: int
+    candidate: dict[str, Any], transport: HttpTransport, *, width: int, preferred_title: str | None = None
 ) -> tuple[dict[str, Any], bytes] | None:
-    page = lookup_page(transport, candidate["name"], candidate["location"])
+    page = lookup_page(transport, candidate["name"], candidate["location"], preferred_title=preferred_title)
     if page is None:
         return None
     metadata = commons_metadata(transport, page["image"], width=width)
@@ -187,9 +207,20 @@ def _photo_for_candidate(
 
 
 def lookup_page(
-    transport: HttpTransport, name: str, location: Mapping[str, float]
+    transport: HttpTransport, name: str, location: Mapping[str, float], *, preferred_title: str | None = None
 ) -> dict[str, Any] | None:
-    """The Wikipedia article for a place: by name when it is unambiguous and nearby, else by geosearch."""
+    """The Wikipedia article for a place: by name when it is unambiguous and nearby, else by geosearch.
+
+    A preferred title is looked up as asked and not checked against the coordinates; if
+    it is missing, ambiguous, or has no free lead image there is no substitute.
+    """
+    if preferred_title:
+        asked = _query(transport, WIKIPEDIA_API, {
+            "action": "query", "format": "json", "formatversion": "2", "redirects": "1",
+            "titles": preferred_title, "prop": "pageimages|coordinates|pageprops",
+            "piprop": "name|original", "pilicense": "free", "ppprop": "disambiguation", "colimit": "1",
+        })
+        return _first_usable_page(asked, location, check_distance=False)
     by_name = _query(transport, WIKIPEDIA_API, {
         "action": "query", "format": "json", "formatversion": "2", "redirects": "1",
         "titles": name, "prop": "pageimages|coordinates|pageprops",
@@ -209,7 +240,9 @@ def lookup_page(
     return _first_usable_page(nearby, location)
 
 
-def _first_usable_page(payload: dict[str, Any], location: Mapping[str, float]) -> dict[str, Any] | None:
+def _first_usable_page(
+    payload: dict[str, Any], location: Mapping[str, float], *, check_distance: bool = True
+) -> dict[str, Any] | None:
     pages = payload.get("query", {}).get("pages", [])
     if isinstance(pages, dict):  # formatversion 1 shape, tolerated
         pages = list(pages.values())
@@ -222,7 +255,7 @@ def _first_usable_page(payload: dict[str, Any], location: Mapping[str, float]) -
         if not image:
             continue
         coordinates = page.get("coordinates") or []
-        if coordinates:
+        if coordinates and check_distance:
             distance = _haversine_km(
                 float(location["latitude"]), float(location["longitude"]),
                 float(coordinates[0]["lat"]), float(coordinates[0]["lon"]),

@@ -60,6 +60,8 @@ test("the place card stays inside the map and off the side cards", async ({ page
   const viewport = page.viewportSize();
   if (!viewport) throw new Error("Playwright viewport is unavailable");
   await page.getByRole("button", { name: /Welwyn Garden City/ }).click();
+  // The map flies the picked pin to where its card fits, for 0.7 s; measure once it has settled.
+  await page.waitForTimeout(1200);
   const card = await page.getByTestId("place-card").boundingBox();
   const map = await page.locator(".map-field").boundingBox();
   if (!card || !map) throw new Error("Card geometry is unavailable");
@@ -73,5 +75,12 @@ test("the place card stays inside the map and off the side cards", async ({ page
     if (!rank || !dossier) throw new Error("Panel geometry is unavailable");
     expect(card.x).toBeGreaterThanOrEqual(rank.x + rank.width);
     expect(card.x + card.width).toBeLessThanOrEqual(dossier.x);
+    // The card sits beside its pin: level with it, and within a short gap of it on one side.
+    const pin = await page.locator(".score-marker.selected").boundingBox();
+    if (!pin) throw new Error("Pin geometry is unavailable");
+    const pinCentre = { x: pin.x + pin.width / 2, y: pin.y + pin.height / 2 };
+    expect(Math.abs(card.y + card.height / 2 - pinCentre.y)).toBeLessThanOrEqual(card.height / 2 + 40);
+    const gap = Math.min(Math.abs(card.x - (pinCentre.x + pin.width / 2)), Math.abs(pinCentre.x - pin.width / 2 - (card.x + card.width)));
+    expect(gap).toBeLessThanOrEqual(60);
   }
 });

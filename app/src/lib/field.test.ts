@@ -62,5 +62,10 @@ describe("same plan", () => {
     expect(samePlan({ size: 46, labelled: right }, { size: 40, labelled: new Map(right) })).toBe(false);
     expect(samePlan({ size: 46, labelled: right }, { size: 46, labelled: new Map([["b", "right"]]) })).toBe(false);
     expect(samePlan({ size: 46, labelled: right }, { size: 46, labelled: new Map([["a", "left"]]) })).toBe(false);
+    const anchored = { size: 46, labelled: right, anchor: { x: 10.2, y: 20.4 }, field: { width: 900, height: 600 } };
+    expect(samePlan(anchored, { ...anchored, anchor: { x: 10.4, y: 19.6 } })).toBe(true);
+    expect(samePlan(anchored, { ...anchored, anchor: { x: 12, y: 20 } })).toBe(false);
+    expect(samePlan(anchored, { ...anchored, field: { width: 901, height: 600 } })).toBe(false);
+    expect(samePlan(anchored, { size: 46, labelled: right })).toBe(false);
   });
 });

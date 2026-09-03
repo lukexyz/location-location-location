@@ -1,3 +1,4 @@
+import type { FieldPlan, Point, Size } from "./field";
 import { label, rawValue } from "./format";
 import type { CandidateResult, ConstraintStatus, MetricResult, PlacePhoto } from "../types";
 
@@ -28,6 +29,55 @@ export function photoUrl(assetBase: string | undefined, photo: PlacePhoto | unde
 export function assetBaseFor(resultUrl: string): string {
   const cut = resultUrl.lastIndexOf("/");
   return cut === -1 ? "" : resultUrl.slice(0, cut + 1);
+}
+
+/** The card's box on a wide screen; the stylesheet draws it at this width. */
+export const CARD_SIZE = { width: 360, height: 344 };
+/** What the side cards, the header row, and the legend row keep for themselves. */
+const CARD_INSETS = { left: 338, right: 448, top: 104, bottom: 44 };
+const NARROW_INSETS = { left: 298, right: 398, top: 104, bottom: 44 };
+const PIN_GAP = 18;
+
+/**
+ * Where the card sits: beside the selected pin, to its right when there is room
+ * and to its left otherwise, level with it, and never over the side cards, the
+ * header, or the bottom edge. A phone lays the card out with the stylesheet
+ * instead, so it gets no position here.
+ */
+export function cardPosition(plan: Pick<FieldPlan, "size" | "anchor" | "field">): { left: number; top: number } | undefined {
+  const { anchor, field } = plan;
+  if (!anchor || !field || field.width <= 760) return undefined;
+  const insets = field.width <= 1050 ? NARROW_INSETS : CARD_INSETS;
+  const width = Math.min(field.width <= 1050 ? 340 : CARD_SIZE.width, field.width - insets.left - insets.right);
+  const minLeft = insets.left;
+  const maxLeft = Math.max(minLeft, field.width - insets.right - width);
+  const half = plan.size / 2;
+  let left = anchor.x + half + PIN_GAP;
+  if (left > maxLeft) left = anchor.x - half - PIN_GAP - width;
+  left = clamp(left, minLeft, maxLeft);
+  const maxTop = Math.max(insets.top, field.height - insets.bottom - CARD_SIZE.height);
+  const top = clamp(anchor.y - CARD_SIZE.height / 2, insets.top, maxTop);
+  return { left: Math.round(left), top: Math.round(top) };
+}
+
+/**
+ * Where a selected pin should land on the map so its card fits beside it: far
+ * enough into the visible hole between the side cards that the card sits to its
+ * right, and level with the middle of that hole. A phone gets no target.
+ */
+export function pinTarget(field: Size, size: number): Point | undefined {
+  if (field.width <= 760) return undefined;
+  const insets = field.width <= 1050 ? NARROW_INSETS : CARD_INSETS;
+  const cardWidth = field.width <= 1050 ? 340 : CARD_SIZE.width;
+  const half = size / 2;
+  const holeWidth = field.width - insets.left - insets.right;
+  const x = insets.left + Math.max(half + 8, (holeWidth - (cardWidth + PIN_GAP + size)) / 2 + half);
+  const y = (insets.top + field.height - insets.bottom) / 2;
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
+function clamp(value: number, low: number, high: number): number {
+  return Math.min(high, Math.max(low, value));
 }
 
 function allMetrics(candidate: CandidateResult): MetricResult[] {

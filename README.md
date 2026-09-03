@@ -230,7 +230,10 @@ python scripts/fetch_photos.py --run-dir research-runs/NAME-street-care --execut
 Optional, and separate from the research command's call cap. The preview lists
 one Wikipedia page lookup per place by name, checked against its rounded
 coordinates, then one Commons metadata call and one image download per page
-found. Only place names and rounded coordinates are sent. Only CC0, CC BY,
+found. A place whose name finds the wrong article or none can be given its page
+with `--prefer CANDIDATE_ID="Wikipedia page title"`, repeatable; that page is
+looked up as asked, without the coordinate check. Only place names and rounded
+coordinates are sent. Only CC0, CC BY,
 CC BY-SA, or public-domain images are kept, each with its author, licence, and
 source page, and every response is cached under `cache/` for thirty days so a
 repeat makes no calls. The command writes a sibling `NAME-photos` bundle with

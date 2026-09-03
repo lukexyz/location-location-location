@@ -125,6 +125,30 @@ class PhotoLookupTests(unittest.TestCase):
         self.assertEqual(research["photos"], [])
         self.assertEqual(len(notes), 1)
 
+    def test_a_preferred_page_is_used_as_asked_without_a_distance_check(self):
+        far = {
+            "Alpha": _page("Alpha", "Alpha_view.jpg", 40.7, -74.0),
+            "Alpha Park": _page("Alpha Park", "Alpha_park.jpg", 40.7, -74.0),
+        }
+        transport = WikiTransport(by_title=far, nearby=[])
+        research, files, notes = fetch_photos(
+            [_candidate("alpha", "Alpha", 51.5, -0.1)], transport,
+            retrieved_at="2026-09-03T10:00:00+00:00", preferred={"alpha": "Alpha Park"},
+        )
+        self.assertEqual(research["photos"][0]["page_title"], "Alpha Park")
+        self.assertIn("photos/alpha.jpg", files)
+        self.assertEqual(notes, [])
+        self.assertEqual(len(transport.calls), 3, "the asked-for title, metadata, image; no lookup by name, no geosearch")
+        plan = "\n".join(describe_photo_plan([_candidate("alpha", "Alpha", 51.5, -0.1)], preferred={"alpha": "Alpha Park"}))
+        self.assertIn('Alpha: Wikipedia page "Alpha Park" as asked', plan)
+        # An asked-for page that is missing is a note, never a substitute found by name or nearby.
+        research, _, notes = fetch_photos(
+            [_candidate("alpha", "Alpha", 51.5, -0.1)], WikiTransport(),
+            retrieved_at="2026-09-03T10:00:00+00:00", preferred={"alpha": "Nowhere"},
+        )
+        self.assertEqual(research["photos"], [])
+        self.assertEqual(notes, ["Alpha: no freely licensed lead image found"])
+
     def test_non_free_licences_mean_no_photo(self):
         for licence in ("CC BY-NC 2.0", "CC BY-ND 4.0", "All rights reserved"):
             with self.subTest(licence=licence):

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import { pinSizeForField, planLabels, samePlan } from "../lib/field";
-import type { FieldPlan, LabelSide } from "../lib/field";
+import type { FieldPlan, LabelSide, Point, Size } from "../lib/field";
 import { fitColour, fitScale, pinSizeForZoom } from "../lib/pins";
+import { cardPosition, pinTarget } from "../lib/placeCard";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
 // The search boundary is the one vector besides the pins: a dotted purple line with a whisper of fill.
@@ -37,10 +38,20 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
   // Pin size and which pins carry a name are planned from the screen, so a crowded run stays legible.
   const [plan, setPlan] = useState<FieldPlan>({ size: pinSizeForZoom(9), labelled: new Map(candidates.map((candidate) => [candidate.id, "right"])) });
   const adoptPlan = useCallback((next: FieldPlan) => setPlan((current) => (samePlan(current, next) ? current : next)), []);
+  // While the map is in motion only the anchor moves; the pins and names are replanned when it settles.
+  const followAnchor = useCallback((anchor: Point | undefined, field: Size) => setPlan((current) => {
+    const next = { ...current, anchor, field };
+    return samePlan(current, next) ? current : next;
+  }), []);
   // Pins within limits are graded green against the whole run: the best fit is the most vivid.
   const fit = fitScale(candidates.map((candidate) => candidate.overall_score));
+  // The card anchors to the selected pin on a wide screen; the stylesheet keeps its own layout on a phone.
+  const card = cardPosition(plan);
+  const cardStyle = card
+    ? ({ "--card-left": `${card.left}px`, "--card-top": `${card.top}px`, "--card-bottom": "auto" } as CSSProperties)
+    : undefined;
   return (
-    <section className="map-field" aria-label="Candidate map">
+    <section className="map-field" aria-label="Candidate map" style={cardStyle}>
       <MapContainer
         center={[first.latitude, first.longitude]}
         zoom={9}
@@ -66,7 +77,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           routeBoundary={routeBoundary}
           selectedId={selectedId}
         />
-        <FieldPlanner candidates={candidates} selectedId={selectedId} onPlan={adoptPlan} />
+        <FieldPlanner candidates={candidates} selectedId={selectedId} onPlan={adoptPlan} onMove={followAnchor} />
         {candidates.map((candidate) => {
           const selected = candidate.id === selectedId;
           return (
@@ -128,9 +139,16 @@ function FieldController({
     settledSelection.current = selectedId;
     const selected = latest.current.candidates.find((candidate) => candidate.id === selectedId);
     if (selected) {
-      map.flyTo([selected.location.latitude, selected.location.longitude], Math.max(map.getZoom(), 10), {
-        duration: 0.7,
-      });
+      // The pin lands where its card fits beside it, rather than dead centre under the card.
+      const zoom = Math.max(map.getZoom(), 10);
+      const size = map.getSize();
+      const target = pinTarget({ width: size.x, height: size.y }, pinSizeForZoom(zoom));
+      let centre = L.latLng(selected.location.latitude, selected.location.longitude);
+      if (target) {
+        const offset = L.point(size.x / 2 - target.x, size.y / 2 - target.y);
+        centre = map.unproject(map.project(centre, zoom).add(offset), zoom);
+      }
+      map.flyTo(centre, zoom, { duration: 0.7 });
     }
   }, [map, selectedId]);
   return null;
@@ -157,21 +175,36 @@ function FieldPlanner({
   candidates,
   selectedId,
   onPlan,
+  onMove,
 }: {
   candidates: CandidateResult[];
   selectedId: string;
   onPlan: (plan: FieldPlan) => void;
+  onMove: (anchor: Point | undefined, field: Size) => void;
 }) {
   const map = useMap();
+  const follow = useCallback(() => {
+    const selected = candidates.find((candidate) => candidate.id === selectedId);
+    const point = selected && map.latLngToContainerPoint([selected.location.latitude, selected.location.longitude]);
+    const { x: width, y: height } = map.getSize();
+    onMove(point ? { x: point.x, y: point.y } : undefined, { width, height });
+  }, [candidates, map, onMove, selectedId]);
   const replan = useCallback(() => {
     const pins = candidates.map((candidate) => {
       const point = map.latLngToContainerPoint([candidate.location.latitude, candidate.location.longitude]);
       return { id: candidate.id, x: point.x, y: point.y, name: candidate.name, rank: candidate.rank };
     });
     const size = pinSizeForField(map.getZoom(), pins);
-    onPlan({ size, labelled: planLabels(pins, size, selectedId) });
+    const selected = pins.find((pin) => pin.id === selectedId);
+    const { x: width, y: height } = map.getSize();
+    onPlan({
+      size,
+      labelled: planLabels(pins, size, selectedId),
+      anchor: selected ? { x: selected.x, y: selected.y } : undefined,
+      field: { width, height },
+    });
   }, [candidates, map, onPlan, selectedId]);
-  useMapEvents({ moveend: replan, zoomend: replan });
+  useMapEvents({ move: follow, moveend: replan, zoomend: replan });
   useEffect(replan, [replan]);
   return null;
 }

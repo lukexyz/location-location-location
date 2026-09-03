@@ -12,10 +12,20 @@ export interface ScreenPin {
 /** Which side of its pin a name sits on. */
 export type LabelSide = "right" | "left";
 
-/** What the field draws at one zoom and pan: how wide each pin is, and which pins carry their name, on which side. */
+/** A point or a size on the map container, in CSS pixels. */
+export interface Point { x: number; y: number }
+export interface Size { width: number; height: number }
+
+/**
+ * What the field draws at one zoom and pan: how wide each pin is, which pins
+ * carry their name and on which side, where the selected pin sits (so the card
+ * can anchor to it), and how big the field is.
+ */
 export interface FieldPlan {
   size: number;
   labelled: ReadonlyMap<string, LabelSide>;
+  anchor?: Point;
+  field?: Size;
 }
 
 export const MIN_PIN = 34;
@@ -71,7 +81,13 @@ export function planLabels(pins: readonly ScreenPin[], size: number, selectedId:
 export function samePlan(a: FieldPlan, b: FieldPlan): boolean {
   if (a.size !== b.size || a.labelled.size !== b.labelled.size) return false;
   for (const [id, side] of a.labelled) if (b.labelled.get(id) !== side) return false;
-  return true;
+  if (!samePoint(a.anchor, b.anchor)) return false;
+  return a.field?.width === b.field?.width && a.field?.height === b.field?.height;
+}
+
+function samePoint(a: Point | undefined, b: Point | undefined): boolean {
+  if (!a || !b) return a === b;
+  return Math.round(a.x) === Math.round(b.x) && Math.round(a.y) === Math.round(b.y);
 }
 
 interface Box { left: number; top: number; right: number; bottom: number }

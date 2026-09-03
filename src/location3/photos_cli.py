@@ -40,6 +40,13 @@ def main(argv: Sequence[str] | None = None, *, transport=None, clock=None) -> in
     parser.add_argument("--output", type=Path)
     parser.add_argument("--cache", type=Path, default=root / "cache")
     parser.add_argument("--width", type=int, default=DEFAULT_WIDTH, help="image width in pixels")
+    parser.add_argument(
+        "--prefer",
+        action="append",
+        default=[],
+        metavar="CANDIDATE_ID=PAGE_TITLE",
+        help="use this Wikipedia page for a place instead of the lookup by its name (repeatable)",
+    )
     parser.add_argument("--execute", action="store_true", help="make the previewed calls and write the bundle")
     args = parser.parse_args(argv)
     if not 320 <= args.width <= 2560:
@@ -55,14 +62,14 @@ def main(argv: Sequence[str] | None = None, *, transport=None, clock=None) -> in
     validate_provenance(evidence, manifest, artifacts)
     candidates = list(evidence["candidates"])
     output = args.output or args.run_dir.with_name(f"{args.run_dir.name}-photos")
+    preferred = _preferred_pages(parser, args.prefer, {candidate["id"] for candidate in candidates})
 
-    for line in describe_photo_plan(candidates, width=args.width):
+    for line in describe_photo_plan(candidates, width=args.width, preferred=preferred):
         print(line)
     print(f"Private output: {output} (images under {output / 'photos'})")
     if not args.execute:
         print("Preview only. Re-run with --execute after reviewing the calls above.")
         return 0
-
     now = clock or (lambda: datetime.now(timezone.utc))
     ledger = RequestLedger(max_network_requests=CALLS_PER_PLACE * len(candidates))
     caching = CachingTransport(
@@ -72,7 +79,7 @@ def main(argv: Sequence[str] | None = None, *, transport=None, clock=None) -> in
     progress.start(str(profile["run_id"]), command="photos")
     try:
         research, files, notes = fetch_photos(
-            candidates, caching, retrieved_at=now().isoformat(), width=args.width
+            candidates, caching, retrieved_at=now().isoformat(), width=args.width, preferred=preferred
         )
         progress.event(
             "discovery",
@@ -109,3 +116,19 @@ def main(argv: Sequence[str] | None = None, *, transport=None, clock=None) -> in
         f"{ledger.network_requests} live calls, {hits} cache hits"
     )
     return 0
+
+
+def _preferred_pages(
+    parser: argparse.ArgumentParser, specs: Sequence[str], candidate_ids: set[str]
+) -> dict[str, str]:
+    """Parse CANDIDATE_ID=PAGE_TITLE overrides; each must name a place in the run."""
+    preferred: dict[str, str] = {}
+    for spec in specs:
+        candidate_id, separator, title = spec.partition("=")
+        candidate_id, title = candidate_id.strip(), title.strip()
+        if not separator or not candidate_id or not title:
+            parser.error("prefer must look like CANDIDATE_ID=Wikipedia page title")
+        if candidate_id not in candidate_ids:
+            parser.error(f"prefer names a place that is not in the run: {candidate_id}")
+        preferred[candidate_id] = title
+    return preferred
