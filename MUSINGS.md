@@ -1049,6 +1049,11 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - **P33 — Warm palette.** Charcoal panels, cream ink, orange primary and boundary, yellow pills and scores, teal for confidence; pins orange, yellow dashed, slate with a strike.
 - **P34 — Section colours, stat tiles, legend, map pills, pill controls.**
 
+### P29 completion note
+
+- Outside the boundary the map is now desaturated rather than darkened: two grey mask layers with a saturation blend mode, feathered outward through the same erode-and-blur filters, plus a faint white fog on the far layer. Inside stays full colour; outside is bright greyscale. The vignette is gone.
+- Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests (the synchronisation test expects four overlay paths), screenshots at 1280 and 390.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.

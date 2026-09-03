@@ -7,8 +7,14 @@ import { focusMask } from "../lib/focusMask";
 import { pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
-// Two copies of the mask, blurred by different amounts, so the dimming starts firmly at the boundary and tails off further out.
-const FOCUS_LAYERS = ["near", "far"] as const;
+// Outside the boundary the map is desaturated rather than darkened, so it stays bright. Two grey layers
+// feathered by different amounts (see FocusFilters) blend with the tiles' saturation; a faint white fog
+// on the far layer lifts the outside a touch more.
+const FOCUS_LAYERS: ReadonlyArray<{ layer: string; fillColor: string; fillOpacity: number }> = [
+  { layer: "near", fillColor: "#8a8a8a", fillOpacity: 0.85 },
+  { layer: "far", fillColor: "#8a8a8a", fillOpacity: 0.75 },
+  { layer: "fog far", fillColor: "#ffffff", fillOpacity: 0.16 },
+];
 
 const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
 const MARKER_TEXT: Record<ConstraintStatus, string> = {
@@ -42,12 +48,12 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="bottomright" />
-        {routeBoundary && FOCUS_LAYERS.map((layer) => (
+        {routeBoundary && FOCUS_LAYERS.map(({ layer, fillColor, fillOpacity }) => (
           <GeoJSON
             key={`mask:${layer}:${routeBoundary.retrieved_at}`}
             data={focusMask(routeBoundary.geometry)}
             interactive={false}
-            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.3, fillRule: "evenodd", className: `focus-mask ${layer}` }}
+            style={{ stroke: false, fillColor, fillOpacity, fillRule: "evenodd", className: `focus-mask ${layer}` }}
           />
         ))}
         {routeBoundary && (
@@ -80,7 +86,6 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           );
         })}
       </MapContainer>
-      <div className="map-vignette" aria-hidden="true" />
       <FocusFilters />
     </section>
   );
