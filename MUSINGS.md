@@ -1026,3 +1026,31 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - Not pushed. The live demo still serves the console look until `main` is pushed and **Deploy viewer to Pages** is run.
 - The first real end-to-end run from a pasted line on a clean machine is still the next thing to watch.
 - The README screenshots were recaptured; the phone screenshot's header still overlaps the top of the map, which is by design but worth a look on a real phone.
+
+## 2026-09-03 — Brighter, Warmer, With Pictures
+
+### Prompt
+
+After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip planner (bright satellite map, warm charcoal cards, orange primary and yellow name pills, section colour bars, stat tiles, a legend pill, photo cards with a licence in the corner) and one of its photo cards. The asks: the map outside the search area is still too dark; take the approachable, bright-but-modern colour scheme from that app; clicking a place should pop open a card with a lovely picture of the area and a few small details; everything must be future-proof for any town or area that gets searched, with a cache. Then: commit, write the plan here, and do all of it.
+
+### Thoughts
+
+- The map is the hero in the reference and panels sit on it. Darkening outside the boundary fights that; desaturating outside it does not. A grey mask with a saturation blend mode keeps the outside bright and grey and the inside in colour.
+- Warm charcoal rather than green-black; an orange primary and a yellow highlight rather than one acid lime; a few section colours so the three scoring categories read as three things; pills for names, badges, sort keys, and buttons; stat tiles in the shortlist header; a legend pill on the map.
+- Photos are cited facts like everything else: an image, an author, a licence, a source page. They cannot be fetched by the viewer at runtime without breaking its "nothing but map tiles" rule, so they are fetched on the user's machine by Python, previewed first, cached, and stored beside the run. Town names are the only thing sent. Wikipedia's lead image for the article nearest each place is usually the postcard shot, and Commons carries the attribution.
+- Future-proofing: the photo lookup is keyed by place name and coordinates, works for any candidate the pipeline produces, and never assumes a fixture. Results are cached under `cache/` with the same caching transport the research command uses, so a re-run or a second run over the same towns makes no new calls. A place with no usable free image simply has no photo; the card still opens.
+
+### Gameplan
+
+- **P29 — Bright outside.** Desaturate rather than darken outside the boundary; drop the vignette.
+- **P30 — Photo pipeline.** `location3 photos --run-dir <run>`: preview the exact Wikipedia and Commons calls per place, fetch after `--execute` through the caching transport, resize to about 1200px, write `photos/<candidate id>.jpg` and a `photo` record (title, author, licence, licence URL, source URL, file, width, height) into a sibling bundle. Schema, validators on both sides, a serve route for photo files, tests with a fake transport.
+- **P31 — Demo photos.** Fetch the three demo photos once, commit them with their attribution, and have the demo bundle carry them.
+- **P32 — The card.** Click a pin or a row: a card beside the pin with the photo, rank circle, limit badge, name pill, attribution link, three small details, and a link to the evidence. Gradient fallback without a photo. Slides up over the map on phones.
+- **P33 — Warm palette.** Charcoal panels, cream ink, orange primary and boundary, yellow pills and scores, teal for confidence; pins orange, yellow dashed, slate with a strike.
+- **P34 — Section colours, stat tiles, legend, map pills, pill controls.**
+
+### Decisions
+
+- The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.
+- Attribution is always shown on the card. CC BY requires it and the reference card does it well.
+- The research command's two-call cap is untouched; photos are a separate opt-in command with its own preview.
