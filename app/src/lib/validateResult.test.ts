@@ -5,7 +5,7 @@ describe("parseResultBundle", () => {
   it("accepts the generated demonstration bundle", () => {
     const result = parseResultBundle(demoData);
     expect(result.candidates).toHaveLength(3);
-    expect(result.candidates[0].name).toBe("Welwyn Garden City");
+    expect(result.candidates[0].name).toBe("Maidenhead");
   });
 
   it("rejects incompatible schema versions with a useful message", () => {
@@ -65,17 +65,11 @@ describe("parseResultBundle", () => {
 
   it("rejects street-care components that smuggle report volume into the score", () => {
     const invalid = structuredClone(demoData);
-    const density = invalid.candidates[0].street_care_summary.components.find(
-      (component) => component.key === "report_density",
-    );
-    expect(density).toBeUndefined();
+    const components = invalid.candidates[0].street_care_summary.components;
+    expect(components.find((component) => component.key === "report_density")).toBeUndefined();
 
-    const proxy = invalid.candidates.find((candidate) => candidate.id === "hemel-hempstead")!;
-    const proxyDensity = proxy.street_care_summary.components.find(
-      (component) => component.key === "report_density",
-    )!;
-    proxyDensity.included = true;
-    proxyDensity.weight = 0.1;
+    // A report-density component switched on without a score must be refused, not summed.
+    components.push({ key: "report_density", included: true, weight: 0.1, raw_value: 8, unit: "reports_per_1000", normalized_score: null } as unknown as (typeof components)[number]);
     expect(() => parseResultBundle(invalid)).toThrow(/included components need score and weight/);
   });
 });

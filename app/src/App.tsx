@@ -28,7 +28,7 @@ const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const DEMO_ASSET_BASE = `${import.meta.env.BASE_URL}demo/`;
 const DEMO_STATE: LoadState = {
   kind: "demo",
-  message: "Sample data: real towns, synthetic evidence",
+  message: "Sample data: three real towns, cited evidence",
 };
 // The feed is polled only from a loopback page (the local serve command or the
 // dev server), never from the public demo, and never inside unit tests.

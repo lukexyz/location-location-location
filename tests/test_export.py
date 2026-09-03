@@ -29,7 +29,7 @@ LEDGER = [{
 
 def demo_run(directory: Path) -> Path:
     """Write a private run from the demo fixtures, including rail and housing evidence."""
-    fixtures = ROOT / "fixtures/demo"
+    fixtures = ROOT / "fixtures/synthetic"
     profile = json.loads((fixtures / "profile.json").read_text(encoding="utf-8"))
     evidence = json.loads((fixtures / "evidence.json").read_text(encoding="utf-8"))
     rail = json.loads((fixtures / "rail.json").read_text(encoding="utf-8"))

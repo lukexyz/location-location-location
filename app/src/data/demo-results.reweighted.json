@@ -7,833 +7,58 @@
           "metrics": [
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "measured",
               "category": "amenities",
-              "category_contribution": 26.15,
-              "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "welwyn-cafes",
-              "metric": "cafes",
-              "normalized_score": 62.75,
-              "raw_value": 4,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 5.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 12.9,
+              "category_contribution": 41.67,
               "confidence": 0.75,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "welwyn-yoga",
-              "metric": "yoga_studios",
-              "normalized_score": 38.69,
-              "raw_value": 1,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 4.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 10.77,
-              "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "welwyn-grocers",
-              "metric": "premium_grocers",
-              "normalized_score": 43.07,
-              "raw_value": 1,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 3.0
-            }
-          ],
-          "overall_contribution": 16.6,
-          "score": 49.81,
-          "weight": 4.0
-        },
-        {
-          "category": "environment",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "user_observed",
-              "category": "environment",
-              "category_contribution": 43.75,
-              "confidence": 0.8867,
-              "confidence_notes": "Personal audit is 12 days old",
-              "evidence_id": "welwyn-street-care-score",
-              "metric": "street_care",
-              "normalized_score": 87.5,
-              "raw_value": 87.5,
-              "source": "Private structured visit audit",
-              "source_date": "2026-07-20",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/schemas/street-care-research.schema.json",
-              "unit": "desirability_score",
-              "weight": 3.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "environment",
-              "category_contribution": 48.5,
-              "confidence": 0.9,
-              "confidence_notes": "Synthetic network-distance example",
-              "evidence_id": "welwyn-garden-city",
-              "metric": "green_space",
-              "normalized_score": 97.0,
-              "raw_value": 3,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "walk_minutes",
-              "weight": 3.0
-            }
-          ],
-          "overall_contribution": 38.44,
-          "score": 92.25,
-          "weight": 5.0
-        },
-        {
-          "category": "essentials",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "essentials",
-              "category_contribution": 9.97,
-              "confidence": 0.9,
-              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
-              "evidence_id": "welwyn-central-rail-commute",
-              "metric": "door_to_door_commute",
-              "normalized_score": 59.83,
-              "raw_value": 58,
-              "source": "Synthetic LOCATION\u00b3 timetable fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "minutes",
-              "weight": 1.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "essentials",
-              "category_contribution": 75.21,
-              "confidence": 0.85,
-              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-              "evidence_id": "welwyn-housing-market-affordability",
-              "metric": "housing_affordability",
-              "normalized_score": 90.25,
-              "raw_value": 0.78,
-              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
-              "unit": "budget_ratio",
-              "weight": 5.0
-            }
-          ],
-          "overall_contribution": 21.3,
-          "score": 85.18,
-          "weight": 3.0
-        }
-      ],
-      "confidence": 82.96,
-      "hard_constraints": {
-        "results": [
-          {
-            "actual": 58,
-            "metric": "door_to_door_commute",
-            "operator": "<=",
-            "status": "pass",
-            "value": 65
-          }
-        ],
-        "status": "pass"
-      },
-      "housing_summary": {
-        "bedrooms": 2,
-        "budget_gbp": 500000,
-        "budget_period": "purchase",
-        "budget_ratio": 0.78,
-        "inventory_status": "not_checked",
-        "market": {
-          "basis": "synthetic",
-          "candidate_id": "welwyn-garden-city",
-          "confidence": 0.85,
-          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-          "geography": {
-            "kind": "radius",
-            "label": "2 km around Welwyn Garden City",
-            "radius_km": 2
-          },
-          "id": "welwyn-housing-market",
-          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
-          "period_end": "2026-07-31",
-          "period_start": "2023-08-01",
-          "sample_size": 28,
-          "sources": [
-            {
-              "kind": "transactions",
-              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
-            }
-          ],
-          "statistic": "median",
-          "typical_cost_gbp": 390000
-        },
-        "mode": "buy",
-        "property_type": "flat",
-        "typical_cost_gbp": 390000
-      },
-      "id": "welwyn-garden-city",
-      "informational_metrics": [
-        {
-          "active": false,
-          "basis": "synthetic",
-          "category": "amenities",
-          "category_contribution": 0.0,
-          "confidence": 0.8,
-          "confidence_notes": "Synthetic POI example",
-          "evidence_id": "welwyn-betting",
-          "metric": "betting_shops",
-          "normalized_score": 100.0,
-          "raw_value": 0,
-          "source": "Synthetic LOCATION\u00b3 fixture",
-          "source_date": "2026-08-01",
-          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-          "unit": "count_15_min_walk",
-          "weight": 0.0
-        }
-      ],
-      "location": {
-        "latitude": 51.8032,
-        "longitude": -0.2077
-      },
-      "missing_metrics": [],
-      "name": "Welwyn Garden City",
-      "overall_score": 76.34,
-      "photo": {
-        "author": "Spearhead",
-        "candidate_id": "welwyn-garden-city",
-        "file": "photos/welwyn-garden-city.jpg",
-        "height": 960,
-        "licence": "CC BY-SA 3.0",
-        "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
-        "page_title": "Welwyn Garden City",
-        "source_url": "https://commons.wikimedia.org/wiki/File:The_Parkway_Fountain.jpg",
-        "title": "Welwyn Garden City",
-        "width": 1280
-      },
-      "place_kind": "town",
-      "rail_summary": {
-        "fastest_total_minutes": 58,
-        "journeys": [
-          {
-            "access_minutes": 8,
-            "basis": "synthetic",
-            "cancellation_percent": 2.0,
-            "candidate_id": "welwyn-garden-city",
-            "changes": 0,
-            "confidence": 0.9,
-            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
-            "destination_label": "Central destination",
-            "expected_wait_minutes": 7,
-            "id": "welwyn-central-rail",
-            "last_useful_departure": "2026-08-01T23:18:00+01:00",
-            "london_arrival_station": "London King's Cross",
-            "london_last_mile_minutes": 8,
-            "origin_station": "Welwyn Garden City",
-            "origin_station_crs": "WGC",
-            "primary": true,
-            "punctuality_percent": 90.1,
-            "scheduled_rail_minutes": 35,
-            "service_window": "Typical Tuesday arrival by 09:00",
-            "services_per_hour": 4,
-            "sources": [
-              {
-                "kind": "timetable",
-                "label": "Synthetic LOCATION\u00b3 timetable fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
-              },
-              {
-                "kind": "performance",
-                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
-              }
-            ],
-            "total_minutes": 58
-          }
-        ],
-        "primary_journey_id": "welwyn-central-rail"
-      },
-      "rank": 1,
-      "score_coverage_percent": 100.0,
-      "street_care_summary": {
-        "assessment_date": "2026-08-01",
-        "audit_age_days": 12,
-        "basis": "recent_visit_audit",
-        "components": [
-          {
-            "included": true,
-            "key": "litter",
-            "normalized_score": 100,
-            "raw_value": 4,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          },
-          {
-            "included": true,
-            "key": "dog_fouling",
-            "normalized_score": 100,
-            "raw_value": 4,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          },
-          {
-            "included": true,
-            "key": "graffiti",
-            "normalized_score": 75,
-            "raw_value": 3,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          },
-          {
-            "included": true,
-            "key": "weeds_and_detritus",
-            "normalized_score": 75,
-            "raw_value": 3,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          },
-          {
-            "included": true,
-            "key": "overflowing_bins",
-            "normalized_score": 75,
-            "raw_value": 3,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          },
-          {
-            "included": true,
-            "key": "overall_upkeep",
-            "normalized_score": 100,
-            "raw_value": 4,
-            "unit": "rating_0_to_4",
-            "weight": 0.166667
-          }
-        ],
-        "confidence": 0.8867,
-        "place": {
-          "basis": "synthetic",
-          "candidate_id": "welwyn-garden-city",
-          "fly_tipping": {
-            "current_incidents_per_1000": 12,
-            "current_period": "2024/25",
-            "previous_incidents_per_1000": 14,
-            "previous_period": "2023/24",
-            "reporting_basis": "all incidents",
-            "source": {
-              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
-            }
-          },
-          "id": "welwyn-street-care",
-          "local_authority": "Welwyn Hatfield",
-          "local_reports": {
-            "geographic_scope": "Welwyn Garden City example LSOA",
-            "median_resolution_days": 3,
-            "period_end": "2026-07-31",
-            "period_start": "2025-08-01",
-            "reports_per_1000": 8,
-            "scope_kind": "lsoa",
-            "source": {
-              "label": "Synthetic LOCATION\u00b3 local-report fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
-            },
-            "unresolved_percent": 12
-          },
-          "visit_audit": {
-            "audited_at": "2026-07-20",
-            "geographic_scope": "Welwyn Garden City centre walking loop",
-            "notes": "Synthetic recent visit audit for the public demonstration.",
-            "ratings": {
-              "dog_fouling": 4,
-              "graffiti": 3,
-              "litter": 4,
-              "overall_upkeep": 4,
-              "overflowing_bins": 3,
-              "weeds_and_detritus": 3
-            }
-          }
-        },
-        "score": 87.5
-      },
-      "unmeasured_categories": [],
-      "warnings": [
-        "Housing affordability is market evidence, not live inventory"
-      ]
-    },
-    {
-      "categories": [
-        {
-          "category": "amenities",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 35.69,
-              "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "hemel-cafes",
-              "metric": "cafes",
-              "normalized_score": 85.66,
-              "raw_value": 8,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 5.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 20.44,
-              "confidence": 0.75,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "hemel-yoga",
-              "metric": "yoga_studios",
-              "normalized_score": 61.31,
-              "raw_value": 2,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 4.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 10.77,
-              "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "hemel-grocers",
-              "metric": "premium_grocers",
-              "normalized_score": 43.07,
-              "raw_value": 1,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "count_15_min_walk",
-              "weight": 3.0
-            }
-          ],
-          "overall_contribution": 22.3,
-          "score": 66.9,
-          "weight": 4.0
-        },
-        {
-          "category": "environment",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "environment",
-              "category_contribution": 30.67,
-              "confidence": 0.5,
-              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
-              "evidence_id": "hemel-street-care-score",
-              "metric": "street_care",
-              "normalized_score": 61.34,
-              "raw_value": 61.34,
-              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
-              "unit": "desirability_score",
-              "weight": 3.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "environment",
-              "category_contribution": 43.75,
-              "confidence": 0.9,
-              "confidence_notes": "Synthetic network-distance example",
-              "evidence_id": "hemel-green",
-              "metric": "green_space",
-              "normalized_score": 87.5,
-              "raw_value": 8,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "walk_minutes",
-              "weight": 3.0
-            }
-          ],
-          "overall_contribution": 31.01,
-          "score": 74.42,
-          "weight": 5.0
-        },
-        {
-          "category": "essentials",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "essentials",
-              "category_contribution": 13.67,
-              "confidence": 0.93,
-              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
-              "evidence_id": "hemel-central-rail-commute",
-              "metric": "door_to_door_commute",
-              "normalized_score": 82.0,
-              "raw_value": 38,
-              "source": "Synthetic LOCATION\u00b3 timetable fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-              "unit": "minutes",
-              "weight": 1.0
-            },
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "essentials",
-              "category_contribution": 56.94,
-              "confidence": 0.82,
-              "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-              "evidence_id": "hemel-housing-market-affordability",
-              "metric": "housing_affordability",
-              "normalized_score": 68.33,
-              "raw_value": 0.95,
-              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
-              "unit": "budget_ratio",
-              "weight": 5.0
-            }
-          ],
-          "overall_contribution": 17.65,
-          "score": 70.61,
-          "weight": 3.0
-        }
-      ],
-      "confidence": 77.63,
-      "hard_constraints": {
-        "results": [
-          {
-            "actual": 38,
-            "metric": "door_to_door_commute",
-            "operator": "<=",
-            "status": "pass",
-            "value": 65
-          }
-        ],
-        "status": "pass"
-      },
-      "housing_summary": {
-        "bedrooms": 2,
-        "budget_gbp": 500000,
-        "budget_period": "purchase",
-        "budget_ratio": 0.95,
-        "inventory_status": "not_checked",
-        "market": {
-          "basis": "synthetic",
-          "candidate_id": "hemel-hempstead",
-          "confidence": 0.82,
-          "confidence_notes": "Synthetic 36-month comparable-sales example with more than 20 matching transactions.",
-          "geography": {
-            "kind": "radius",
-            "label": "2 km around Hemel Hempstead",
-            "radius_km": 2
-          },
-          "id": "hemel-housing-market",
-          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
-          "period_end": "2026-07-31",
-          "period_start": "2023-08-01",
-          "sample_size": 22,
-          "sources": [
-            {
-              "kind": "transactions",
-              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
-            }
-          ],
-          "statistic": "median",
-          "typical_cost_gbp": 475000
-        },
-        "mode": "buy",
-        "property_type": "flat",
-        "typical_cost_gbp": 475000
-      },
-      "id": "hemel-hempstead",
-      "informational_metrics": [
-        {
-          "active": false,
-          "basis": "synthetic",
-          "category": "amenities",
-          "category_contribution": 0.0,
-          "confidence": 0.8,
-          "confidence_notes": "Synthetic POI example",
-          "evidence_id": "hemel-betting",
-          "metric": "betting_shops",
-          "normalized_score": 61.31,
-          "raw_value": 1,
-          "source": "Synthetic LOCATION\u00b3 fixture",
-          "source_date": "2026-08-01",
-          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-          "unit": "count_15_min_walk",
-          "weight": 0.0
-        }
-      ],
-      "location": {
-        "latitude": 51.7526,
-        "longitude": -0.4692
-      },
-      "missing_metrics": [],
-      "name": "Hemel Hempstead",
-      "overall_score": 70.96,
-      "photo": {
-        "author": "Peter O'Connor aka anemoneprojectors",
-        "candidate_id": "hemel-hempstead",
-        "file": "photos/hemel-hempstead.jpg",
-        "height": 960,
-        "licence": "CC BY-SA 2.0",
-        "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
-        "page_title": "Hemel Hempstead",
-        "source_url": "https://commons.wikimedia.org/wiki/File:GOC_Hemel_Hempstead_113_Plough_Roundabout,_Hemel_Hempstead_(48726958143).jpg",
-        "title": "Hemel Hempstead",
-        "width": 1280
-      },
-      "place_kind": "town",
-      "rail_summary": {
-        "fastest_total_minutes": 38,
-        "journeys": [
-          {
-            "access_minutes": 5,
-            "basis": "synthetic",
-            "cancellation_percent": 1.5,
-            "candidate_id": "hemel-hempstead",
-            "changes": 0,
-            "confidence": 0.93,
-            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
-            "destination_label": "Central destination",
-            "expected_wait_minutes": 5,
-            "id": "hemel-central-rail",
-            "last_useful_departure": "2026-08-01T23:42:00+01:00",
-            "london_arrival_station": "London Euston",
-            "london_last_mile_minutes": 6,
-            "origin_station": "Hemel Hempstead",
-            "origin_station_crs": "HML",
-            "primary": true,
-            "punctuality_percent": 92.4,
-            "scheduled_rail_minutes": 22,
-            "service_window": "Typical Tuesday arrival by 09:00",
-            "services_per_hour": 6,
-            "sources": [
-              {
-                "kind": "timetable",
-                "label": "Synthetic LOCATION\u00b3 timetable fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
-              },
-              {
-                "kind": "performance",
-                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
-              }
-            ],
-            "total_minutes": 38
-          }
-        ],
-        "primary_journey_id": "hemel-central-rail"
-      },
-      "rank": 2,
-      "score_coverage_percent": 100.0,
-      "street_care_summary": {
-        "assessment_date": "2026-08-01",
-        "audit_age_days": null,
-        "basis": "proxy",
-        "components": [
-          {
-            "included": true,
-            "key": "fly_tipping_rate",
-            "normalized_score": 61.0,
-            "raw_value": 30,
-            "unit": "incidents_per_1000",
-            "weight": 0.2
-          },
-          {
-            "included": true,
-            "key": "fly_tipping_trend",
-            "normalized_score": 40.0,
-            "raw_value": 20.0,
-            "unit": "percent_change",
-            "weight": 0.2
-          },
-          {
-            "included": false,
-            "key": "report_density",
-            "normalized_score": null,
-            "raw_value": 20,
-            "unit": "reports_per_1000",
-            "weight": 0
-          },
-          {
-            "included": true,
-            "key": "unresolved_reports",
-            "normalized_score": 70,
-            "raw_value": 30,
-            "unit": "percent",
-            "weight": 0.3
-          },
-          {
-            "included": true,
-            "key": "median_resolution_time",
-            "normalized_score": 67.14,
-            "raw_value": 8,
-            "unit": "days",
-            "weight": 0.3
-          }
-        ],
-        "confidence": 0.5,
-        "place": {
-          "basis": "synthetic",
-          "candidate_id": "hemel-hempstead",
-          "fly_tipping": {
-            "current_incidents_per_1000": 30,
-            "current_period": "2024/25",
-            "previous_incidents_per_1000": 25,
-            "previous_period": "2023/24",
-            "reporting_basis": "all incidents",
-            "source": {
-              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
-            }
-          },
-          "id": "hemel-street-care",
-          "local_authority": "Dacorum",
-          "local_reports": {
-            "geographic_scope": "Dacorum",
-            "median_resolution_days": 8,
-            "period_end": "2026-07-31",
-            "period_start": "2025-08-01",
-            "reports_per_1000": 20,
-            "scope_kind": "local_authority",
-            "source": {
-              "label": "Synthetic LOCATION\u00b3 local-report fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
-            },
-            "unresolved_percent": 30
-          },
-          "visit_audit": null
-        },
-        "score": 61.34
-      },
-      "unmeasured_categories": [],
-      "warnings": [
-        "Housing affordability is market evidence, not live inventory",
-        "Street-care score uses low-resolution proxies; visit audit recommended"
-      ]
-    },
-    {
-      "categories": [
-        {
-          "category": "amenities",
-          "metrics": [
-            {
-              "active": true,
-              "basis": "synthetic",
-              "category": "amenities",
-              "category_contribution": 40.37,
-              "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
+              "confidence_notes": "OSM caf\u00e9 completeness varies by area; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
               "evidence_id": "maidenhead-cafes",
               "metric": "cafes",
-              "normalized_score": 96.88,
-              "raw_value": 11,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 100.0,
+              "raw_value": 12,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
               "unit": "count_15_min_walk",
               "weight": 5.0
             },
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "measured",
               "category": "amenities",
-              "category_contribution": 29.94,
-              "confidence": 0.75,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "maidenhead-yoga",
+              "category_contribution": 0.0,
+              "confidence": 0.6,
+              "confidence_notes": "OSM yoga classes inside gyms or halls are often untagged; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "maidenhead-yoga-studios",
               "metric": "yoga_studios",
-              "normalized_score": 89.82,
-              "raw_value": 4,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 0.0,
+              "raw_value": 0,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
               "unit": "count_15_min_walk",
               "weight": 4.0
             },
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "measured",
               "category": "amenities",
-              "category_contribution": 21.54,
+              "category_contribution": 17.07,
               "confidence": 0.8,
-              "confidence_notes": "Synthetic POI example",
-              "evidence_id": "maidenhead-grocers",
+              "confidence_notes": "OSM brand tags are usually present for national chains; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "maidenhead-premium-grocers",
               "metric": "premium_grocers",
-              "normalized_score": 86.14,
-              "raw_value": 3,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 68.26,
+              "raw_value": 2,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
               "unit": "count_15_min_walk",
               "weight": 3.0
             }
           ],
-          "overall_contribution": 30.61,
-          "score": 91.84,
+          "overall_contribution": 19.58,
+          "score": 58.73,
           "weight": 4.0
         },
         {
@@ -841,41 +66,41 @@
           "metrics": [
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "measured",
               "category": "environment",
-              "category_contribution": 22.27,
+              "category_contribution": 43.86,
               "confidence": 0.3,
               "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
               "evidence_id": "maidenhead-street-care-score",
               "metric": "street_care",
-              "normalized_score": 44.55,
-              "raw_value": 44.55,
-              "source": "Synthetic LOCATION\u00b3 fly-tipping fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+              "normalized_score": 87.72,
+              "raw_value": 87.72,
+              "source": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "source_date": "2026-02-25",
+              "source_url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods",
               "unit": "desirability_score",
               "weight": 3.0
             },
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "measured",
               "category": "environment",
-              "category_contribution": 36.25,
-              "confidence": 0.9,
-              "confidence_notes": "Synthetic network-distance example",
-              "evidence_id": "maidenhead-green",
+              "category_contribution": 49.6,
+              "confidence": 0.6,
+              "confidence_notes": "Bounding-box distance can understate the walk to a park entrance; informal countryside access and footpaths are not counted",
+              "evidence_id": "maidenhead-green-space",
               "metric": "green_space",
-              "normalized_score": 72.5,
-              "raw_value": 14,
-              "source": "Synthetic LOCATION\u00b3 fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 99.2,
+              "raw_value": 0.8,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
               "unit": "walk_minutes",
               "weight": 3.0
             }
           ],
-          "overall_contribution": 24.38,
-          "score": 58.52,
+          "overall_contribution": 38.94,
+          "score": 93.46,
           "weight": 5.0
         },
         {
@@ -883,122 +108,122 @@
           "metrics": [
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "agent_inferred",
               "category": "essentials",
-              "category_contribution": 7.25,
-              "confidence": 0.84,
-              "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+              "category_contribution": 8.22,
+              "confidence": 0.5,
+              "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 18); frequency is the off-peak service pattern (2 tph GWR to Paddington off-peak calling at Slough only). Access, wait, and last-mile minutes are agent estimates: access because the station is a short walk south of the High Street, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Western Railway fast services; the Elizabeth line also runs to Paddington, more slowly. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for Great Western Railway, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
               "evidence_id": "maidenhead-central-rail-commute",
               "metric": "door_to_door_commute",
-              "normalized_score": 43.5,
-              "raw_value": 72,
-              "source": "Synthetic LOCATION\u00b3 timetable fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+              "normalized_score": 49.33,
+              "raw_value": 67,
+              "source": "Trainline route page from Maidenhead to London (average and fastest journey time)",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.thetrainline.com/train-times/maidenhead-to-london-paddington",
               "unit": "minutes",
               "weight": 1.0
             },
             {
               "active": true,
-              "basis": "synthetic",
+              "basis": "transformed",
               "category": "essentials",
-              "category_contribution": 82.71,
-              "confidence": 0.68,
-              "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+              "category_contribution": 83.33,
+              "confidence": 0.7,
+              "confidence_notes": "Median of 972 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-28). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
               "evidence_id": "maidenhead-housing-market-affordability",
               "metric": "housing_affordability",
-              "normalized_score": 99.25,
-              "raw_value": 0.66,
-              "source": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "source_date": "2026-08-01",
-              "source_url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json",
+              "normalized_score": 100.0,
+              "raw_value": 0.6,
+              "source": "HM Land Registry Price Paid Data, flats in Maidenhead, exported as CSV",
+              "source_date": "2026-07-28",
+              "source_url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=MAIDENHEAD&limit=all",
               "unit": "budget_ratio",
               "weight": 5.0
             }
           ],
-          "overall_contribution": 22.49,
-          "score": 89.96,
+          "overall_contribution": 22.89,
+          "score": 91.56,
           "weight": 3.0
         }
       ],
-      "confidence": 71.83,
+      "confidence": 63.54,
       "hard_constraints": {
         "results": [
           {
-            "actual": 72,
+            "actual": 67,
             "metric": "door_to_door_commute",
             "operator": "<=",
-            "status": "fail",
-            "value": 65
+            "status": "pass",
+            "value": 70
           }
         ],
-        "status": "fail"
+        "status": "pass"
       },
       "housing_summary": {
         "bedrooms": 2,
         "budget_gbp": 500000,
         "budget_period": "purchase",
-        "budget_ratio": 0.66,
+        "budget_ratio": 0.6,
         "inventory_status": "not_checked",
         "market": {
-          "basis": "synthetic",
+          "basis": "transformed",
           "candidate_id": "maidenhead",
-          "confidence": 0.68,
-          "confidence_notes": "Synthetic expanded-radius example with fewer than 20 matching transactions.",
+          "confidence": 0.7,
+          "confidence_notes": "Median of 972 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-28). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
           "geography": {
             "kind": "radius",
-            "label": "5 km around Maidenhead",
-            "radius_km": 5
+            "label": "HM Land Registry postal town Maidenhead (about 3 km across)",
+            "radius_km": 3
           },
           "id": "maidenhead-housing-market",
-          "listing_search_url": null,
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
           "period_end": "2026-07-31",
           "period_start": "2023-08-01",
-          "sample_size": 16,
+          "sample_size": 972,
           "sources": [
             {
               "kind": "transactions",
-              "label": "Synthetic LOCATION\u00b3 sold-price fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/housing.json"
+              "label": "HM Land Registry Price Paid Data, flats in Maidenhead, exported as CSV",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-07-28",
+              "url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=MAIDENHEAD&limit=all"
             }
           ],
           "statistic": "median",
-          "typical_cost_gbp": 330000
+          "typical_cost_gbp": 300000.0
         },
         "mode": "buy",
         "property_type": "flat",
-        "typical_cost_gbp": 330000
+        "typical_cost_gbp": 300000.0
       },
       "id": "maidenhead",
       "informational_metrics": [
         {
           "active": false,
-          "basis": "synthetic",
+          "basis": "measured",
           "category": "amenities",
           "category_contribution": 0.0,
-          "confidence": 0.8,
-          "confidence_notes": "Synthetic POI example",
-          "evidence_id": "maidenhead-betting",
+          "confidence": 0.7,
+          "confidence_notes": "OSM bookmakers are usually mapped; adult gaming centres less consistently; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+          "evidence_id": "maidenhead-betting-shops",
           "metric": "betting_shops",
-          "normalized_score": 22.63,
-          "raw_value": 3,
-          "source": "Synthetic LOCATION\u00b3 fixture",
-          "source_date": "2026-08-01",
-          "source_url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "normalized_score": 10.18,
+          "raw_value": 4,
+          "source": "OpenStreetMap contributors via Overpass API",
+          "source_date": "2026-09-03",
+          "source_url": "https://www.openstreetmap.org/copyright",
           "unit": "count_15_min_walk",
           "weight": 0.0
         }
       ],
       "location": {
-        "latitude": 51.5225,
-        "longitude": -0.7202
+        "latitude": 51.522743,
+        "longitude": -0.7197368
       },
       "missing_metrics": [],
       "name": "Maidenhead",
-      "overall_score": 77.49,
+      "overall_score": 81.41,
       "photo": {
         "author": "Tom Bastin from Reading, UK",
         "candidate_id": "maidenhead",
@@ -1013,128 +238,844 @@
       },
       "place_kind": "town",
       "rail_summary": {
-        "fastest_total_minutes": 72,
+        "fastest_total_minutes": 67,
         "journeys": [
           {
-            "access_minutes": 10,
-            "basis": "synthetic",
-            "cancellation_percent": 4.5,
+            "access_minutes": 8,
+            "basis": "agent_inferred",
+            "cancellation_percent": 4.23,
             "candidate_id": "maidenhead",
-            "changes": 1,
-            "confidence": 0.84,
-            "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+            "changes": 0,
+            "confidence": 0.5,
+            "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 18); frequency is the off-peak service pattern (2 tph GWR to Paddington off-peak calling at Slough only). Access, wait, and last-mile minutes are agent estimates: access because the station is a short walk south of the High Street, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Western Railway fast services; the Elizabeth line also runs to Paddington, more slowly. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for Great Western Railway, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
             "destination_label": "Central destination",
-            "expected_wait_minutes": 10,
+            "expected_wait_minutes": 15,
             "id": "maidenhead-central-rail",
-            "last_useful_departure": "2026-08-01T22:54:00+01:00",
+            "last_useful_departure": "2026-09-04T01:46:00+01:00",
             "london_arrival_station": "London Paddington",
             "london_last_mile_minutes": 10,
+            "operator": "Great Western Railway",
             "origin_station": "Maidenhead",
             "origin_station_crs": "MAI",
             "primary": true,
-            "punctuality_percent": 82.0,
-            "scheduled_rail_minutes": 42,
-            "service_window": "Typical Tuesday arrival by 09:00",
+            "punctuality_percent": 76.7,
+            "scheduled_rail_minutes": 34,
+            "service_window": "Weekday morning, arriving by 09:00",
             "services_per_hour": 2,
             "sources": [
               {
                 "kind": "timetable",
-                "label": "Synthetic LOCATION\u00b3 timetable fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo"
+                "label": "Trainline route page from Maidenhead to London (average and fastest journey time)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/maidenhead-to-london-paddington"
+              },
+              {
+                "kind": "last_service",
+                "label": "Trainline route page from London to Maidenhead (last listed weekday departure)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/london-paddington-to-maidenhead"
+              },
+              {
+                "kind": "service_pattern",
+                "label": "Wikipedia: Maidenhead railway station, services section",
+                "licence": "CC BY-SA 4.0",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://en.wikipedia.org/wiki/Maidenhead_railway_station"
               },
               {
                 "kind": "performance",
-                "label": "Synthetic LOCATION\u00b3 station-performance fixture",
-                "licence": "CC0-1.0",
-                "retrieved_at": "2026-08-01T12:00:00Z",
-                "source_date": "2026-08-01",
-                "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json"
+                "label": "ORR Table 3138: train punctuality at recorded station stops by operator (periodic) and ORR Table 3124: trains planned and cancellations by operator (periodic), moving annual average, Apr 2026 to Mar 2027 (Period 04)",
+                "licence": "OGL-3.0",
+                "retrieved_at": "2026-09-03T17:57:06.689962+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3138-train-punctuality-at-recorded-station-stops-by-operator-periodic/"
               }
             ],
-            "total_minutes": 72
+            "total_minutes": 67
           }
         ],
         "primary_journey_id": "maidenhead-central-rail"
       },
-      "rank": 3,
+      "rank": 1,
       "score_coverage_percent": 100.0,
       "street_care_summary": {
-        "assessment_date": "2026-08-01",
-        "audit_age_days": 243,
+        "assessment_date": "2026-09-03",
+        "audit_age_days": null,
         "basis": "proxy",
         "components": [
           {
             "included": true,
             "key": "fly_tipping_rate",
-            "normalized_score": 49.0,
-            "raw_value": 45,
+            "normalized_score": 84.3,
+            "raw_value": 5.7,
             "unit": "incidents_per_1000",
             "weight": 0.4
           },
           {
             "included": true,
             "key": "fly_tipping_trend",
-            "normalized_score": 41.58,
-            "raw_value": 18.421052631578945,
+            "normalized_score": 90,
+            "raw_value": -52.892561983471076,
             "unit": "percent_change",
             "weight": 0.6
           }
         ],
         "confidence": 0.3,
         "place": {
-          "basis": "synthetic",
+          "basis": "measured",
           "candidate_id": "maidenhead",
           "fly_tipping": {
-            "current_incidents_per_1000": 45,
+            "current_incidents_per_1000": 5.7,
             "current_period": "2024/25",
-            "previous_incidents_per_1000": 38,
+            "previous_incidents_per_1000": 12.1,
             "previous_period": "2023/24",
-            "reporting_basis": "customer reported incidents only",
+            "reporting_basis": "all incidents",
             "source": {
-              "label": "Synthetic LOCATION\u00b3 fly-tipping fixture",
-              "licence": "CC0-1.0",
-              "retrieved_at": "2026-08-01T12:00:00Z",
-              "source_date": "2026-08-01",
-              "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json"
+              "label": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-02-25",
+              "url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods"
             }
           },
           "id": "maidenhead-street-care",
           "local_authority": "Windsor and Maidenhead",
           "local_reports": null,
-          "visit_audit": {
-            "audited_at": "2025-12-01",
-            "geographic_scope": "Maidenhead centre walking loop",
-            "notes": "Synthetic stale audit retained for transparency but excluded from scoring.",
-            "ratings": {
-              "dog_fouling": 4,
-              "graffiti": 4,
-              "litter": 4,
-              "overall_upkeep": 4,
-              "overflowing_bins": 4,
-              "weeds_and_detritus": 4
-            }
-          }
+          "visit_audit": null
         },
-        "score": 44.55
+        "score": 87.72
       },
       "unmeasured_categories": [],
       "warnings": [
         "Housing affordability is market evidence, not live inventory",
-        "Purchase comparable sample has fewer than 20 transactions",
         "Street-care score uses low-resolution proxies; visit audit recommended",
-        "Local report resolution evidence unavailable",
-        "Fly-tipping source does not report all incidents",
-        "Personal street-care audit is stale and does not override proxies"
+        "Local report resolution evidence unavailable"
+      ]
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 33.78,
+              "confidence": 0.75,
+              "confidence_notes": "OSM caf\u00e9 completeness varies by area; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "welwyn-garden-city-cafes",
+              "metric": "cafes",
+              "normalized_score": 81.07,
+              "raw_value": 7,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 0.0,
+              "confidence": 0.6,
+              "confidence_notes": "OSM yoga classes inside gyms or halls are often untagged; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "welwyn-garden-city-yoga-studios",
+              "metric": "yoga_studios",
+              "normalized_score": 0.0,
+              "raw_value": 0,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 4.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 10.77,
+              "confidence": 0.8,
+              "confidence_notes": "OSM brand tags are usually present for national chains; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "welwyn-garden-city-premium-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 14.85,
+          "score": 44.55,
+          "weight": 4.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "environment",
+              "category_contribution": 31.33,
+              "confidence": 0.3,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "welwyn-garden-city-street-care-score",
+              "metric": "street_care",
+              "normalized_score": 62.66,
+              "raw_value": 62.66,
+              "source": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "source_date": "2026-02-25",
+              "source_url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "environment",
+              "category_contribution": 50.0,
+              "confidence": 0.6,
+              "confidence_notes": "Bounding-box distance can understate the walk to a park entrance; informal countryside access and footpaths are not counted",
+              "evidence_id": "welwyn-garden-city-green-space",
+              "metric": "green_space",
+              "normalized_score": 100.0,
+              "raw_value": 0.0,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 33.89,
+          "score": 81.33,
+          "weight": 5.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "agent_inferred",
+              "category": "essentials",
+              "category_contribution": 8.61,
+              "confidence": 0.5,
+              "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 28); frequency is the off-peak service pattern (2 tph to King's Cross off-peak, with extra peak services). Access, wait, and last-mile minutes are agent estimates: access because the station adjoins the town-centre shopping centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Northern, part of the Thameslink operator ORR lists as Greater Thameslink Railway. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for Greater Thameslink Railway, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
+              "evidence_id": "welwyn-garden-city-central-rail-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 51.67,
+              "raw_value": 65,
+              "source": "Trainline route page from Welwyn Garden City to London (average and fastest journey time)",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.thetrainline.com/train-times/welwyn-garden-city-to-london-kings-cross",
+              "unit": "minutes",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "basis": "transformed",
+              "category": "essentials",
+              "category_contribution": 83.33,
+              "confidence": 0.7,
+              "confidence_notes": "Median of 433 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-03). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
+              "evidence_id": "welwyn-garden-city-housing-market-affordability",
+              "metric": "housing_affordability",
+              "normalized_score": 100.0,
+              "raw_value": 0.491,
+              "source": "HM Land Registry Price Paid Data, flats in Welwyn Garden City, exported as CSV",
+              "source_date": "2026-07-03",
+              "source_url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=WELWYN+GARDEN+CITY&limit=all",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 22.98,
+          "score": 91.94,
+          "weight": 3.0
+        }
+      ],
+      "confidence": 63.54,
+      "hard_constraints": {
+        "results": [
+          {
+            "actual": 65,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "status": "pass",
+            "value": 70
+          }
+        ],
+        "status": "pass"
+      },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.491,
+        "inventory_status": "not_checked",
+        "market": {
+          "basis": "transformed",
+          "candidate_id": "welwyn-garden-city",
+          "confidence": 0.7,
+          "confidence_notes": "Median of 433 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-03). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
+          "geography": {
+            "kind": "radius",
+            "label": "HM Land Registry postal town Welwyn Garden City (about 3 km across)",
+            "radius_km": 3
+          },
+          "id": "welwyn-garden-city-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 433,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "HM Land Registry Price Paid Data, flats in Welwyn Garden City, exported as CSV",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-07-03",
+              "url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=WELWYN+GARDEN+CITY&limit=all"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 245500.0
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 245500.0
+      },
+      "id": "welwyn-garden-city",
+      "informational_metrics": [
+        {
+          "active": false,
+          "basis": "measured",
+          "category": "amenities",
+          "category_contribution": 0.0,
+          "confidence": 0.7,
+          "confidence_notes": "OSM bookmakers are usually mapped; adult gaming centres less consistently; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+          "evidence_id": "welwyn-garden-city-betting-shops",
+          "metric": "betting_shops",
+          "normalized_score": 61.31,
+          "raw_value": 1,
+          "source": "OpenStreetMap contributors via Overpass API",
+          "source_date": "2026-09-03",
+          "source_url": "https://www.openstreetmap.org/copyright",
+          "unit": "count_15_min_walk",
+          "weight": 0.0
+        }
+      ],
+      "location": {
+        "latitude": 51.8031083,
+        "longitude": -0.2068872
+      },
+      "missing_metrics": [],
+      "name": "Welwyn Garden City",
+      "overall_score": 71.72,
+      "photo": {
+        "author": "Spearhead",
+        "candidate_id": "welwyn-garden-city",
+        "file": "photos/welwyn-garden-city.jpg",
+        "height": 960,
+        "licence": "CC BY-SA 3.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "page_title": "Welwyn Garden City",
+        "source_url": "https://commons.wikimedia.org/wiki/File:The_Parkway_Fountain.jpg",
+        "title": "Welwyn Garden City",
+        "width": 1280
+      },
+      "place_kind": "town",
+      "rail_summary": {
+        "fastest_total_minutes": 65,
+        "journeys": [
+          {
+            "access_minutes": 5,
+            "basis": "agent_inferred",
+            "cancellation_percent": 5.52,
+            "candidate_id": "welwyn-garden-city",
+            "changes": 0,
+            "confidence": 0.5,
+            "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 28); frequency is the off-peak service pattern (2 tph to King's Cross off-peak, with extra peak services). Access, wait, and last-mile minutes are agent estimates: access because the station adjoins the town-centre shopping centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Northern, part of the Thameslink operator ORR lists as Greater Thameslink Railway. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for Greater Thameslink Railway, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 15,
+            "id": "welwyn-garden-city-central-rail",
+            "last_useful_departure": "2026-09-04T01:40:00+01:00",
+            "london_arrival_station": "London King's Cross",
+            "london_last_mile_minutes": 10,
+            "operator": "Greater Thameslink Railway",
+            "origin_station": "Welwyn Garden City",
+            "origin_station_crs": "WGC",
+            "primary": true,
+            "punctuality_percent": 84.66,
+            "scheduled_rail_minutes": 35,
+            "service_window": "Weekday morning, arriving by 09:00",
+            "services_per_hour": 2,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Trainline route page from Welwyn Garden City to London (average and fastest journey time)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/welwyn-garden-city-to-london-kings-cross"
+              },
+              {
+                "kind": "last_service",
+                "label": "Trainline route page from London to Welwyn Garden City (last listed weekday departure)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/london-kings-cross-to-welwyn-garden-city"
+              },
+              {
+                "kind": "service_pattern",
+                "label": "Wikipedia: Welwyn Garden City railway station, services section",
+                "licence": "CC BY-SA 4.0",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://en.wikipedia.org/wiki/Welwyn_Garden_City_railway_station"
+              },
+              {
+                "kind": "performance",
+                "label": "ORR Table 3138: train punctuality at recorded station stops by operator (periodic) and ORR Table 3124: trains planned and cancellations by operator (periodic), moving annual average, Apr 2026 to Mar 2027 (Period 04)",
+                "licence": "OGL-3.0",
+                "retrieved_at": "2026-09-03T17:57:06.689962+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3138-train-punctuality-at-recorded-station-stops-by-operator-periodic/"
+              }
+            ],
+            "total_minutes": 65
+          }
+        ],
+        "primary_journey_id": "welwyn-garden-city-central-rail"
+      },
+      "rank": 2,
+      "score_coverage_percent": 100.0,
+      "street_care_summary": {
+        "assessment_date": "2026-09-03",
+        "audit_age_days": null,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 65.3,
+            "raw_value": 24.7,
+            "unit": "incidents_per_1000",
+            "weight": 0.4
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 60.9,
+            "raw_value": -1.2000000000000028,
+            "unit": "percent_change",
+            "weight": 0.6
+          }
+        ],
+        "confidence": 0.3,
+        "place": {
+          "basis": "measured",
+          "candidate_id": "welwyn-garden-city",
+          "fly_tipping": {
+            "current_incidents_per_1000": 24.7,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 25.0,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-02-25",
+              "url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods"
+            }
+          },
+          "id": "welwyn-garden-city-street-care",
+          "local_authority": "Welwyn Hatfield",
+          "local_reports": null,
+          "visit_audit": null
+        },
+        "score": 62.66
+      },
+      "unmeasured_categories": [],
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory",
+        "Street-care score uses low-resolution proxies; visit audit recommended",
+        "Local report resolution evidence unavailable"
+      ]
+    },
+    {
+      "categories": [
+        {
+          "category": "amenities",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 35.69,
+              "confidence": 0.75,
+              "confidence_notes": "OSM caf\u00e9 completeness varies by area; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "hemel-hempstead-cafes",
+              "metric": "cafes",
+              "normalized_score": 85.66,
+              "raw_value": 8,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 5.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 12.9,
+              "confidence": 0.6,
+              "confidence_notes": "OSM yoga classes inside gyms or halls are often untagged; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "hemel-hempstead-yoga-studios",
+              "metric": "yoga_studios",
+              "normalized_score": 38.69,
+              "raw_value": 1,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 4.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "amenities",
+              "category_contribution": 10.77,
+              "confidence": 0.8,
+              "confidence_notes": "OSM brand tags are usually present for national chains; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+              "evidence_id": "hemel-hempstead-premium-grocers",
+              "metric": "premium_grocers",
+              "normalized_score": 43.07,
+              "raw_value": 1,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "count_15_min_walk",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 19.79,
+          "score": 59.36,
+          "weight": 4.0
+        },
+        {
+          "category": "environment",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "environment",
+              "category_contribution": 35.72,
+              "confidence": 0.3,
+              "confidence_notes": "Low-resolution proxy; incident volume is affected by reporting practice and does not directly measure neighbourhood cleanliness",
+              "evidence_id": "hemel-hempstead-street-care-score",
+              "metric": "street_care",
+              "normalized_score": 71.43,
+              "raw_value": 71.43,
+              "source": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "source_date": "2026-02-25",
+              "source_url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods",
+              "unit": "desirability_score",
+              "weight": 3.0
+            },
+            {
+              "active": true,
+              "basis": "measured",
+              "category": "environment",
+              "category_contribution": 49.45,
+              "confidence": 0.6,
+              "confidence_notes": "Bounding-box distance can understate the walk to a park entrance; informal countryside access and footpaths are not counted",
+              "evidence_id": "hemel-hempstead-green-space",
+              "metric": "green_space",
+              "normalized_score": 98.9,
+              "raw_value": 1.1,
+              "source": "OpenStreetMap contributors via Overpass API",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.openstreetmap.org/copyright",
+              "unit": "walk_minutes",
+              "weight": 3.0
+            }
+          ],
+          "overall_contribution": 35.49,
+          "score": 85.17,
+          "weight": 5.0
+        },
+        {
+          "category": "essentials",
+          "metrics": [
+            {
+              "active": true,
+              "basis": "agent_inferred",
+              "category": "essentials",
+              "category_contribution": 7.25,
+              "confidence": 0.5,
+              "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 27); frequency is the off-peak service pattern (4 tph to Euston off-peak). Access, wait, and last-mile minutes are agent estimates: access because the station is at Boxmoor, about 1.6 km from the Marlowes town centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: London Northwestern Railway, which ORR lists under West Midlands Trains. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for West Midlands Trains, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
+              "evidence_id": "hemel-hempstead-central-rail-commute",
+              "metric": "door_to_door_commute",
+              "normalized_score": 43.5,
+              "raw_value": 72,
+              "source": "Trainline route page from Hemel Hempstead to London (average and fastest journey time)",
+              "source_date": "2026-09-03",
+              "source_url": "https://www.thetrainline.com/train-times/hemel-hempstead-to-london-euston",
+              "unit": "minutes",
+              "weight": 1.0
+            },
+            {
+              "active": true,
+              "basis": "transformed",
+              "category": "essentials",
+              "category_contribution": 83.33,
+              "confidence": 0.7,
+              "confidence_notes": "Median of 806 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-23). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
+              "evidence_id": "hemel-hempstead-housing-market-affordability",
+              "metric": "housing_affordability",
+              "normalized_score": 100.0,
+              "raw_value": 0.48,
+              "source": "HM Land Registry Price Paid Data, flats in Hemel Hempstead, exported as CSV",
+              "source_date": "2026-07-23",
+              "source_url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=HEMEL+HEMPSTEAD&limit=all",
+              "unit": "budget_ratio",
+              "weight": 5.0
+            }
+          ],
+          "overall_contribution": 22.64,
+          "score": 90.58,
+          "weight": 3.0
+        }
+      ],
+      "confidence": 63.54,
+      "hard_constraints": {
+        "results": [
+          {
+            "actual": 72,
+            "metric": "door_to_door_commute",
+            "operator": "<=",
+            "status": "fail",
+            "value": 70
+          }
+        ],
+        "status": "fail"
+      },
+      "housing_summary": {
+        "bedrooms": 2,
+        "budget_gbp": 500000,
+        "budget_period": "purchase",
+        "budget_ratio": 0.48,
+        "inventory_status": "not_checked",
+        "market": {
+          "basis": "transformed",
+          "candidate_id": "hemel-hempstead",
+          "confidence": 0.7,
+          "confidence_notes": "Median of 806 standard-price flat sales in HM Land Registry Price Paid Data for the postal town, August 2023 to July 2026 (latest sale 2026-07-23). Price Paid Data does not record bedrooms, so this is every flat, not two-bed flats; the postal town stands in for a measured radius.",
+          "geography": {
+            "kind": "radius",
+            "label": "HM Land Registry postal town Hemel Hempstead (about 3 km across)",
+            "radius_km": 3
+          },
+          "id": "hemel-hempstead-housing-market",
+          "listing_search_url": "https://www.rightmove.co.uk/property-for-sale.html",
+          "period_end": "2026-07-31",
+          "period_start": "2023-08-01",
+          "sample_size": 806,
+          "sources": [
+            {
+              "kind": "transactions",
+              "label": "HM Land Registry Price Paid Data, flats in Hemel Hempstead, exported as CSV",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-07-23",
+              "url": "https://landregistry.data.gov.uk/app/ppd/ppd_data.csv?from_date=2023-08-01&to_date=2026-07-31&ptype=flat-maisonette&town=HEMEL+HEMPSTEAD&limit=all"
+            }
+          ],
+          "statistic": "median",
+          "typical_cost_gbp": 240000.0
+        },
+        "mode": "buy",
+        "property_type": "flat",
+        "typical_cost_gbp": 240000.0
+      },
+      "id": "hemel-hempstead",
+      "informational_metrics": [
+        {
+          "active": false,
+          "basis": "measured",
+          "category": "amenities",
+          "category_contribution": 0.0,
+          "confidence": 0.7,
+          "confidence_notes": "OSM bookmakers are usually mapped; adult gaming centres less consistently; the catchment follows mapped footways and streets, so unmapped paths or shortcuts are not counted",
+          "evidence_id": "hemel-hempstead-betting-shops",
+          "metric": "betting_shops",
+          "normalized_score": 61.31,
+          "raw_value": 1,
+          "source": "OpenStreetMap contributors via Overpass API",
+          "source_date": "2026-09-03",
+          "source_url": "https://www.openstreetmap.org/copyright",
+          "unit": "count_15_min_walk",
+          "weight": 0.0
+        }
+      ],
+      "location": {
+        "latitude": 51.7511784,
+        "longitude": -0.472528
+      },
+      "missing_metrics": [],
+      "name": "Hemel Hempstead",
+      "overall_score": 77.92,
+      "photo": {
+        "author": "Peter O'Connor aka anemoneprojectors",
+        "candidate_id": "hemel-hempstead",
+        "file": "photos/hemel-hempstead.jpg",
+        "height": 960,
+        "licence": "CC BY-SA 2.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+        "page_title": "Hemel Hempstead",
+        "source_url": "https://commons.wikimedia.org/wiki/File:GOC_Hemel_Hempstead_113_Plough_Roundabout,_Hemel_Hempstead_(48726958143).jpg",
+        "title": "Hemel Hempstead",
+        "width": 1280
+      },
+      "place_kind": "town",
+      "rail_summary": {
+        "fastest_total_minutes": 72,
+        "journeys": [
+          {
+            "access_minutes": 20,
+            "basis": "agent_inferred",
+            "cancellation_percent": 4.29,
+            "candidate_id": "hemel-hempstead",
+            "changes": 0,
+            "confidence": 0.5,
+            "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 27); frequency is the off-peak service pattern (4 tph to Euston off-peak). Access, wait, and last-mile minutes are agent estimates: access because the station is at Boxmoor, about 1.6 km from the Marlowes town centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: London Northwestern Railway, which ORR lists under West Midlands Trains. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival. Reliability: ORR moving annual average for West Midlands Trains, Apr 2026 to Mar 2027 (Period 04) (measured); replaces any input reliability figures.",
+            "destination_label": "Central destination",
+            "expected_wait_minutes": 8,
+            "id": "hemel-hempstead-central-rail",
+            "last_useful_departure": "2026-09-04T01:39:00+01:00",
+            "london_arrival_station": "London Euston",
+            "london_last_mile_minutes": 10,
+            "operator": "West Midlands Trains",
+            "origin_station": "Hemel Hempstead",
+            "origin_station_crs": "HML",
+            "primary": true,
+            "punctuality_percent": 82.3,
+            "scheduled_rail_minutes": 34,
+            "service_window": "Weekday morning, arriving by 09:00",
+            "services_per_hour": 4,
+            "sources": [
+              {
+                "kind": "timetable",
+                "label": "Trainline route page from Hemel Hempstead to London (average and fastest journey time)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/hemel-hempstead-to-london-euston"
+              },
+              {
+                "kind": "last_service",
+                "label": "Trainline route page from London to Hemel Hempstead (last listed weekday departure)",
+                "licence": "Cited page; all rights reserved",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://www.thetrainline.com/train-times/london-euston-to-hemel-hempstead"
+              },
+              {
+                "kind": "service_pattern",
+                "label": "Wikipedia: Hemel Hempstead railway station, services section",
+                "licence": "CC BY-SA 4.0",
+                "retrieved_at": "2026-09-03T18:30:00+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://en.wikipedia.org/wiki/Hemel_Hempstead_railway_station"
+              },
+              {
+                "kind": "performance",
+                "label": "ORR Table 3138: train punctuality at recorded station stops by operator (periodic) and ORR Table 3124: trains planned and cancellations by operator (periodic), moving annual average, Apr 2026 to Mar 2027 (Period 04)",
+                "licence": "OGL-3.0",
+                "retrieved_at": "2026-09-03T17:57:06.689962+00:00",
+                "source_date": "2026-09-03",
+                "url": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3138-train-punctuality-at-recorded-station-stops-by-operator-periodic/"
+              }
+            ],
+            "total_minutes": 72
+          }
+        ],
+        "primary_journey_id": "hemel-hempstead-central-rail"
+      },
+      "rank": 3,
+      "score_coverage_percent": 100.0,
+      "street_care_summary": {
+        "assessment_date": "2026-09-03",
+        "audit_age_days": null,
+        "basis": "proxy",
+        "components": [
+          {
+            "included": true,
+            "key": "fly_tipping_rate",
+            "normalized_score": 78.2,
+            "raw_value": 11.8,
+            "unit": "incidents_per_1000",
+            "weight": 0.4
+          },
+          {
+            "included": true,
+            "key": "fly_tipping_trend",
+            "normalized_score": 66.92,
+            "raw_value": -9.230769230769226,
+            "unit": "percent_change",
+            "weight": 0.6
+          }
+        ],
+        "confidence": 0.3,
+        "place": {
+          "basis": "measured",
+          "candidate_id": "hemel-hempstead",
+          "fly_tipping": {
+            "current_incidents_per_1000": 11.8,
+            "current_period": "2024/25",
+            "previous_incidents_per_1000": 13.0,
+            "previous_period": "2023/24",
+            "reporting_basis": "all incidents",
+            "source": {
+              "label": "Defra: fly-tipping incidents and actions taken, reported by local authorities in England, 2012/13 to 2024/25 (LA_incidents sheet)",
+              "licence": "OGL-3.0",
+              "retrieved_at": "2026-09-03T18:30:00+00:00",
+              "source_date": "2026-02-25",
+              "url": "https://assets.publishing.service.gov.uk/media/699dbf7e3e672177d0bc75b0/Flytipping_incidents_and_actions_taken__reported_by_LAs_in_England__2012-13_to_2024-25v2.ods"
+            }
+          },
+          "id": "hemel-hempstead-street-care",
+          "local_authority": "Dacorum",
+          "local_reports": null,
+          "visit_audit": null
+        },
+        "score": 71.43
+      },
+      "unmeasured_categories": [],
+      "warnings": [
+        "Housing affordability is market evidence, not live inventory",
+        "Street-care score uses low-resolution proxies; visit audit recommended",
+        "Local report resolution evidence unavailable"
       ]
     }
   ],
-  "generated_at": "2026-08-01T12:00:00+00:00",
+  "generated_at": "2026-09-03T18:30:00+00:00",
   "route_boundary": {
     "departure_time": null,
-    "description": "Synthetic 65-minute commute envelope drawn by hand around three real towns for the demo",
+    "description": "Hand-drawn 70-minute commute envelope around three real towns for the demo; a real run draws its boundary from a routing key or the labelled distance proxy",
     "geometry": {
       "coordinates": [
         [
@@ -1192,7 +1133,7 @@
     },
     "provider": "fixture",
     "retrieved_at": "2026-08-01T12:00:00+00:00",
-    "traffic_treatment": "not modelled; fictional boundary",
+    "traffic_treatment": "not modelled; hand-drawn demo boundary",
     "type": "fixture_polygon"
   },
   "run_id": "demo-three-places",

@@ -1,0 +1,129 @@
+{
+  "schema_version": "1",
+  "provider": "synthetic cited fixture",
+  "journeys": [
+    {
+      "id": "welwyn-central-rail",
+      "candidate_id": "welwyn-garden-city",
+      "destination_label": "Central destination",
+      "origin_station": "Welwyn Garden City",
+      "origin_station_crs": "WGC",
+      "london_arrival_station": "London King's Cross",
+      "service_window": "Typical Tuesday arrival by 09:00",
+      "primary": true,
+      "access_minutes": 8,
+      "expected_wait_minutes": 7,
+      "scheduled_rail_minutes": 35,
+      "london_last_mile_minutes": 8,
+      "total_minutes": 58,
+      "changes": 0,
+      "services_per_hour": 4,
+      "last_useful_departure": "2026-08-01T23:18:00+01:00",
+      "punctuality_percent": 90.1,
+      "cancellation_percent": 2.0,
+      "confidence": 0.9,
+      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "sources": [
+        {
+          "kind": "timetable",
+          "label": "Synthetic LOCATION³ timetable fixture",
+          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        },
+        {
+          "kind": "performance",
+          "label": "Synthetic LOCATION³ station-performance fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
+    },
+    {
+      "id": "hemel-central-rail",
+      "candidate_id": "hemel-hempstead",
+      "destination_label": "Central destination",
+      "origin_station": "Hemel Hempstead",
+      "origin_station_crs": "HML",
+      "london_arrival_station": "London Euston",
+      "service_window": "Typical Tuesday arrival by 09:00",
+      "primary": true,
+      "access_minutes": 5,
+      "expected_wait_minutes": 5,
+      "scheduled_rail_minutes": 22,
+      "london_last_mile_minutes": 6,
+      "total_minutes": 38,
+      "changes": 0,
+      "services_per_hour": 6,
+      "last_useful_departure": "2026-08-01T23:42:00+01:00",
+      "punctuality_percent": 92.4,
+      "cancellation_percent": 1.5,
+      "confidence": 0.93,
+      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "sources": [
+        {
+          "kind": "timetable",
+          "label": "Synthetic LOCATION³ timetable fixture",
+          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        },
+        {
+          "kind": "performance",
+          "label": "Synthetic LOCATION³ station-performance fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
+    },
+    {
+      "id": "maidenhead-central-rail",
+      "candidate_id": "maidenhead",
+      "destination_label": "Central destination",
+      "origin_station": "Maidenhead",
+      "origin_station_crs": "MAI",
+      "london_arrival_station": "London Paddington",
+      "service_window": "Typical Tuesday arrival by 09:00",
+      "primary": true,
+      "access_minutes": 10,
+      "expected_wait_minutes": 10,
+      "scheduled_rail_minutes": 42,
+      "london_last_mile_minutes": 10,
+      "total_minutes": 72,
+      "changes": 1,
+      "services_per_hour": 2,
+      "last_useful_departure": "2026-08-01T22:54:00+01:00",
+      "punctuality_percent": 82.0,
+      "cancellation_percent": 4.5,
+      "confidence": 0.84,
+      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "sources": [
+        {
+          "kind": "timetable",
+          "label": "Synthetic LOCATION³ timetable fixture",
+          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        },
+        {
+          "kind": "performance",
+          "label": "Synthetic LOCATION³ station-performance fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      ],
+      "basis": "synthetic"
+    }
+  ]
+}

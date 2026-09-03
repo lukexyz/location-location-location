@@ -9,10 +9,10 @@
     },
     "route_boundary": {
       "type": "fixture_polygon",
-      "description": "Hand-drawn 70-minute commute envelope around three real towns for the demo; a real run draws its boundary from a routing key or the labelled distance proxy",
+      "description": "Synthetic 65-minute commute envelope drawn by hand around three real towns for the demo",
       "provider": "fixture",
       "departure_time": null,
-      "traffic_treatment": "not modelled; hand-drawn demo boundary",
+      "traffic_treatment": "not modelled; fictional boundary",
       "retrieved_at": "2026-08-01T12:00:00+00:00",
       "geometry": {
         "type": "Polygon",
@@ -81,13 +81,13 @@
         "label": "Central destination",
         "travel_mode": "public_transport",
         "arrival": "Tuesday 09:00",
-        "max_minutes": 70
+        "max_minutes": 65
       }
     ],
     "providers": {
       "routing": "fixture",
-      "housing": "hm-land-registry-price-paid",
-      "places": "overpass"
+      "housing": "fixture",
+      "places": "fixture"
     }
   },
   "weights": {
@@ -110,7 +110,7 @@
     {
       "metric": "door_to_door_commute",
       "operator": "<=",
-      "value": 70
+      "value": 65
     }
   ]
 }

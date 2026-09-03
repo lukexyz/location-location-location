@@ -17,9 +17,9 @@ from location3.validation import validate_evidence
 
 
 def fixtures():
-    profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
-    evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
-    street = json.loads((ROOT / "fixtures/demo/street-care.json").read_text(encoding="utf-8"))
+    profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
+    evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
+    street = json.loads((ROOT / "fixtures/synthetic/street-care.json").read_text(encoding="utf-8"))
     preferences = load_preferences(ROOT, include_local=False)
     profile["weights"] = preferences["weights"]
     profile["category_weights"] = preferences["category_weights"]

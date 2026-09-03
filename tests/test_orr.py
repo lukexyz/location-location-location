@@ -43,8 +43,8 @@ class FailingTransport:
 
 
 def demo_run(directory: Path) -> Path:
-    profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
-    evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
+    profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
+    evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
     preferences = load_preferences(ROOT, include_local=False)
     profile["weights"] = preferences["weights"]
     profile["category_weights"] = preferences["category_weights"]
@@ -147,9 +147,9 @@ class OrrAdapterTests(unittest.TestCase):
 
 class RailPerformanceMergeTests(unittest.TestCase):
     def setUp(self):
-        self.profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
-        self.evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
-        self.rail = json.loads((ROOT / "fixtures/demo/rail.json").read_text(encoding="utf-8"))
+        self.profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
+        self.evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
+        self.rail = json.loads((ROOT / "fixtures/synthetic/rail.json").read_text(encoding="utf-8"))
         preferences = load_preferences(ROOT, include_local=False)
         self.profile["weights"] = preferences["weights"]
         self.profile["category_weights"] = preferences["category_weights"]

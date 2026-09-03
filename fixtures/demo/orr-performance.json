@@ -1,0 +1,78 @@
+{
+  "basis": "measured",
+  "licence": "OGL-3.0",
+  "operators": [
+    {
+      "cancellations_annual_percent": 5.52,
+      "cancellations_percent": 6.49,
+      "operator": "Greater Thameslink Railway",
+      "period": "Apr 2026 to Mar 2027 (Period 04)",
+      "punctuality_time_to_3_annual_percent": 84.66,
+      "punctuality_time_to_3_percent": 82.02
+    },
+    {
+      "cancellations_annual_percent": 4.29,
+      "cancellations_percent": 6.52,
+      "operator": "West Midlands Trains",
+      "period": "Apr 2026 to Mar 2027 (Period 04)",
+      "punctuality_time_to_3_annual_percent": 82.3,
+      "punctuality_time_to_3_percent": 76.54
+    },
+    {
+      "cancellations_annual_percent": 4.23,
+      "cancellations_percent": 6.35,
+      "operator": "Great Western Railway",
+      "period": "Apr 2026 to Mar 2027 (Period 04)",
+      "punctuality_time_to_3_annual_percent": 76.7,
+      "punctuality_time_to_3_percent": 70.7
+    },
+    {
+      "cancellations_annual_percent": 3.49,
+      "cancellations_percent": 2.89,
+      "operator": "Elizabeth line",
+      "period": "Apr 2026 to Mar 2027 (Period 04)",
+      "punctuality_time_to_3_annual_percent": 89.91,
+      "punctuality_time_to_3_percent": 89.22
+    }
+  ],
+  "provider": "orr",
+  "request_ledger": [
+    {
+      "cache": "hit",
+      "cache_expires_at": "2026-09-10T17:57:06.689962+00:00",
+      "endpoint": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3138-train-punctuality-at-recorded-station-stops-by-operator-periodic/",
+      "provider": "orr",
+      "request_id": "sha256:398b9147eff8433745fa25389ac2e07169326d6a591918b1a2abf2566743d598",
+      "requested_at": "2026-09-03T17:57:47.320668+00:00",
+      "status": 200
+    },
+    {
+      "cache": "hit",
+      "cache_expires_at": "2026-09-10T17:57:12.419821+00:00",
+      "endpoint": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3124-trains-planned-and-cancellations-by-operator-periodic/",
+      "provider": "orr",
+      "request_id": "sha256:c6187f95c8499b4b89b4dd9f952a26e4998e358bfbebb48c69b9bf2fc3a4a96e",
+      "requested_at": "2026-09-03T17:57:48.273361+00:00",
+      "status": 200
+    }
+  ],
+  "request_ledger_summary": {
+    "cache_hits": 2,
+    "network_requests": 0
+  },
+  "retrieved_at": "2026-09-03T17:57:06.689962+00:00",
+  "schema_version": "1",
+  "source_date": "2026-09-03",
+  "sources": [
+    {
+      "kind": "punctuality",
+      "label": "ORR Table 3138: train punctuality at recorded station stops by operator (periodic)",
+      "url": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3138-train-punctuality-at-recorded-station-stops-by-operator-periodic/"
+    },
+    {
+      "kind": "cancellations",
+      "label": "ORR Table 3124: trains planned and cancellations by operator (periodic)",
+      "url": "https://dataportal.orr.gov.uk/statistics/performance/passenger-rail-performance/table-3124-trains-planned-and-cancellations-by-operator-periodic/"
+    }
+  ]
+}

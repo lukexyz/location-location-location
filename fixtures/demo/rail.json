@@ -1,88 +1,106 @@
 {
   "schema_version": "1",
-  "provider": "synthetic cited fixture",
+  "provider": "agent research from cited timetable, service-pattern, and ORR performance sources",
   "journeys": [
     {
-      "id": "welwyn-central-rail",
+      "id": "welwyn-garden-city-central-rail",
       "candidate_id": "welwyn-garden-city",
       "destination_label": "Central destination",
       "origin_station": "Welwyn Garden City",
       "origin_station_crs": "WGC",
       "london_arrival_station": "London King's Cross",
-      "service_window": "Typical Tuesday arrival by 09:00",
+      "service_window": "Weekday morning, arriving by 09:00",
       "primary": true,
-      "access_minutes": 8,
-      "expected_wait_minutes": 7,
+      "operator": "Greater Thameslink Railway",
+      "access_minutes": 5,
+      "expected_wait_minutes": 15,
       "scheduled_rail_minutes": 35,
-      "london_last_mile_minutes": 8,
-      "total_minutes": 58,
+      "london_last_mile_minutes": 10,
+      "total_minutes": 65,
       "changes": 0,
-      "services_per_hour": 4,
-      "last_useful_departure": "2026-08-01T23:18:00+01:00",
-      "punctuality_percent": 90.1,
-      "cancellation_percent": 2.0,
-      "confidence": 0.9,
-      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "services_per_hour": 2,
+      "last_useful_departure": "2026-09-04T01:40:00+01:00",
+      "punctuality_percent": null,
+      "cancellation_percent": null,
+      "confidence": 0.5,
+      "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 28); frequency is the off-peak service pattern (2 tph to King's Cross off-peak, with extra peak services). Access, wait, and last-mile minutes are agent estimates: access because the station adjoins the town-centre shopping centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Northern, part of the Thameslink operator ORR lists as Greater Thameslink Railway. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival.",
       "sources": [
         {
           "kind": "timetable",
-          "label": "Synthetic LOCATION³ timetable fixture",
-          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "label": "Trainline route page from Welwyn Garden City to London (average and fastest journey time)",
+          "url": "https://www.thetrainline.com/train-times/welwyn-garden-city-to-london-kings-cross",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
         },
         {
-          "kind": "performance",
-          "label": "Synthetic LOCATION³ station-performance fixture",
-          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "kind": "last_service",
+          "label": "Trainline route page from London to Welwyn Garden City (last listed weekday departure)",
+          "url": "https://www.thetrainline.com/train-times/london-kings-cross-to-welwyn-garden-city",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
+        },
+        {
+          "kind": "service_pattern",
+          "label": "Wikipedia: Welwyn Garden City railway station, services section",
+          "url": "https://en.wikipedia.org/wiki/Welwyn_Garden_City_railway_station",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "CC BY-SA 4.0"
         }
       ],
-      "basis": "synthetic"
+      "basis": "agent_inferred"
     },
     {
-      "id": "hemel-central-rail",
+      "id": "hemel-hempstead-central-rail",
       "candidate_id": "hemel-hempstead",
       "destination_label": "Central destination",
       "origin_station": "Hemel Hempstead",
       "origin_station_crs": "HML",
       "london_arrival_station": "London Euston",
-      "service_window": "Typical Tuesday arrival by 09:00",
+      "service_window": "Weekday morning, arriving by 09:00",
       "primary": true,
-      "access_minutes": 5,
-      "expected_wait_minutes": 5,
-      "scheduled_rail_minutes": 22,
-      "london_last_mile_minutes": 6,
-      "total_minutes": 38,
+      "operator": "West Midlands Trains",
+      "access_minutes": 20,
+      "expected_wait_minutes": 8,
+      "scheduled_rail_minutes": 34,
+      "london_last_mile_minutes": 10,
+      "total_minutes": 72,
       "changes": 0,
-      "services_per_hour": 6,
-      "last_useful_departure": "2026-08-01T23:42:00+01:00",
-      "punctuality_percent": 92.4,
-      "cancellation_percent": 1.5,
-      "confidence": 0.93,
-      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "services_per_hour": 4,
+      "last_useful_departure": "2026-09-04T01:39:00+01:00",
+      "punctuality_percent": null,
+      "cancellation_percent": null,
+      "confidence": 0.5,
+      "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 27); frequency is the off-peak service pattern (4 tph to Euston off-peak). Access, wait, and last-mile minutes are agent estimates: access because the station is at Boxmoor, about 1.6 km from the Marlowes town centre, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: London Northwestern Railway, which ORR lists under West Midlands Trains. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival.",
       "sources": [
         {
           "kind": "timetable",
-          "label": "Synthetic LOCATION³ timetable fixture",
-          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "label": "Trainline route page from Hemel Hempstead to London (average and fastest journey time)",
+          "url": "https://www.thetrainline.com/train-times/hemel-hempstead-to-london-euston",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
         },
         {
-          "kind": "performance",
-          "label": "Synthetic LOCATION³ station-performance fixture",
-          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "kind": "last_service",
+          "label": "Trainline route page from London to Hemel Hempstead (last listed weekday departure)",
+          "url": "https://www.thetrainline.com/train-times/london-euston-to-hemel-hempstead",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
+        },
+        {
+          "kind": "service_pattern",
+          "label": "Wikipedia: Hemel Hempstead railway station, services section",
+          "url": "https://en.wikipedia.org/wiki/Hemel_Hempstead_railway_station",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "CC BY-SA 4.0"
         }
       ],
-      "basis": "synthetic"
+      "basis": "agent_inferred"
     },
     {
       "id": "maidenhead-central-rail",
@@ -91,39 +109,48 @@
       "origin_station": "Maidenhead",
       "origin_station_crs": "MAI",
       "london_arrival_station": "London Paddington",
-      "service_window": "Typical Tuesday arrival by 09:00",
+      "service_window": "Weekday morning, arriving by 09:00",
       "primary": true,
-      "access_minutes": 10,
-      "expected_wait_minutes": 10,
-      "scheduled_rail_minutes": 42,
+      "operator": "Great Western Railway",
+      "access_minutes": 8,
+      "expected_wait_minutes": 15,
+      "scheduled_rail_minutes": 34,
       "london_last_mile_minutes": 10,
-      "total_minutes": 72,
-      "changes": 1,
+      "total_minutes": 67,
+      "changes": 0,
       "services_per_hour": 2,
-      "last_useful_departure": "2026-08-01T22:54:00+01:00",
-      "punctuality_percent": 82.0,
-      "cancellation_percent": 4.5,
-      "confidence": 0.84,
-      "confidence_notes": "Synthetic journey assembled from explicit door-to-door components.",
+      "last_useful_departure": "2026-09-04T01:46:00+01:00",
+      "punctuality_percent": null,
+      "cancellation_percent": null,
+      "confidence": 0.5,
+      "confidence_notes": "Scheduled rail minutes are the published average for the route (fastest 18); frequency is the off-peak service pattern (2 tph GWR to Paddington off-peak calling at Slough only). Access, wait, and last-mile minutes are agent estimates: access because the station is a short walk south of the High Street, wait as half the headway, and the last mile because the demo's destination is an anonymised central point. Operator: Great Western Railway fast services; the Elizabeth line also runs to Paddington, more slowly. The last departure home is the last weekday train the route page lists from the London terminus, not checked for a useful arrival.",
       "sources": [
         {
           "kind": "timetable",
-          "label": "Synthetic LOCATION³ timetable fixture",
-          "url": "https://github.com/lukexyz/location-location-location/tree/main/fixtures/demo",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "label": "Trainline route page from Maidenhead to London (average and fastest journey time)",
+          "url": "https://www.thetrainline.com/train-times/maidenhead-to-london-paddington",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
         },
         {
-          "kind": "performance",
-          "label": "Synthetic LOCATION³ station-performance fixture",
-          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/rail.json",
-          "retrieved_at": "2026-08-01T12:00:00Z",
-          "source_date": "2026-08-01",
-          "licence": "CC0-1.0"
+          "kind": "last_service",
+          "label": "Trainline route page from London to Maidenhead (last listed weekday departure)",
+          "url": "https://www.thetrainline.com/train-times/london-paddington-to-maidenhead",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "Cited page; all rights reserved"
+        },
+        {
+          "kind": "service_pattern",
+          "label": "Wikipedia: Maidenhead railway station, services section",
+          "url": "https://en.wikipedia.org/wiki/Maidenhead_railway_station",
+          "retrieved_at": "2026-09-03T18:30:00+00:00",
+          "source_date": "2026-09-03",
+          "licence": "CC BY-SA 4.0"
         }
       ],
-      "basis": "synthetic"
+      "basis": "agent_inferred"
     }
   ]
 }

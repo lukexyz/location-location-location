@@ -21,47 +21,54 @@ describe("viewer", () => {
   it("keeps map and dossier selection synchronized", async () => {
     const user = userEvent.setup();
     render(<App />);
-    expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Maidenhead" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Select map candidate" }));
-    expect(screen.getByRole("heading", { name: "Hemel Hempstead" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
   });
 
   it("supports arrow-key navigation across candidate buttons", async () => {
     const user = userEvent.setup();
     render(<App />);
-    const alder = screen.getByRole("button", { name: /Welwyn Garden City/ });
-    const hemel = screen.getByRole("button", { name: /Hemel Hempstead/ });
-    alder.focus();
+    const top = screen.getByRole("button", { name: /Maidenhead/ });
+    const welwyn = screen.getByRole("button", { name: /Welwyn Garden City/ });
+    top.focus();
     await user.keyboard("{ArrowDown}{Enter}");
-    expect(hemel).toHaveFocus();
-    expect(screen.getByRole("heading", { name: "Hemel Hempstead" })).toBeInTheDocument();
+    expect(welwyn).toHaveFocus();
+    expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
   });
 
   it("highlights a favorable raw observation without recoloring its score", () => {
-    const { container } = render(<App />);
+    // No demo town has zero betting shops, so the highlight is checked on a modified copy.
+    const favourable = structuredClone(demoData);
+    for (const category of favourable.candidates[0].categories) {
+      for (const metric of category.metrics) if (metric.metric === "betting_shops") metric.raw_value = 0;
+    }
+    const { container } = render(<Dossier candidate={parseResultBundle(favourable).candidates[0]} />);
     expect(container.querySelector(".metric-raw .favorable-observation")).toHaveTextContent(/^0$/);
     expect(container.querySelector(".metric-raw")).toHaveTextContent("0 in 15 min");
-    expect(container.querySelector(".metric-raw + .metric-score")).toHaveTextContent("100.0");
+    expect(container.querySelector(".metric-raw + .metric-score")).toHaveTextContent(/^\d+\.\d$/);
   });
 
   it("shows the full cited rail journey rather than only train time", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Rail intelligence" })).toBeInTheDocument();
-    expect(screen.getAllByText(/London King's Cross/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/London Paddington/).length).toBeGreaterThan(0);
     expect(screen.getByText("Station access")).toBeInTheDocument();
     expect(screen.getByText("London last mile")).toBeInTheDocument();
   });
 
-  it("labels the basis of every fact so a synthetic or estimated value cannot pass as measured", () => {
+  it("labels the basis of every fact so an estimate cannot pass as measured", () => {
     render(<App />);
     expect(screen.getAllByText("Basis").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Synthetic").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Measured").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Transformed").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Agent-inferred").length).toBeGreaterThan(0);
   });
 
   it("shows route assumptions and score contributions", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Route boundary" })).toBeInTheDocument();
-    expect(screen.getByText(/not modelled; fictional boundary/i)).toBeInTheDocument();
+    expect(screen.getByText(/not modelled; hand-drawn demo boundary/i)).toBeInTheDocument();
     expect(screen.getAllByText(/overall/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Category points").length).toBeGreaterThan(0);
   });
@@ -78,7 +85,7 @@ describe("viewer", () => {
     const candidates = screen.getAllByRole("button", { name: /within limits|limit unverified|outside hard limit/ });
     expect(candidates[0]).toHaveAccessibleName(/Hemel Hempstead/);
     expect(candidates[1]).toHaveAccessibleName(/Maidenhead/);
-    expect(candidates[1]).toHaveTextContent("03");
+    expect(candidates[1]).toHaveTextContent("01");
   });
 
   it("sort keys are keyboard operable", async () => {
@@ -98,8 +105,8 @@ describe("viewer", () => {
       .map((className) => Array.from(dossier.querySelectorAll("*")).findIndex((element) => element.classList.contains(className)));
     expect(order.every((index) => index >= 0)).toBe(true);
     expect([...order].sort((left, right) => left - right)).toEqual(order);
-    expect(within(dossier as HTMLElement).getByRole("img", { name: /Overall suitability 78\.8/ })).toBeInTheDocument();
-    expect(screen.getByText("51.803N / 0.208W")).toBeInTheDocument();
+    expect(within(dossier as HTMLElement).getByRole("img", { name: /Overall suitability 75\.0/ })).toBeInTheDocument();
+    expect(screen.getByText("51.523N / 0.720W")).toBeInTheDocument();
     expect(screen.getByText("Coverage")).toBeInTheDocument();
     expect(screen.getByText("Punctuality (time to 3)")).toBeInTheDocument();
   });
@@ -110,11 +117,11 @@ describe("viewer", () => {
     await user.click(screen.getByRole("button", { name: /Maidenhead/ }));
     const strip = screen.getByText("Evidence warnings").closest("details")!;
     expect(strip).toHaveClass("warning-strip");
-    expect(strip).toHaveTextContent("6 warnings");
+    expect(strip).toHaveTextContent("3 warnings");
     expect(strip).not.toHaveAttribute("open");
     await user.click(screen.getByText("Evidence warnings"));
     expect(strip).toHaveAttribute("open");
-    expect(screen.getByText(/Purchase comparable sample has fewer than 20 transactions/)).toBeInTheDocument();
+    expect(screen.getByText(/Housing affordability is market evidence, not live inventory/)).toBeInTheDocument();
   });
 
   it("shows the limit warning beside an unverified hard limit", () => {
@@ -156,17 +163,17 @@ describe("viewer", () => {
   it("labels market affordability separately from live listings", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Housing affordability" })).toBeInTheDocument();
-    expect(screen.getByText("£390,000")).toBeInTheDocument();
+    expect(screen.getByText("£300,000")).toBeInTheDocument();
     expect(screen.getByText(/live inventory was not checked/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Search current listings/ })).toBeInTheDocument();
   });
 
-  it("shows a recent visit audit without hiding its proxy evidence", () => {
+  it("shows the fly-tipping prior, both periods, and its basis when there is no visit audit", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Street care" })).toBeInTheDocument();
-    expect(screen.getByText(/PAVEMENT PRIDE \/ Recent visit audit/i)).toBeInTheDocument();
-    expect(screen.getByText("12/1k")).toBeInTheDocument();
-    expect(screen.getByText(/Synthetic recent visit audit/)).toBeInTheDocument();
+    expect(screen.getByText("5.7/1k")).toBeInTheDocument();
+    expect(screen.getByText("12.1/1k")).toBeInTheDocument();
+    expect(screen.getByText(/Fly-tipping is a low-resolution prior|Cautious proxy from fly-tipping/)).toBeInTheDocument();
   });
 
   it("imports valid result JSON locally without a fetch", async () => {
@@ -192,7 +199,7 @@ describe("viewer", () => {
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText(/Incompatible schema 1.*rerun the research command/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Reset demo" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Maidenhead" })).toBeInTheDocument();
   });
 
   it("rejects an oversized file with both the size and candidate limits named", async () => {
@@ -225,7 +232,7 @@ describe("viewer", () => {
     const user = userEvent.setup();
     render(<App />);
     expect(screen.getByRole("button", { name: /Run your own search/i })).toBeInTheDocument();
-    expect(screen.getByText(/REAL TOWNS, SYNTHETIC EVIDENCE/)).toBeInTheDocument();
+    expect(screen.getByText(/REAL TOWNS, CITED EVIDENCE/)).toBeInTheDocument();
     const file = new File([JSON.stringify(demoData)], "mine.json", { type: "application/json" });
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText("mine.json loaded in this tab only")).toBeInTheDocument();
@@ -272,7 +279,7 @@ describe("viewer", () => {
     const { container } = render(<App />);
     const status = container.querySelector(".load-state")!;
     expect(status).toHaveAttribute("role", "status");
-    expect(status).toHaveTextContent("Sample data: real towns, synthetic evidence");
+    expect(status).toHaveTextContent("Sample data: three real towns, cited evidence");
     expect(status).not.toHaveClass("visually-hidden");
   });
 
@@ -347,15 +354,15 @@ describe("place card", () => {
     await user.click(screen.getByRole("button", { name: /Maidenhead/ }));
     const card = within(screen.getByTestId("place-card"));
     expect(card.getByText("Maidenhead")).toBeInTheDocument();
-    expect(card.getByText("Outside limit")).toBeInTheDocument();
-    expect(card.getByLabelText("Rank 3")).toBeInTheDocument();
+    expect(card.getByText("Within limits")).toBeInTheDocument();
+    expect(card.getByLabelText("Rank 1")).toBeInTheDocument();
     const photo = card.getByRole("img") as HTMLImageElement;
     expect(photo.src).toMatch(/demo\/photos\/maidenhead\.jpg$/);
     expect(photo.alt).toMatch(/Photo by Tom Bastin/);
     const credit = card.getByRole("link", { name: /Tom Bastin/ });
     expect(credit).toHaveAttribute("href", expect.stringContaining("commons.wikimedia.org"));
     expect(credit).toHaveAttribute("rel", "noreferrer");
-    expect(card.getByText("Fit").nextElementSibling).toHaveTextContent("67.1");
+    expect(card.getByText("Fit").nextElementSibling).toHaveTextContent("75.0");
     expect(card.getByText(/^\d+ min$/)).toBeInTheDocument();
 
     await user.click(card.getByRole("button", { name: /See the evidence/ }));
@@ -369,7 +376,7 @@ describe("place card", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: "Select map candidate" }));
-    expect(within(screen.getByTestId("place-card")).getByText("Hemel Hempstead")).toBeInTheDocument();
+    expect(within(screen.getByTestId("place-card")).getByText("Welwyn Garden City")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Select map candidate" }));
     expect(screen.getByTestId("place-card")).toBeInTheDocument();
 
@@ -386,6 +393,6 @@ describe("place card", () => {
     const card = within(screen.getByTestId("place-card"));
     expect(card.queryByRole("img")).not.toBeInTheDocument();
     expect(card.queryByRole("link")).not.toBeInTheDocument();
-    expect(card.getByText("Hemel Hempstead")).toBeInTheDocument();
+    expect(card.getByText("Welwyn Garden City")).toBeInTheDocument();
   });
 });

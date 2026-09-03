@@ -15,7 +15,7 @@ export function StartBanner({ onOpen }: BannerProps) {
   return (
     <section className="start-banner panel-cut" aria-labelledby="start-banner-heading">
       <div className="start-banner-copy">
-        <span className="eyebrow">SAMPLE RUN · REAL TOWNS, SYNTHETIC EVIDENCE</span>
+        <span className="eyebrow">SAMPLE RUN · REAL TOWNS, CITED EVIDENCE</span>
         <h2 id="start-banner-heading">Want this for your own criteria?</h2>
       </div>
       <button className="start-button" type="button" onClick={onOpen}>
@@ -93,7 +93,7 @@ export function StartDialog({ onClose }: DialogProps) {
           <button className="utility-button" type="button" onClick={onClose} aria-label="Close">Close</button>
         </header>
         <p className="start-intro">
-          The demo shows a finished result on real towns with synthetic evidence. Your search runs on your own machine:
+          The demo is a finished result on three real towns: OpenStreetMap counts, HM Land Registry sales, Defra fly-tipping, and ORR punctuality, with the journey estimates labelled as estimates. Your search runs on your own machine:
           your coding agent gathers cited evidence on the subscription you already have, and deterministic Python scores it.
           Nothing is uploaded.
         </p>

@@ -1,4 +1,4 @@
-"""Generate the public fictional viewer fixture from deterministic Python scoring."""
+"""Generate the public viewer fixture from deterministic Python scoring of the demo towns' real, cited evidence."""
 
 from __future__ import annotations
 
@@ -38,7 +38,9 @@ def main() -> int:
     housing_research = json.loads((ROOT / "fixtures/demo/housing.json").read_text(encoding="utf-8"))
     street_research = json.loads((ROOT / "fixtures/demo/street-care.json").read_text(encoding="utf-8"))
     photo_research = json.loads((ROOT / "fixtures/demo/photos.json").read_text(encoding="utf-8"))
-    evidence = merge_rail_research(evidence, rail_research)
+    # Measured ORR reliability for the journeys' operators, fetched by the ORR command from its two public tables.
+    performance = json.loads((ROOT / "fixtures/demo/orr-performance.json").read_text(encoding="utf-8"))
+    evidence = merge_rail_research(evidence, rail_research, performance=performance)
     evidence = merge_housing_research(profile, evidence, housing_research)
     evidence = merge_street_care_research(evidence, street_research)
     # The demo photos live under app/public/demo/photos; the viewer resolves each photo's file against that folder.
@@ -47,7 +49,7 @@ def main() -> int:
     profile["weights"] = preferences["weights"]
     profile["category_weights"] = preferences["category_weights"]
     profile["unknown_data_policy"] = preferences["scoring"]["unknown_data_policy"]
-    results = score_research(profile, evidence, "2026-08-01T12:00:00+00:00")
+    results = score_research(profile, evidence, "2026-09-03T18:30:00+00:00")
     output = ROOT / "app/src/data/demo-results.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     _write(output, results)
@@ -59,7 +61,7 @@ def main() -> int:
     reweighted_profile = json.loads(json.dumps(profile))
     reweighted_profile["weights"].update(REWEIGHTED_IMPORTANCE)
     reweighted_profile["category_weights"].update(REWEIGHTED_CATEGORY_IMPORTANCE)
-    reweighted = score_research(reweighted_profile, evidence, "2026-08-01T12:00:00+00:00")
+    reweighted = score_research(reweighted_profile, evidence, "2026-09-03T18:30:00+00:00")
     reweighted_output = ROOT / "app/src/data/demo-results.reweighted.json"
     _write(reweighted_output, reweighted)
     print(f"Wrote reweighted parity fixture to {reweighted_output}")

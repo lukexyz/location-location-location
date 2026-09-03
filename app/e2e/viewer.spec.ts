@@ -11,11 +11,11 @@ test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await expect(page.getByLabel("Location cubed")).toBeVisible();
   await expect(page.locator(".score-marker")).toHaveCount(3);
   // Pins within limits are graded green against the run: the best fit is the most vivid, the rest sit between.
-  await expect(page.locator('.leaflet-marker-icon[title^="Welwyn"] .score-marker')).toHaveAttribute("style", /--fit:1\.00;--fit-colour:#4ade80/);
-  await expect(page.locator('.leaflet-marker-icon[title^="Hemel"] .score-marker')).toHaveAttribute("style", /--fit:0\.52;/);
+  await expect(page.locator('.leaflet-marker-icon[title^="Maidenhead"] .score-marker')).toHaveAttribute("style", /--fit:1\.00;--fit-colour:#4ade80/);
+  await expect(page.locator('.leaflet-marker-icon[title^="Welwyn"] .score-marker')).toHaveAttribute("style", /--fit:0\.00;--fit-colour:#7a9b85/);
   await page.getByRole("button", { name: /Hemel Hempstead/ }).click();
   await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
-  await expect(page.locator(".score-marker.selected b")).toHaveText("73");
+  await expect(page.locator(".score-marker.selected b")).toHaveText("74");
   // The dotted boundary is the only vector besides the pins; nothing dims the map outside it.
   await expect(page.locator(".leaflet-overlay-pane path")).toHaveCount(1);
   await expect(page.locator(".search-boundary")).toHaveAttribute("stroke-dasharray", "1 9");
@@ -24,7 +24,7 @@ test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
 
 test("route assumptions and contribution points are inspectable", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Route boundary" })).toBeVisible();
-  await expect(page.getByText(/not modelled; fictional boundary/i)).toBeVisible();
+  await expect(page.getByText(/not modelled; hand-drawn demo boundary/i)).toBeVisible();
   await expect(page.getByText(/overall/i).first()).toBeVisible();
   await page.locator(".metric-row").first().click();
   await expect(page.getByText("Category points").first()).toBeVisible();
@@ -49,7 +49,7 @@ test("an imported result can be reset on desktop and mobile", async ({ page }) =
   await expect(page.getByRole("button", { name: "Reset demo" })).toBeVisible();
   await page.getByRole("button", { name: "Reset demo" }).click();
   await expect(page.getByRole("button", { name: "Reset demo" })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Welwyn Garden City" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Maidenhead" })).toBeVisible();
 });
 
 test("the front door opens a modal with a copyable one-line command", async ({ page }) => {
@@ -106,8 +106,8 @@ test("housing evidence is explicit about its market-only scope", async ({ page }
 
 test("street-care evidence exposes its basis and raw prior", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Street care" })).toBeVisible();
-  await expect(page.getByText(/PAVEMENT PRIDE \/ Recent visit audit/i)).toBeVisible();
-  await expect(page.getByText("12/1k")).toBeVisible();
+  await expect(page.getByText("5.7/1k")).toBeVisible();
+  await expect(page.getByText("12.1/1k")).toBeVisible();
 });
 
 test("playful readouts restate cited evidence", async ({ page }) => {
@@ -175,13 +175,15 @@ test("picking a pin pops open a card with the place's photo and its credit", asy
 });
 
 test("pins carry their names and the map has a key", async ({ page, isMobile }) => {
-  await expect(page.locator(".pin-label")).toHaveCount(3);
-  await expect(page.locator(".pin-label").filter({ hasText: "Welwyn Garden City" })).toBeVisible();
   const legend = page.getByRole("list", { name: "Map key" });
   if (isMobile) {
+    // A phone names only the selected place; the rest are planned but hidden by the stylesheet.
+    await expect(page.locator(".score-marker.selected + .pin-label")).toBeVisible();
     await expect(legend).toBeHidden();
     return;
   }
+  await expect(page.locator(".pin-label")).toHaveCount(3);
+  await expect(page.locator(".pin-label").filter({ hasText: "Welwyn Garden City" })).toBeVisible();
   await expect(legend).toBeVisible();
   await expect(legend).toContainText("Search area");
   await page.getByRole("button", { name: /Hemel Hempstead/ }).click();

@@ -170,8 +170,8 @@ class PhotoLookupTests(unittest.TestCase):
 
 class PhotoCommandTests(unittest.TestCase):
     def _make_run(self, directory: Path) -> Path:
-        profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
-        evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
+        profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
+        evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
         from location3.config import load_preferences
 
         preferences = load_preferences(ROOT, include_local=False)
@@ -226,7 +226,7 @@ class PhotoCommandTests(unittest.TestCase):
             self.assertTrue(again["cache_used"])
 
     def test_merge_attaches_the_research_and_scoring_carries_it_through(self):
-        evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
+        evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
         first = evidence["candidates"][0]["id"]
         research = {
             "schema_version": "1", "provider": "wikipedia", "retrieved_at": "2026-09-03T10:00:00+00:00",
@@ -238,7 +238,7 @@ class PhotoCommandTests(unittest.TestCase):
         }
         merged = merge_photo_research(evidence, research)
         self.assertNotIn("photo_research", evidence, "merging never mutates the input")
-        profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
+        profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
         from location3.config import load_preferences
 
         preferences = load_preferences(ROOT, include_local=False)

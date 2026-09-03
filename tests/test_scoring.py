@@ -12,8 +12,8 @@ from location3.scoring import score_research
 
 
 def fixture_data():
-    profile = json.loads((ROOT / "fixtures/demo/profile.json").read_text(encoding="utf-8"))
-    evidence = json.loads((ROOT / "fixtures/demo/evidence.json").read_text(encoding="utf-8"))
+    profile = json.loads((ROOT / "fixtures/synthetic/profile.json").read_text(encoding="utf-8"))
+    evidence = json.loads((ROOT / "fixtures/synthetic/evidence.json").read_text(encoding="utf-8"))
     preferences = load_preferences(ROOT, include_local=False)
     profile["weights"] = preferences["weights"]
     profile["category_weights"] = preferences["category_weights"]

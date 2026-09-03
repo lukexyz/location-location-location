@@ -1,0 +1,127 @@
+{
+  "schema_version": "1",
+  "provider": "synthetic cited fixture",
+  "assessment_date": "2026-08-01",
+  "places": [
+    {
+      "id": "welwyn-street-care",
+      "candidate_id": "welwyn-garden-city",
+      "local_authority": "Welwyn Hatfield",
+      "fly_tipping": {
+        "current_incidents_per_1000": 12,
+        "previous_incidents_per_1000": 14,
+        "current_period": "2024/25",
+        "previous_period": "2023/24",
+        "reporting_basis": "all incidents",
+        "source": {
+          "label": "Synthetic LOCATION³ fly-tipping fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      },
+      "local_reports": {
+        "scope_kind": "lsoa",
+        "geographic_scope": "Welwyn Garden City example LSOA",
+        "reports_per_1000": 8,
+        "unresolved_percent": 12,
+        "median_resolution_days": 3,
+        "period_start": "2025-08-01",
+        "period_end": "2026-07-31",
+        "source": {
+          "label": "Synthetic LOCATION³ local-report fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      },
+      "visit_audit": {
+        "audited_at": "2026-07-20",
+        "geographic_scope": "Welwyn Garden City centre walking loop",
+        "ratings": {
+          "litter": 4,
+          "dog_fouling": 4,
+          "graffiti": 3,
+          "weeds_and_detritus": 3,
+          "overflowing_bins": 3,
+          "overall_upkeep": 4
+        },
+        "notes": "Synthetic recent visit audit for the public demonstration."
+      },
+      "basis": "synthetic"
+    },
+    {
+      "id": "hemel-street-care",
+      "candidate_id": "hemel-hempstead",
+      "local_authority": "Dacorum",
+      "fly_tipping": {
+        "current_incidents_per_1000": 30,
+        "previous_incidents_per_1000": 25,
+        "current_period": "2024/25",
+        "previous_period": "2023/24",
+        "reporting_basis": "all incidents",
+        "source": {
+          "label": "Synthetic LOCATION³ fly-tipping fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      },
+      "local_reports": {
+        "scope_kind": "local_authority",
+        "geographic_scope": "Dacorum",
+        "reports_per_1000": 20,
+        "unresolved_percent": 30,
+        "median_resolution_days": 8,
+        "period_start": "2025-08-01",
+        "period_end": "2026-07-31",
+        "source": {
+          "label": "Synthetic LOCATION³ local-report fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      },
+      "visit_audit": null,
+      "basis": "synthetic"
+    },
+    {
+      "id": "maidenhead-street-care",
+      "candidate_id": "maidenhead",
+      "local_authority": "Windsor and Maidenhead",
+      "fly_tipping": {
+        "current_incidents_per_1000": 45,
+        "previous_incidents_per_1000": 38,
+        "current_period": "2024/25",
+        "previous_period": "2023/24",
+        "reporting_basis": "customer reported incidents only",
+        "source": {
+          "label": "Synthetic LOCATION³ fly-tipping fixture",
+          "url": "https://github.com/lukexyz/location-location-location/blob/main/fixtures/demo/street-care.json",
+          "retrieved_at": "2026-08-01T12:00:00Z",
+          "source_date": "2026-08-01",
+          "licence": "CC0-1.0"
+        }
+      },
+      "local_reports": null,
+      "visit_audit": {
+        "audited_at": "2025-12-01",
+        "geographic_scope": "Maidenhead centre walking loop",
+        "ratings": {
+          "litter": 4,
+          "dog_fouling": 4,
+          "graffiti": 4,
+          "weeds_and_detritus": 4,
+          "overflowing_bins": 4,
+          "overall_upkeep": 4
+        },
+        "notes": "Synthetic stale audit retained for transparency but excluded from scoring."
+      },
+      "basis": "synthetic"
+    }
+  ]
+}
