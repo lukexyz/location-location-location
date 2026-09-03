@@ -981,8 +981,27 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The modal's two choices are labelled rows ("Your agent", "Your shell") of segmented keys, the command block is the hero with a lime "Copy" button in its header that flips to "Copied", and "What happens next" is three steps that still say the agent never assigns a score and there are at most two provider calls. The close button and the copy button lost their shouting.
 - Verified: typecheck and build clean, 78 Vitest tests, 38 Playwright tests (36 passed, the 2 screenshot captures skipped) with axe clean on both modals, screenshots at 1440, 1280, and 390 with the modal open and closed.
 
+### P24 completion note
+
+- The four README screenshots were recaptured from the new build with live tiles, and the README's captions and part table now use "viewer", "shortlist", and "evidence". No file under `README.md`, the skill, or `AGENTS.md` still says "instrument", "register", or "dossier" as a product noun; class names and the `chromium-dossier.png` filename stay so links and tests do not move.
+- Verified on 2026-09-03: typecheck and build clean, 78 Vitest tests, 38 Playwright tests (36 passed plus the two screenshot captures, which ran for real this time) with axe clean on both modals, the CI private-material grep passes on the fresh `app/dist`, and no JSON is shipped in it. Nothing in Python changed.
+
 ### Decisions
 
 - Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.
 - The plumbob, the quips, and the "knocking on doors" captions stay; they finally fit the room.
 - The viewer still makes no request beyond OpenStreetMap tiles; the reskin uses system fonts only.
+
+## 2026-09-03 — Where the Project Stands After the Reskin
+
+### State
+
+- The viewer looks like what it is: a colourful OpenStreetMap map with three dark cards floating over it, a shortlist, the evidence for one place, and a short invite to run your own search. The chamfers, glows, grid, scan line, and console nouns are gone; the plumbob and the quips stay.
+- Five commits after 0f4bb4d (plan, map, panels, words, front door, evidence). Reverting to 0f4bb4d restores the old look in one step.
+- Nothing in Python changed. The viewer still makes no request beyond map tiles, uses system fonts only, and the CI private-material grep passes on the fresh build.
+
+### Not yet done
+
+- Not pushed. The live demo still serves the console look until `main` is pushed and **Deploy viewer to Pages** is run.
+- The first real end-to-end run from a pasted line on a clean machine is still the next thing to watch.
+- The README screenshots were recaptured; the phone screenshot's header still overlaps the top of the map, which is by design but worth a look on a real phone.

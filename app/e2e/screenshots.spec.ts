@@ -15,7 +15,7 @@ const outputDirectory = resolve(process.cwd(), "../docs/screenshots");
 test.describe("documentation screenshots", () => {
   test.skip(!capture, "set CAPTURE_SCREENSHOTS=1 to refresh docs/screenshots");
 
-  test("captures the instrument", async ({ page }, testInfo) => {
+  test("captures the viewer", async ({ page }, testInfo) => {
     mkdirSync(outputDirectory, { recursive: true });
     await page.goto("./");
     await expect(page.getByRole("heading", { name: "Shortlist" })).toBeVisible();

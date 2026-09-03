@@ -308,8 +308,8 @@ the synthetic public demo, never ignored preferences or private research runs.
 
 ## Inspiration and licence
 
-The full-bleed map, machined chrome, technical typography, and the deliberate
-"resolve costs something" posture are inspired by
+The full-bleed map, the deliberate "resolve costs something" posture, and the
+viewer's original machined look (since relaxed) are inspired by
 [GL4SS](https://github.com/elder-plinius/GL4SS). LOCATION³ is an independent
 implementation: no GL4SS code, prose, shaders, names, or assets are used, so its
 AGPL terms do not apply here.
