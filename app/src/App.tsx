@@ -23,11 +23,17 @@ export const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
 const DEMO_STATE: LoadState = {
   kind: "demo",
-  message: "Demonstration data active: real towns, synthetic evidence",
+  message: "Sample data: real towns, synthetic evidence",
 };
 // The feed is polled only from a loopback page (the local serve command or the
 // dev server), never from the public demo, and never inside unit tests.
 const LOCAL_VIEWER = typeof window !== "undefined" && isLocalViewer(window.location) && import.meta.env.MODE !== "test";
+
+/** A run id reads as a title: hyphens become spaces and the first letter is capitalised. */
+function runTitle(runId: string): string {
+  const words = runId.replaceAll("-", " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
 
 export default function App() {
   const [result, setResult] = useState<ResearchResult>(demoResult);
@@ -147,8 +153,8 @@ export default function App() {
           LOCATION<span>³</span>
         </div>
         <div className="system-title">
-          <span>THE PLACE-FINDING INSTRUMENT</span>
-          <strong>{result.run_id.replaceAll("-", " ")}</strong>
+          <span>WHERE TO LIVE, WITH RECEIPTS</span>
+          <strong>{runTitle(result.run_id)}</strong>
         </div>
         <div className={`load-state ${loadState.kind}`} role="status" aria-live="polite">
           <i aria-hidden="true" />
@@ -156,7 +162,7 @@ export default function App() {
         </div>
         <div className="header-actions">
           {!demoActive && (
-            <button className="utility-button" type="button" onClick={restoreDemo}>RESET DEMO</button>
+            <button className="utility-button" type="button" onClick={restoreDemo}>Reset demo</button>
           )}
           <button
             className="import-button"
@@ -165,7 +171,7 @@ export default function App() {
             onClick={() => fileInput.current?.click()}
           >
             <span>IMPORT</span>
-            <strong>RESULT.JSON</strong>
+            <strong>result.json</strong>
           </button>
           <span id="local-import-note" className="visually-hidden">
             Opens a local JSON file. The result remains in this browser tab.
@@ -222,11 +228,11 @@ export default function App() {
       </main>
 
       <footer className="status-rail">
-        <span><i className="status-light" /> VIEWER READY</span>
-        <span>SCHEMA {result.schema_version} / SCORE {result.scoring_version}</span>
-        <span>RESOLVED {compactDate(result.generated_at).toUpperCase()}</span>
-        {whatIf && <span className="whatif-readout">WHAT-IF PREVIEW · RESEARCHED RANKS RETAINED</span>}
-        <span className="privacy-readout">LOCAL READ · NO RESULT UPLOAD · MAP TILES REMOTE</span>
+        <span><i className="status-light" /> Ready</span>
+        <span>Schema {result.schema_version} · scoring {result.scoring_version}</span>
+        <span>Researched {compactDate(result.generated_at)}</span>
+        {whatIf && <span className="whatif-readout">What-if preview · researched ranks kept</span>}
+        <span className="privacy-readout">Runs in your browser · nothing uploaded · map tiles from OpenStreetMap</span>
       </footer>
 
       {startOpen && <StartDialog onClose={closeStart} />}

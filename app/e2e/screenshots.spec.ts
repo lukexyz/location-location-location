@@ -18,7 +18,7 @@ test.describe("documentation screenshots", () => {
   test("captures the instrument", async ({ page }, testInfo) => {
     mkdirSync(outputDirectory, { recursive: true });
     await page.goto("./");
-    await expect(page.getByRole("heading", { name: "Candidate register" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Shortlist" })).toBeVisible();
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1500);
     await page.screenshot({ path: resolve(outputDirectory, `${testInfo.project.name}-overview.png`) });
@@ -32,7 +32,7 @@ test.describe("documentation screenshots", () => {
       await page.locator(".tune-panel").evaluate((panel) => { panel.scrollTop = 0; });
       await page.waitForTimeout(500);
       await page.screenshot({ path: resolve(outputDirectory, "chromium-whatif.png") });
-      await page.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }).click();
+      await page.getByRole("button", { name: "Restore researched importance" }).click();
 
       const dossier = page.locator(".dossier");
       await dossier.locator(".metric-row summary").first().click();

@@ -84,7 +84,7 @@ export function TunePanel({ baseline, weights, categoryWeights, onChange, onCate
         })}
       </div>
       <button type="button" className="utility-button" onClick={onReset} disabled={!active}>
-        RESTORE RESEARCHED IMPORTANCE
+        Restore researched importance
       </button>
     </details>
   );

@@ -52,7 +52,7 @@ test("supports skip navigation, keyboard import, and candidate arrow keys", asyn
   await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
   await expect(page.getByText(/Selected candidate: Hemel Hempstead/)).toBeAttached();
 
-  const importButton = page.getByRole("button", { name: /IMPORT RESULT.JSON/ });
+  const importButton = page.getByRole("button", { name: /IMPORT result\.json/ });
   await importButton.focus();
   await expect(importButton).toBeFocused();
 });

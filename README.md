@@ -5,10 +5,10 @@
  ██║     ██║   ██║██║     ██╔══██║   ██║   ██║██║   ██║██║╚██╗██║
  ███████╗╚██████╔╝╚██████╗██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║
  ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
- THE PLACE-FINDING INSTRUMENT
+ WHERE TO LIVE, WITH RECEIPTS
 ```
 
-**LOCATION³** is a local, user-run instrument for deciding *where* to live before
+**LOCATION³** is a local, user-run tool for deciding *where* to live before
 deciding *which home*. You give it an approximate origin, a travel-time limit,
 your destinations, a housing budget, and the things that make everyday life good
 for you. It researches only the places inside that boundary, records where every
@@ -18,7 +18,7 @@ It is a decision-support tool, not an oracle. Every score explains itself, every
 fact carries a citation and a confidence, and missing evidence is shown as
 missing rather than averaged away.
 
-![The instrument: map, candidate register, and evidence dossier](docs/screenshots/chromium-overview.png)
+![The viewer: map, shortlist, and evidence panel](docs/screenshots/chromium-overview.png)
 
 ## Why it exists
 
@@ -61,24 +61,24 @@ and never claims a property exists because an area looks affordable.
 6. **Score.** Documented curves map each observation to 0–100, categories are
    weighted means, and the overall score is a weighted mean of categories. Hard
    limits are evaluated first. Confidence is reported separately.
-7. **Explore.** The viewer draws the boundary and pins, ranks the register,
-   opens an evidence dossier per place, and lets you preview what-if importance
+7. **Explore.** The viewer draws the boundary and pins, ranks the shortlist,
+   opens the evidence for each place, and lets you preview what-if importance
    without touching the researched result.
 
-## The instrument
+## The viewer
 
 | Part | What it tells you |
 | --- | --- |
 | **Map** | Route envelope, numbered score pins, the selected place. OpenStreetMap basemap with visible attribution. |
-| **Candidate register** | Researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
+| **Shortlist** | Researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
 | **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |
-| **Evidence dossier** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, basis, source, and date. |
+| **Evidence** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, basis, source, and date. |
 | **Playful readouts** | Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, Pavement Pride. Restatements of cited evidence that add nothing to the score and say "no evidence" when there is none. |
-| **Status rail** | Schema and scoring versions, resolution date, and the privacy readout: local read, no upload, map tiles remote. |
+| **Status rail** | Schema and scoring versions, research date, and the privacy line: runs in your browser, nothing uploaded, map tiles from OpenStreetMap. |
 
 ![What-if importance preview with researched ranks retained](docs/screenshots/chromium-whatif.png)
 
-![An evidence dossier with a metric expanded](docs/screenshots/chromium-dossier.png)
+![The evidence panel with a metric expanded](docs/screenshots/chromium-dossier.png)
 
 ## Metric glossary
 
@@ -258,7 +258,7 @@ arithmetic as the Python scorer and is tested against
 `demo-results.reweighted.json`, a second scoring that `scripts/build_demo.py`
 writes from the same fixture.
 
-![The same instrument on a phone](docs/screenshots/mobile-overview.png)
+![The same viewer on a phone](docs/screenshots/mobile-overview.png)
 
 ### Watching a run
 

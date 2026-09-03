@@ -38,7 +38,7 @@ export const NEXT_STEPS: ReadonlyArray<string> = [
   "Your agent opens in that folder with the research skill loaded. It asks for an approximate origin, where you need to get to, your housing budget, what matters to you, and which limits are absolute.",
   "Before anything leaves your machine the command prints exactly what will be sent and to whom. Nothing is fetched until you approve it, and there are at most two provider calls per run.",
   "Cited rail, housing, and street-care evidence is gathered by your agent on the subscription you already pay for. Deterministic Python turns it into scores; the agent never assigns one.",
-  "This viewer opens on your private result: ranked map, evidence dossiers, and what-if importance.",
+  "This viewer opens on your private result: ranked map, evidence per place, and what-if importance.",
 ];
 
 export const PRIVACY_NOTES: ReadonlyArray<string> = [

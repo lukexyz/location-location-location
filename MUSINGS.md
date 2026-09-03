@@ -969,6 +969,12 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - Uppercase letter-spaced mono is now reserved for eyebrows, readout labels, definition terms, and the status rail; panel headings, place names, category and metric names, sort keys, buttons, links, and the tune rows read in sentence case at a slightly larger size.
 - One regression caught in review: giving the readout strip `overflow: hidden` let the evidence column's flex layout squash it to ten pixels. It is `flex: 0 0 auto` now.
 
+### P22 completion note
+
+- The header now says what the tool is for ("Where to live, with receipts") over a run title made from the run id; the load state reads "Sample data: real towns, synthetic evidence"; the panels are "Shortlist" and "Evidence / place 01"; the buttons read "Reset demo", "Import result.json", and "Restore researched importance"; the status rail says "Ready", "Researched 01 Aug 2026", and "Runs in your browser · nothing uploaded · map tiles from OpenStreetMap".
+- The page title and description say the same, and the README's part table and captions use the new names. Class names, ids, and ARIA labels did not move, so every test that changed did so only for the words it matches.
+- Verified: typecheck and build clean, 78 Vitest tests, screenshots reviewed at 1280.
+
 ### Decisions
 
 - Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.

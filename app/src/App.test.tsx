@@ -190,7 +190,7 @@ describe("viewer", () => {
     const file = new File(['{"schema_version":"1"}'], "old-results.json", { type: "application/json" });
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText(/Incompatible schema 1.*rerun the research command/)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "RESET DEMO" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Reset demo" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Welwyn Garden City" })).toBeInTheDocument();
   });
 
@@ -215,9 +215,9 @@ describe("viewer", () => {
     expect(await screen.findByText("again.json loaded in this tab only")).toBeInTheDocument();
     expect(within(sortGroup()).getByRole("button", { name: "Rank" })).toHaveAttribute("aria-pressed", "true");
     await user.click(within(sortGroup()).getByRole("button", { name: "Name" }));
-    await user.click(screen.getByRole("button", { name: "RESET DEMO" }));
+    await user.click(screen.getByRole("button", { name: "Reset demo" }));
     expect(within(sortGroup()).getByRole("button", { name: "Rank" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.queryByRole("button", { name: "RESET DEMO" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Reset demo" })).not.toBeInTheDocument();
   });
 
   it("offers the front door only while the sample is active", async () => {
@@ -229,7 +229,7 @@ describe("viewer", () => {
     await user.upload(screen.getByTestId("result-import"), file);
     expect(await screen.findByText("mine.json loaded in this tab only")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /RUN YOUR OWN SEARCH/ })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "RESET DEMO" }));
+    await user.click(screen.getByRole("button", { name: "Reset demo" }));
     expect(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeInTheDocument();
   });
 
@@ -271,7 +271,7 @@ describe("viewer", () => {
     const { container } = render(<App />);
     const status = container.querySelector(".load-state")!;
     expect(status).toHaveAttribute("role", "status");
-    expect(status).toHaveTextContent("Demonstration data active: real towns, synthetic evidence");
+    expect(status).toHaveTextContent("Sample data: real towns, synthetic evidence");
     expect(status).not.toHaveClass("visually-hidden");
   });
 
@@ -285,13 +285,13 @@ describe("viewer", () => {
     fireEvent.change(cafes, { target: { value: "5" } });
     expect(screen.getByText("WHAT-IF ACTIVE")).toBeInTheDocument();
     // The status rail and the dossier both announce the preview.
-    expect(screen.getAllByText(/WHAT-IF PREVIEW/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/What-if preview/i).length).toBeGreaterThanOrEqual(2);
     const entries = screen.getAllByRole("button", { name: /within limits|limit unverified|outside hard limit/ });
     expect(entries.map((entry) => entry.querySelector(".rank-number")!.textContent).sort()).toEqual(["01", "02", "03"]);
     expect(entries[0]).toHaveTextContent(/researched/);
-    await user.click(screen.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }));
+    await user.click(screen.getByRole("button", { name: "Restore researched importance" }));
     expect(screen.getByText("RESEARCHED WEIGHTS")).toBeInTheDocument();
-    expect(screen.queryAllByText(/WHAT-IF PREVIEW/)).toHaveLength(0);
+    expect(screen.queryAllByText(/What-if preview/i)).toHaveLength(0);
   });
 
   it("tunes category importance above its metrics and restores both with one button", async () => {
@@ -308,7 +308,7 @@ describe("viewer", () => {
     expect(screen.getByLabelText("What-if preview")).toHaveTextContent(/covering 100% of the intended category weight/);
     const whatIfScores = screen.getAllByText(/^\d+\.\d$/, { selector: ".rank-score.whatif" });
     expect(whatIfScores.length).toBe(3);
-    await user.click(screen.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }));
+    await user.click(screen.getByRole("button", { name: "Restore researched importance" }));
     expect(screen.getByText("RESEARCHED WEIGHTS")).toBeInTheDocument();
     expect(category).toHaveValue("5");
   });

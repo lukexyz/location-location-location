@@ -47,8 +47,8 @@ export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, o
     <aside className="rank-panel panel-cut" aria-labelledby="rank-heading">
       <div className="panel-heading">
         <div>
-          <span className="eyebrow">{whatIf ? "WHAT-IF ORDER" : "RESOLVED FIELD"}</span>
-          <h2 id="rank-heading">Candidate register</h2>
+          <span className="eyebrow">{whatIf ? "WHAT-IF ORDER" : "RESEARCHED RANK"}</span>
+          <h2 id="rank-heading">Shortlist</h2>
         </div>
         <span className="count-readout" aria-label={`${candidates.length} candidates`}>
           {String(candidates.length).padStart(2, "0")}

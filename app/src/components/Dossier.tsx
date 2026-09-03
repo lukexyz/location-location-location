@@ -32,7 +32,7 @@ export function Dossier({
     <aside className="dossier panel-cut" aria-labelledby="dossier-heading">
       <header className="dossier-heading">
         <div>
-          <span className="eyebrow">EVIDENCE DOSSIER / {String(candidate.rank).padStart(2, "0")}</span>
+          <span className="eyebrow">EVIDENCE / PLACE {String(candidate.rank).padStart(2, "0")}</span>
           <h2 id="dossier-heading">{candidate.name}</h2>
           <div className="coordinates">{coordinates(candidate.location.latitude, candidate.location.longitude)}</div>
         </div>

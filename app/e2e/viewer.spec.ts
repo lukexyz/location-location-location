@@ -40,9 +40,9 @@ test("an imported result can be reset on desktop and mobile", async ({ page }) =
     mimeType: "application/json",
     buffer: readFileSync("src/data/demo-results.json"),
   });
-  await expect(page.getByRole("button", { name: "RESET DEMO" })).toBeVisible();
-  await page.getByRole("button", { name: "RESET DEMO" }).click();
-  await expect(page.getByRole("button", { name: "RESET DEMO" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset demo" })).toBeVisible();
+  await page.getByRole("button", { name: "Reset demo" }).click();
+  await expect(page.getByRole("button", { name: "Reset demo" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Welwyn Garden City" })).toBeVisible();
 });
 
@@ -81,7 +81,7 @@ test("a local progress feed opens the research modal and loads the finished resu
   await finished.getByRole("button", { name: /LOAD THIS RESULT/ }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator(".load-state")).toContainText("my-search loaded from the local run");
-  await expect(page.getByRole("button", { name: "RESET DEMO" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reset demo" })).toBeVisible();
 });
 
 test("the instrument reflows without horizontal overflow", async ({ page }) => {
@@ -144,7 +144,7 @@ test("importance sliders preview a what-if order while researched ranks stay put
   const numbers = await page.locator(".rank-number").allTextContents();
   expect([...numbers].sort()).toEqual(["01", "02", "03"]);
   await expect(page.locator(".rank-score.whatif")).toHaveCount(3);
-  await page.getByRole("button", { name: "RESTORE RESEARCHED IMPORTANCE" }).click();
+  await page.getByRole("button", { name: "Restore researched importance" }).click();
   await expect(page.getByText("RESEARCHED WEIGHTS")).toBeVisible();
   await expect(page.locator(".rank-score.whatif")).toHaveCount(0);
 });
