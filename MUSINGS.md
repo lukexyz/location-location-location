@@ -1007,6 +1007,12 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The 16px feather was barely visible, so the mask is now drawn twice at 30% each: a near layer blurred 26px and a far layer blurred 90px. The dimming starts firmly at the boundary and tails off over about 200px while the inside stays bright; a single wide blur had greyed the inside too. On phones the boundary is only a few hundred pixels wide, so the blurs drop to 12px and 40px. The dashed boundary line thinned to 2px at 70%.
 - Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests (the synchronisation test now expects three overlay paths), screenshots at 1280 and 390.
 
+### P28 completion note (fade outward only, lighter vignette)
+
+- The mask layers now run through inline SVG filters that erode the mask before blurring it. Erosion pushes the hole outward by its radius, so the dimming begins at the boundary line and fades away from it, and nothing inside the search is touched. Near layer: erode 20, blur 10; far layer: erode 70, blur 35; the phone variants are half that. The filters live in a zero-size `<svg>` inside the map section.
+- The vignette dropped from 42% to 26% and hugs the edges a little tighter.
+- Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests, screenshots at 1280 and 390.
+
 ## 2026-09-03 — Where the Project Stands After the Reskin
 
 ### State

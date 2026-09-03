@@ -81,7 +81,32 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
         })}
       </MapContainer>
       <div className="map-vignette" aria-hidden="true" />
+      <FocusFilters />
     </section>
+  );
+}
+
+/**
+ * The mask is eroded before it is blurred, which pushes the hole outward by the
+ * erosion radius, so the dimming starts at the boundary line and fades away from
+ * it; nothing inside the search is touched. Radii are in screen pixels and the
+ * phone variants are smaller because the boundary is.
+ */
+function FocusFilters() {
+  const filters: Array<[string, number, number]> = [
+    ["focus-near", 20, 10], ["focus-far", 70, 35], ["focus-near-phone", 10, 5], ["focus-far-phone", 32, 16],
+  ];
+  return (
+    <svg className="focus-filters" aria-hidden="true" focusable="false" width="0" height="0">
+      <defs>
+        {filters.map(([id, erode, blur]) => (
+          <filter key={id} id={id} x="-5%" y="-5%" width="110%" height="110%" colorInterpolationFilters="sRGB">
+            <feMorphology operator="erode" radius={erode} />
+            <feGaussianBlur stdDeviation={blur} />
+          </filter>
+        ))}
+      </defs>
+    </svg>
   );
 }
 
