@@ -894,6 +894,14 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - The README opens "Running it" with the two lines; the manual install remains below. The modal's lines and the README's lines are the same strings.
 - Verified: ruff clean, 76 Python tests (four new), viewer suites unchanged from P16.
 
+### P18 completion note
+
+- A first run needs no signup. When `ORS_API_KEY` is absent the research command builds a distance-proxy boundary locally: a 64-vertex circle whose radius is the requested minutes at an assumed speed per travel profile (40 km/h driving, 15 cycling, 4.5 walking) times a 0.7 straight-line detour factor, so 30 minutes by car is a 14.0 km radius. Nothing about the origin leaves the machine for it; the only live call is Overpass, and the preview says "Maximum live provider calls: 1".
+- The proxy is labelled everywhere it can be seen. The boundary type `distance_proxy` joins `isochrone` and `fixture_polygon` in the Python validator, the JSON Schema, the viewer's hand validator, and its types; the profile and provenance carry a `description` stating the assumptions; the manifest gains a warning that starts "Route boundary is a distance proxy"; and the dossier's route-boundary block reads "SEARCH ENVELOPE / distance proxy", "30 min · PROXY", and the assumptions in the text voice.
+- The preview's wording changes with the key: keyed runs still say what origin is sent to the routing provider; keyless runs say the origin is used locally and that a free key upgrades the boundary. The key itself is tested for presence once and never printed; the keyed preview test asserts that.
+- The skill's first step now tells the agent to mention the upgrade once and carry on; the README says the same in the run-flow summary and the research section.
+- Verified on 2026-09-03: ruff clean, 80 Python tests (four new: proxy geometry and input checks, keyless execution, and the two previews), 65 Vitest tests (two new: schema parity for the boundary type in both validators, and the dossier's proxy wording), 34 Playwright tests, clean build, demo bundle reproduces byte-identically.
+
 ### Decisions
 
 - The demo stays a static, read-only renderer. The call to action is content, not a feature.

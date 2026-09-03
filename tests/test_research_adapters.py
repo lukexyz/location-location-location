@@ -10,7 +10,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from location3.net import HttpResponse
 from location3.osm import BrandGroup, OverpassAmenityCollector
-from location3.routing import OpenRouteServiceIsochrones, RouteBoundary
+from location3.routing import (
+    DistanceProxyBoundary, OpenRouteServiceIsochrones, RouteBoundary, proxy_radius_km,
+)
 from location3.validation import validate_evidence
 
 
@@ -414,3 +416,36 @@ class RecordedOverpassResponseTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DistanceProxyTests(unittest.TestCase):
+    def test_proxy_is_a_closed_ring_of_the_stated_radius_and_says_what_it_is(self):
+        from math import asin, sqrt
+
+        boundary = DistanceProxyBoundary().boundary(51.5, -0.1, 30, profile="driving-car")
+        self.assertEqual(boundary.provider, "distance-proxy")
+        self.assertIsNone(boundary.retrieved_at)
+        self.assertEqual(proxy_radius_km(30, "driving-car"), 14.0)
+        self.assertIn("14.0 km straight-line radius", boundary.description)
+        self.assertIn("not a routed isochrone", boundary.description)
+        ring = boundary.geometry["coordinates"][0]
+        self.assertEqual(len(ring), 65)
+        self.assertEqual(ring[0], ring[-1])
+
+        def haversine_km(lon, lat):
+            phi1, phi2 = 51.5 * pi / 180, lat * pi / 180
+            dphi, dlambda = (lat - 51.5) * pi / 180, (lon + 0.1) * pi / 180
+            a = sin(dphi / 2) ** 2 + cos(phi1) * cos(phi2) * sin(dlambda / 2) ** 2
+            return 2 * 6371 * asin(sqrt(a))
+
+        for lon, lat in ring:
+            self.assertAlmostEqual(haversine_km(lon, lat), 14.0, delta=0.05)
+
+    def test_proxy_rejects_the_same_bad_input_as_the_routed_adapter(self):
+        proxy = DistanceProxyBoundary()
+        with self.assertRaisesRegex(ValueError, "profile"):
+            proxy.boundary(51.5, -0.1, 30, profile="rocket")
+        with self.assertRaisesRegex(ValueError, "duration_minutes"):
+            proxy.boundary(51.5, -0.1, 0)
+        with self.assertRaisesRegex(ValueError, "out of range"):
+            proxy.boundary(95.0, -0.1, 30)

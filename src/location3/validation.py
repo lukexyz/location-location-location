@@ -11,7 +11,7 @@ from .fields import http_url, iso_date, iso_datetime, nonempty, require
 
 
 TRAVEL_MODES = {"public_transport", "driving", "cycling", "walking"}
-BOUNDARY_TYPES = {"isochrone", "fixture_polygon"}
+BOUNDARY_TYPES = {"isochrone", "distance_proxy", "fixture_polygon"}
 
 
 def validate_profile(profile: dict[str, Any]) -> None:

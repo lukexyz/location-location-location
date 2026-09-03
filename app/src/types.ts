@@ -8,7 +8,7 @@ export type BoundaryGeometry =
   | { type: "MultiPolygon"; coordinates: number[][][][] };
 
 export interface RouteBoundary {
-  type: "isochrone" | "fixture_polygon";
+  type: "isochrone" | "distance_proxy" | "fixture_polygon";
   description?: string;
   duration_minutes?: number;
   travel_profile?: string;

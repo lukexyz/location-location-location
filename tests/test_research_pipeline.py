@@ -217,6 +217,71 @@ class ResearchPipelineTests(unittest.TestCase):
             )
             self.assertIn("openrouteservice", boundary["provider"])
 
+    def test_keyless_run_uses_a_labelled_distance_proxy_and_one_live_call(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            transport = ProviderTransport()
+            manifest = execute_research(
+                root=ROOT,
+                output=temporary / "run",
+                cache_directory=temporary / "cache",
+                run_id="keyless-test",
+                latitude=51.5,
+                longitude=-0.1,
+                duration_minutes=30,
+                route_profile="driving-car",
+                api_key="",
+                include_local_preferences=False,
+                transport=transport,
+                generated_at="2026-09-03T09:00:00+00:00",
+            )
+            self.assertEqual(len(transport.calls), 1, "no routing call without a key")
+            self.assertIn("overpass", transport.calls[0]["url"])
+            profile = json.loads((temporary / "run" / "profile.json").read_text(encoding="utf-8"))
+            boundary = profile["search"]["route_boundary"]
+            self.assertEqual(boundary["type"], "distance_proxy")
+            self.assertEqual(boundary["provider"], "distance-proxy")
+            self.assertEqual(boundary["retrieved_at"], "2026-09-03T09:00:00+00:00")
+            self.assertTrue(boundary["description"].startswith("Distance proxy: 30 min by driving-car"))
+            self.assertEqual(boundary["traffic_treatment"], "not modelled; straight-line distance proxy")
+            self.assertEqual(len(boundary["geometry"]["coordinates"][0]), 65)
+            self.assertEqual(manifest["geographic_coverage"]["type"], "distance_proxy")
+            self.assertTrue(any(
+                warning.startswith("Route boundary is a distance proxy") for warning in manifest["warnings"]
+            ))
+            validate_manifest(manifest)
+            results = json.loads((temporary / "run" / "results.json").read_text(encoding="utf-8"))
+            self.assertEqual(results["route_boundary"]["type"], "distance_proxy")
+            self.assertEqual(results["candidates"][0]["name"], "Alpha")
+
+    def test_preview_names_the_proxy_without_a_key_and_the_isochrone_with_one(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+
+        arguments = ["--latitude", "51.5", "--longitude", "-0.1", "--minutes", "30"]
+        with (
+            patch.dict(os.environ, {}, clear=True),
+            patch("location3.research_cli.execute_research") as execute,
+            redirect_stdout(StringIO()) as keyless,
+        ):
+            self.assertEqual(research_main(arguments), 0)
+        execute.assert_not_called()
+        self.assertIn("no ORS_API_KEY set; computed locally, nothing sent", keyless.getvalue())
+        self.assertIn("14.0 km straight-line radius", keyless.getvalue())
+        self.assertIn("Maximum live provider calls: 1", keyless.getvalue())
+        self.assertNotIn("Origin sent to routing provider", keyless.getvalue())
+
+        with (
+            patch.dict(os.environ, {"ORS_API_KEY": "local-secret"}, clear=True),
+            patch("location3.research_cli.execute_research") as execute,
+            redirect_stdout(StringIO()) as keyed,
+        ):
+            self.assertEqual(research_main(arguments), 0)
+        execute.assert_not_called()
+        self.assertIn("OpenRouteService isochrone", keyed.getvalue())
+        self.assertIn("Maximum live provider calls: 2", keyed.getvalue())
+        self.assertNotIn("local-secret", keyed.getvalue())
+
     def test_zero_weight_metrics_are_not_collected_unless_measured(self):
         preferences = load_preferences(ROOT, include_local=False)
         with tempfile.TemporaryDirectory() as directory:
@@ -360,11 +425,11 @@ class ResearchPipelineTests(unittest.TestCase):
                 preferences, destinations=["Client office|driving|Friday 10:00|30"]
             )
 
-    def test_preview_prints_the_disclosure_without_a_key(self):
+    def test_preview_prints_the_disclosure_with_a_key_and_never_the_key_itself(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "preview"
             with (
-                patch.dict(os.environ, {}, clear=True),
+                patch.dict(os.environ, {"ORS_API_KEY": "local-secret"}, clear=True),
                 patch("location3.research_cli.execute_research") as execute,
                 patch("builtins.print") as printed,
             ):
@@ -401,6 +466,7 @@ class ResearchPipelineTests(unittest.TestCase):
             self.assertIn(
                 "Hard limit: door_to_door_commute for London Bridge <= 75", lines
             )
+            self.assertFalse(any("local-secret" in line for line in lines))
             self.assertTrue(any(line.startswith("Housing: buy a any size flat") for line in lines))
             self.assertTrue(any("Waitrose" in line for line in lines))
 

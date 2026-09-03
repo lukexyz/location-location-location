@@ -71,7 +71,7 @@
       "type": "object",
       "required": ["type", "provider", "departure_time", "traffic_treatment", "retrieved_at", "geometry"],
       "properties": {
-        "type": {"enum": ["isochrone", "fixture_polygon"]},
+        "type": {"enum": ["isochrone", "distance_proxy", "fixture_polygon"]},
         "description": {"type": "string", "minLength": 1},
         "duration_minutes": {"type": "integer", "minimum": 1, "maximum": 300},
         "travel_profile": {"type": "string", "minLength": 1},

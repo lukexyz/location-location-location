@@ -246,7 +246,7 @@ function RouteBoundaryReadout({ boundary }: { boundary: RouteBoundary }) {
           <span className="eyebrow">SEARCH ENVELOPE / {boundary.type.replaceAll("_", " ")}</span>
           <h3 id="route-context-heading">Route boundary</h3>
         </div>
-        <strong>{boundary.duration_minutes ? `${boundary.duration_minutes} min` : "FIXTURE"}</strong>
+        <strong>{boundary.duration_minutes ? `${boundary.duration_minutes} min${boundary.type === "distance_proxy" ? " · PROXY" : ""}` : "FIXTURE"}</strong>
       </header>
       <dl>
         <div><dt>Provider</dt><dd>{boundary.provider}</dd></div>
@@ -255,6 +255,7 @@ function RouteBoundaryReadout({ boundary }: { boundary: RouteBoundary }) {
         <div><dt>Departure</dt><dd>{boundary.departure_time ? compactDate(boundary.departure_time) : "not supplied"}</dd></div>
       </dl>
       <p>{boundary.traffic_treatment}</p>
+      {boundary.description && <p className="proxy-note">{boundary.description}</p>}
     </section>
   );
 }

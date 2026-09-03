@@ -63,4 +63,15 @@ describe("browser and JSON Schema contract parity", () => {
     expect(validateResultSchema(invalid)).toBe(false);
     expect(() => parseResultBundle(invalid)).toThrow();
   });
+
+  it("accepts a labelled distance-proxy boundary and rejects an unknown boundary type in both validators", () => {
+    const proxy = structuredClone(demoData) as unknown as Record<string, unknown>;
+    (proxy.route_boundary as Record<string, unknown>).type = "distance_proxy";
+    expect(validateResultSchema(proxy), JSON.stringify(validateResultSchema.errors)).toBe(true);
+    expect(parseResultBundle(proxy).route_boundary?.type).toBe("distance_proxy");
+    const circle = structuredClone(demoData) as unknown as Record<string, unknown>;
+    (circle.route_boundary as Record<string, unknown>).type = "circle";
+    expect(validateResultSchema(circle)).toBe(false);
+    expect(() => parseResultBundle(circle)).toThrow(/route_boundary\.type/);
+  });
 });

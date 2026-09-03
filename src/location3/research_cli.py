@@ -16,7 +16,9 @@ from .config import brand_group, load_preferences
 from .net import HttpTransport, UrllibTransport
 from .osm import OverpassAmenityCollector
 from .reporting import write_bundle
-from .routing import OpenRouteServiceIsochrones
+from .routing import (
+    PROXY_PROVIDER, DistanceProxyBoundary, OpenRouteServiceIsochrones, describe_proxy,
+)
 from .scoring import score_research
 from .validation import TRAVEL_MODES, validate_profile
 
@@ -64,9 +66,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     grocers = brand_group(preferences, "premium_grocers")
     latitude, longitude = round_origin(args.latitude, args.longitude, args.origin_decimals)
+    # The key is only ever tested for presence here; it is never printed or stored.
+    api_key = os.environ.get("ORS_API_KEY", "")
     for line in describe_research_plan(
         latitude, longitude, args.origin_decimals, args.minutes, args.profile,
-        measured, grocers.patterns,
+        measured, grocers.patterns, keyed=bool(api_key),
     ):
         print(line)
     for line in describe_search_profile(search):
@@ -76,9 +80,6 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Preview only. Re-run with --execute after reviewing this disclosure.")
         return 0
 
-    api_key = os.environ.get("ORS_API_KEY", "")
-    if not api_key:
-        parser.error("ORS_API_KEY must be set in the local environment")
     execute_research(
         root=root,
         output=output,
@@ -286,16 +287,30 @@ def describe_research_plan(
     route_profile: str,
     measured: Sequence[str],
     grocer_patterns: Sequence[str],
+    *,
+    keyed: bool = True,
 ) -> list[str]:
     """Say exactly what leaves the machine, to whom, and what is measured."""
     osm_metrics = [metric for metric in OSM_METRICS if metric in measured]
-    lines = [
-        f"Research plan: OpenRouteService isochrone ({ROUTING_ENDPOINT}) + one combined "
-        f"Overpass query ({PLACES_ENDPOINT})",
-        f"Origin sent to routing provider: {latitude:.{origin_decimals}f}, "
-        f"{longitude:.{origin_decimals}f} ({origin_precision(origin_decimals)}; the exact "
-        "value you typed is neither sent nor stored)",
-    ]
+    origin = (
+        f"{latitude:.{origin_decimals}f}, {longitude:.{origin_decimals}f} "
+        f"({origin_precision(origin_decimals)}; the exact value you typed is neither "
+        "sent nor stored)"
+    )
+    if keyed:
+        lines = [
+            f"Research plan: OpenRouteService isochrone ({ROUTING_ENDPOINT}) + one combined "
+            f"Overpass query ({PLACES_ENDPOINT})",
+            f"Origin sent to routing provider: {origin}",
+        ]
+    else:
+        lines = [
+            "Research plan: distance-proxy boundary (no ORS_API_KEY set; computed locally, "
+            f"nothing sent) + one combined Overpass query ({PLACES_ENDPOINT})",
+            f"Origin used locally for the proxy boundary: {origin}",
+            f"Boundary: {describe_proxy(duration_minutes, route_profile)} "
+            "A free key from https://openrouteservice.org upgrades it.",
+        ]
     sent = ["the boundary polygon (simplified to at most 80 vertices)"]
     if "premium_grocers" in osm_metrics:
         sent.append(f"the premium grocer patterns {', '.join(grocer_patterns)}")
@@ -321,7 +336,9 @@ def describe_research_plan(
     lines.append(
         f"Imported later from cited inputs, never fetched here: {', '.join(imported)}"
     )
-    lines.append("Maximum live provider calls: 2 (compatible cache hits reduce this)")
+    lines.append(
+        f"Maximum live provider calls: {2 if keyed else 1} (compatible cache hits reduce this)"
+    )
     return lines
 
 
@@ -364,11 +381,16 @@ def execute_research(
         ledger,
         ttl=timedelta(days=1),
     )
-    boundary = OpenRouteServiceIsochrones(
-        api_key, transport=routing_transport
-    ).boundary(
-        latitude, longitude, duration_minutes, profile=route_profile
-    )
+    if api_key:
+        boundary = OpenRouteServiceIsochrones(
+            api_key, transport=routing_transport
+        ).boundary(
+            latitude, longitude, duration_minutes, profile=route_profile
+        )
+    else:
+        boundary = DistanceProxyBoundary().boundary(
+            latitude, longitude, duration_minutes, profile=route_profile
+        )
     collector = OverpassAmenityCollector(
         premium_grocers=brand_group(preferences, "premium_grocers"),
         transport=overpass_transport,
@@ -384,17 +406,7 @@ def execute_research(
                 "longitude": longitude,
                 "precision": origin_precision(origin_decimals),
             },
-            "route_boundary": {
-                "type": "isochrone",
-                "duration_minutes": duration_minutes,
-                "travel_profile": route_profile,
-                "provider": boundary.provider,
-                "departure_time": None,
-                "traffic_treatment": "provider default; departure time not supplied",
-                "retrieved_at": boundary.retrieved_at or generated_at,
-                "geometry_file": "route-boundary.geojson",
-                "geometry": boundary.geometry,
-            },
+            "route_boundary": route_boundary_record(boundary, generated_at),
             "housing": search["housing"],
             "destinations": search["destinations"],
             "providers": {
@@ -415,7 +427,7 @@ def execute_research(
         research.evidence,
         results,
         request_ledger=ledger.entries,
-        warnings=run_warnings(research, measured),
+        warnings=run_warnings(research, measured, boundary),
     )
     _write_json(output / "route-boundary.geojson", boundary.geometry)
     (output / "overpass-query.overpassql").write_text(
@@ -429,9 +441,38 @@ def execute_research(
     return manifest
 
 
-def run_warnings(research: Any, measured: Sequence[str]) -> list[str]:
+def route_boundary_record(boundary: Any, generated_at: str) -> dict[str, Any]:
+    """The profile's boundary block, labelled by how the boundary was made."""
+    proxy = boundary.provider == PROXY_PROVIDER
+    record: dict[str, Any] = {
+        "type": "distance_proxy" if proxy else "isochrone",
+        "duration_minutes": boundary.duration_minutes,
+        "travel_profile": boundary.profile,
+        "provider": boundary.provider,
+        "departure_time": None,
+        "traffic_treatment": (
+            "not modelled; straight-line distance proxy"
+            if proxy else "provider default; departure time not supplied"
+        ),
+        "retrieved_at": boundary.retrieved_at or generated_at,
+        "geometry_file": "route-boundary.geojson",
+        "geometry": boundary.geometry,
+    }
+    if boundary.description:
+        record["description"] = boundary.description
+    return record
+
+
+def run_warnings(
+    research: Any, measured: Sequence[str], boundary: Any | None = None
+) -> list[str]:
     """Provenance notes about what the bounded collection did not do."""
     warnings: list[str] = []
+    if boundary is not None and boundary.provider == PROXY_PROVIDER:
+        warnings.append(
+            f"Route boundary is a distance proxy, not a routed isochrone: "
+            f"{boundary.description}"
+        )
     sent, provided = research.polygon_vertices
     if sent < provided:
         warnings.append(

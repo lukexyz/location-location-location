@@ -41,7 +41,9 @@ and never claims a property exists because an area looks affordable.
    call ceiling.
    Nothing is fetched until you add `--execute`.
 2. **Bound.** One OpenRouteService isochrone becomes the search envelope, for
-   example everywhere within a 30-minute drive.
+   example everywhere within a 30-minute drive. Without a routing key a
+   labelled straight-line distance proxy stands in, so a first run needs no
+   signup.
 3. **Collect.** One combined Overpass call discovers cities, towns, suburbs,
    villages, and neighbourhoods inside the envelope and, around each of them,
    fetches only the amenity metrics you weighted or limited (cafés, betting
@@ -183,8 +185,12 @@ limit is not collected at all; add `--measure METRIC` to record it for
 information. The origin is rounded before it is sent or stored
 (`--origin-decimals`, default 3, about 110 m). The preview prints the rounded
 origin, the provider hosts, the premium-grocer fragments, what is and is not
-measured, and the two-call ceiling. Set a local `ORS_API_KEY`, review the
-preview, then add `--execute`. The single Overpass call
+measured, and the call ceiling. Review the preview, then add `--execute`.
+With a local `ORS_API_KEY` the boundary is a real OpenRouteService isochrone
+and the ceiling is two calls; without one the boundary is a straight-line
+distance proxy computed locally (an assumed speed per travel profile times a
+0.7 detour factor), the ceiling is one call, and the profile, provenance, and
+viewer all label it as a proxy. A free key upgrades it; nothing else changes. The single Overpass call
 also fetches the walkable street network around each discovered settlement, so
 amenity counts follow a 15-minute walk along mapped footways and streets;
 observations say explicitly when a straight-line proxy was used instead.

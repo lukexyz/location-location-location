@@ -133,6 +133,25 @@ describe("viewer", () => {
     expect(dossier.getByText("UNVERIFIED")).toBeInTheDocument();
   });
 
+  it("labels a distance-proxy envelope as a proxy and shows its assumptions", () => {
+    const proxied = structuredClone(demoData);
+    proxied.route_boundary = {
+      ...proxied.route_boundary,
+      type: "distance_proxy",
+      provider: "distance-proxy",
+      duration_minutes: 30,
+      travel_profile: "driving-car",
+      traffic_treatment: "not modelled; straight-line distance proxy",
+      description: "Distance proxy: 30 min by driving-car approximated as a 14.0 km straight-line radius (40 km/h x 0.7 detour factor); not a routed isochrone. Set ORS_API_KEY for a real one.",
+    } as typeof proxied.route_boundary;
+    const bundle = parseResultBundle(proxied);
+    const { container } = render(<Dossier candidate={bundle.candidates[0]} routeBoundary={bundle.route_boundary} />);
+    const route = within(container.querySelector(".route-context") as HTMLElement);
+    expect(route.getByText("SEARCH ENVELOPE / distance proxy")).toBeInTheDocument();
+    expect(route.getByText("30 min · PROXY")).toBeInTheDocument();
+    expect(route.getByText(/14\.0 km straight-line radius/)).toHaveClass("proxy-note");
+  });
+
   it("labels market affordability separately from live listings", () => {
     render(<App />);
     expect(screen.getByRole("heading", { name: "Housing affordability" })).toBeInTheDocument();

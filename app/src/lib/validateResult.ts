@@ -436,7 +436,7 @@ function validateRouteBoundary(value: unknown, path: string): void {
     ],
     path,
   );
-  oneOf(boundary.type, ["isochrone", "fixture_polygon"], `${path}.type`);
+  oneOf(boundary.type, ["isochrone", "distance_proxy", "fixture_polygon"], `${path}.type`);
   if (boundary.description !== undefined) string(boundary.description, `${path}.description`);
   if (boundary.duration_minutes !== undefined) {
     const minutes = integer(boundary.duration_minutes, `${path}.duration_minutes`, 1);
