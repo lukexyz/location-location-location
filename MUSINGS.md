@@ -887,6 +887,13 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - Verified on 2026-09-03: 63 Vitest tests (three new: door visibility, the modal end to end, and the command strings), 34 Playwright tests passing with axe clean on desktop and mobile including the open modal (the command block wraps rather than scrolls so it needs no focusable scroll region), clean build.
 - Known nit: on a 1280px desktop the banner covers the top-most demo pin; the map is still fitted and the pin is reachable once the banner is dismissed by loading a bundle. Left as is because the banner is the point while the sample is active.
 
+### P17 completion note
+
+- The one-liner is true. `scripts/bootstrap.sh` (POSIX sh) and `scripts/bootstrap.ps1` (PowerShell, designed for `irm | iex`) take the agent name, report git, uv, Node 22+, npm, the agent CLI, and whether `ORS_API_KEY` is set without ever printing it, then clone or reuse the repository, run `uv sync` and `npm install`, and open the agent inside the clone with a prompt that names the research skill. Python is not a prerequisite because uv installs it. When the shell script arrives through a pipe it hands the agent `/dev/tty` so the terminal still works. `LOCATION3_DIR`, `LOCATION3_REPO`, and `LOCATION3_LAUNCH=0` exist for tests and for people who want to stop before launch.
+- Tested three ways on 2026-09-03: unit tests drive both scripts with shimmed `uv` and `npm` against a clone of this working tree (the test alone marks the source safe for git through `GIT_CONFIG_*`, because on this machine the checkout is owned by another account); a real run of each script in a scratch directory cloned, synced, installed 133 packages, and printed the launch line; and a static check asserts neither script ever echoes the key.
+- The README opens "Running it" with the two lines; the manual install remains below. The modal's lines and the README's lines are the same strings.
+- Verified: ruff clean, 76 Python tests (four new), viewer suites unchanged from P16.
+
 ### Decisions
 
 - The demo stays a static, read-only renderer. The call to action is content, not a feature.

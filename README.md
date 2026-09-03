@@ -128,7 +128,30 @@ value cannot claim confidence above 0.5.
 
 ## Running it
 
-Requires Python 3.11 or newer, Node 22 or newer, and an OpenRouteService key.
+### Fastest start
+
+One line clones the repository, installs it, reports what it found, and opens
+your coding agent inside it with the research skill loaded. Pick your agent
+(`claude` or `codex`) and your shell:
+
+```powershell
+$env:LOCATION3_AGENT = "claude"; irm https://raw.githubusercontent.com/lukexyz/location-location-location/main/scripts/bootstrap.ps1 | iex
+```
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/lukexyz/location-location-location/main/scripts/bootstrap.sh | sh -s -- claude
+```
+
+The scripts need git, Node 22 or newer, and [uv](https://docs.astral.sh/uv/)
+(which installs Python itself), plus the agent's own CLI. They report whether a
+routing key is present without ever printing it, reuse an existing clone, and
+stop before launching when `LOCATION3_LAUNCH=0`. The same public demo's
+**Run your own search** button hands out these lines.
+
+### Manual install
+
+Requires Python 3.11 or newer, Node 22 or newer, and an OpenRouteService key
+for a real drive-time boundary.
 
 ```powershell
 uv sync            # or: pip install -e .
