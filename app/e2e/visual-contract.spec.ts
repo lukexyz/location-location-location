@@ -55,3 +55,23 @@ test("nothing animates while the viewer is idle", async ({ page }) => {
   );
   expect(animated).toBe(0);
 });
+
+test("the place card stays inside the map and off the side cards", async ({ page }) => {
+  const viewport = page.viewportSize();
+  if (!viewport) throw new Error("Playwright viewport is unavailable");
+  await page.getByRole("button", { name: /Welwyn Garden City/ }).click();
+  const card = await page.getByTestId("place-card").boundingBox();
+  const map = await page.locator(".map-field").boundingBox();
+  if (!card || !map) throw new Error("Card geometry is unavailable");
+  expect(card.x).toBeGreaterThanOrEqual(map.x);
+  expect(card.x + card.width).toBeLessThanOrEqual(map.x + map.width + 1);
+  expect(card.y).toBeGreaterThanOrEqual(map.y);
+  expect(card.y + card.height).toBeLessThanOrEqual(map.y + map.height + 1);
+  if (viewport.width > 760) {
+    const rank = await page.locator(".rank-panel").boundingBox();
+    const dossier = await page.locator(".dossier").boundingBox();
+    if (!rank || !dossier) throw new Error("Panel geometry is unavailable");
+    expect(card.x).toBeGreaterThanOrEqual(rank.x + rank.width);
+    expect(card.x + card.width).toBeLessThanOrEqual(dossier.x);
+  }
+});

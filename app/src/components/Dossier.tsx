@@ -33,7 +33,7 @@ export function Dossier({
       <header className="dossier-heading">
         <div>
           <span className="eyebrow">EVIDENCE / PLACE {String(candidate.rank).padStart(2, "0")}</span>
-          <h2 id="dossier-heading">{candidate.name}</h2>
+          <h2 id="dossier-heading" tabIndex={-1}>{candidate.name}</h2>
           <div className="coordinates">{coordinates(candidate.location.latitude, candidate.location.longitude)}</div>
         </div>
         <div

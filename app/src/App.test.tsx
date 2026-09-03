@@ -7,9 +7,10 @@ import { Dossier } from "./components/Dossier";
 import { parseResultBundle } from "./lib/validateResult";
 
 vi.mock("./components/MapView", () => ({
-  MapView: ({ candidates, onSelect }: { candidates: { id: string }[]; onSelect: (id: string) => void }) => (
+  MapView: ({ candidates, onSelect, overlay }: { candidates: { id: string }[]; onSelect: (id: string) => void; overlay?: React.ReactNode }) => (
     <div data-testid="map-view">
       <button type="button" onClick={() => onSelect(candidates[1].id)}>Select map candidate</button>
+      {overlay}
     </div>
   ),
 }));
@@ -324,5 +325,57 @@ describe("viewer", () => {
     expect(preview).toHaveTextContent("no evidence weighted");
     expect(preview).not.toHaveTextContent(/confidence 100%/);
     expect(container.querySelector(".instrument-strip .readout.preview strong")).toHaveTextContent("0.0 · —");
+  });
+});
+
+describe("place card", () => {
+  it("stays closed until a place is picked, then shows the photo, credit, facts, and a way into the evidence", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.queryByTestId("place-card")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Maidenhead/ }));
+    const card = within(screen.getByTestId("place-card"));
+    expect(card.getByText("Maidenhead")).toBeInTheDocument();
+    expect(card.getByText("Outside limit")).toBeInTheDocument();
+    expect(card.getByLabelText("Rank 3")).toBeInTheDocument();
+    const photo = card.getByRole("img") as HTMLImageElement;
+    expect(photo.src).toMatch(/demo\/photos\/maidenhead\.jpg$/);
+    expect(photo.alt).toMatch(/Photo by Tom Bastin/);
+    const credit = card.getByRole("link", { name: /Tom Bastin/ });
+    expect(credit).toHaveAttribute("href", expect.stringContaining("commons.wikimedia.org"));
+    expect(credit).toHaveAttribute("rel", "noreferrer");
+    expect(card.getByText("Fit").nextElementSibling).toHaveTextContent("67.1");
+    expect(card.getByText(/^\d+ min$/)).toBeInTheDocument();
+
+    await user.click(card.getByRole("button", { name: /See the evidence/ }));
+    expect(document.activeElement?.id).toBe("dossier-heading");
+
+    await user.click(card.getByRole("button", { name: "Close card" }));
+    expect(screen.queryByTestId("place-card")).not.toBeInTheDocument();
+  });
+
+  it("opens from the map too and closes when another bundle is loaded", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: "Select map candidate" }));
+    expect(within(screen.getByTestId("place-card")).getByText("Hemel Hempstead")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Select map candidate" }));
+    expect(screen.getByTestId("place-card")).toBeInTheDocument();
+
+    const bundle = structuredClone(demoData) as Record<string, unknown>;
+    bundle.run_id = "picked-file";
+    for (const candidate of bundle.candidates as Record<string, unknown>[]) delete candidate.photo;
+    const file = new File([JSON.stringify(bundle)], "picked.json", { type: "application/json" });
+    fireEvent.change(screen.getByTestId("result-import"), { target: { files: [file] } });
+    await screen.findByText(/picked\.json loaded/);
+    expect(screen.queryByTestId("place-card")).not.toBeInTheDocument();
+
+    // A picked file has no reachable photos: the card still opens, with a gradient instead of an image.
+    await user.click(screen.getByRole("button", { name: "Select map candidate" }));
+    const card = within(screen.getByTestId("place-card"));
+    expect(card.queryByRole("img")).not.toBeInTheDocument();
+    expect(card.queryByRole("link")).not.toBeInTheDocument();
+    expect(card.getByText("Hemel Hempstead")).toBeInTheDocument();
   });
 });

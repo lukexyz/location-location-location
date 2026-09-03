@@ -149,3 +149,22 @@ test("importance sliders preview a what-if order while researched ranks stay put
   await expect(page.getByText("RESEARCHED WEIGHTS")).toBeVisible();
   await expect(page.locator(".rank-score.whatif")).toHaveCount(0);
 });
+
+test("picking a pin pops open a card with the place's photo and its credit", async ({ page }) => {
+  await expect(page.locator(".place-card")).toHaveCount(0);
+  // Click at the pin's own centre: Playwright's scroll-into-view can shift Leaflet's panes on a touch profile.
+  const pin = await page.locator('.leaflet-marker-icon[title^="Hemel Hempstead"]').boundingBox();
+  if (!pin) throw new Error("pin geometry is unavailable");
+  await page.mouse.click(pin.x + pin.width / 2, pin.y + pin.height / 2);
+  const card = page.getByTestId("place-card");
+  await expect(card).toBeVisible();
+  await expect(card.getByText("Hemel Hempstead")).toBeVisible();
+  const photo = card.getByRole("img");
+  await expect(photo).toHaveAttribute("src", /demo\/photos\/hemel-hempstead\.jpg$/);
+  await expect.poll(() => photo.evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  await expect(card.getByRole("link", { name: /CC BY-SA/ })).toHaveAttribute("href", /commons\.wikimedia\.org/);
+  await card.getByRole("button", { name: /See the evidence/ }).click();
+  await expect(page.locator("#dossier-heading")).toBeFocused();
+  await card.getByRole("button", { name: "Close card" }).click();
+  await expect(page.locator(".place-card")).toHaveCount(0);
+});

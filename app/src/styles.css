@@ -189,6 +189,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .dossier { right: 14px; width: min(420px, calc(100vw - 28px)); display: flex; flex-direction: column; padding: 1rem; }
 .dossier-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: .85rem; }
 .dossier-heading h2 { margin: .25rem 0 .2rem; font-size: 1.45rem; font-weight: 800; letter-spacing: -.01em; line-height: 1.1; }
+.dossier-heading h2:focus { outline: none; }.dossier-heading h2:focus-visible { outline: 2px solid var(--acid); outline-offset: 4px; }
 .coordinates { color: var(--muted); font: .58rem var(--voice-mono); letter-spacing: .1em; }
 .score-dial { --score: 0; position: relative; width: 76px; height: 76px; flex: 0 0 auto; display: grid; place-content: center; text-align: center; border-radius: 50%; background: radial-gradient(circle at center, #161c1f 54%, transparent 56%), conic-gradient(var(--acid) calc(var(--score) * 1%), rgba(255, 255, 255, .12) 0); }
 .score-dial.failed { background: radial-gradient(circle at center, #161c1f 54%, transparent 56%), conic-gradient(var(--danger) calc(var(--score) * 1%), rgba(255, 255, 255, .12) 0); }
@@ -348,3 +349,34 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .rank-score.whatif { color: var(--amber); }
 .whatif-readout { color: var(--amber); }
 .readout.preview strong { color: var(--amber); }
+
+/* The place card: pops open over the map when a place is picked. Photo with the credit in the corner, rank, limit badge, three facts, a way into the evidence. */
+.place-card { position: absolute; z-index: 1100; /* above Leaflet's controls; the map's own stacking context keeps it under every card and modal */ left: 338px; bottom: 44px; width: min(360px, calc(100% - 800px)); overflow: hidden; background: var(--panel-heavy); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 18px 44px rgba(0, 0, 0, .4); }
+.place-card-photo { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: linear-gradient(135deg, rgba(180, 243, 107, .35), rgba(20, 26, 29, .2) 55%, rgba(255, 205, 107, .3)); }
+.place-card-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.place-card-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, .22), transparent 35%, transparent 60%, rgba(0, 0, 0, .45)); }
+.place-card-photo > :not(img) { z-index: 1; }
+.place-card-rank { position: absolute; top: .6rem; left: .6rem; display: grid; place-items: center; width: 30px; height: 30px; color: #0f1a08; background: var(--acid); border-radius: 50%; font: 800 .9rem var(--voice-display); box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
+.place-card-badge { position: absolute; top: .65rem; right: 2.9rem; padding: .28rem .6rem; color: var(--ink); background: rgba(16, 21, 24, .85); border: 1px solid rgba(255, 255, 255, .18); border-radius: 999px; font: 700 .58rem var(--voice-mono); letter-spacing: .1em; text-transform: uppercase; }
+.place-card-badge.fail { color: #2a0c09; background: var(--danger); border-color: var(--danger); }
+.place-card-badge.unknown { color: #1a1405; background: var(--amber); border-color: var(--amber); }
+.place-card-close { position: absolute; top: .6rem; right: .6rem; display: grid; place-items: center; width: 30px; height: 30px; color: var(--ink); background: rgba(16, 21, 24, .85); border: 1px solid rgba(255, 255, 255, .18); border-radius: 50%; font: 1.05rem/1 var(--voice-display); cursor: pointer; }
+.place-card-close:hover { background: #10151a; color: #fff; }
+.place-card-name { position: absolute; left: .6rem; bottom: .6rem; margin: 0; padding: .32rem .7rem; color: #1a1405; background: var(--amber); border-radius: 8px; font: 800 1rem var(--voice-display); box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
+.place-card-credit { position: absolute; right: .6rem; bottom: .65rem; max-width: 46%; overflow: hidden; padding: .2rem .5rem; color: #e8eee9; background: rgba(16, 21, 24, .78); border-radius: 6px; font: .56rem var(--voice-mono); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.place-card-credit:hover { text-decoration: underline; }
+.place-card-facts { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: .4rem; margin: 0; padding: .7rem .75rem .5rem; }
+.place-card-facts > div { min-width: 0; padding: .45rem .5rem; border: 1px solid var(--line); border-radius: var(--radius-small); background: rgba(255, 255, 255, .04); }
+.place-card-facts dt { color: var(--muted); font: .5rem/1.35 var(--voice-mono); letter-spacing: .06em; text-transform: uppercase; }
+.place-card-facts dd { margin: .15rem 0 0; font: 700 .82rem var(--voice-display); overflow-wrap: anywhere; }
+.place-card-score dd { color: var(--acid); font: 800 1.05rem var(--voice-mono); }
+.place-card-evidence { display: flex; justify-content: space-between; width: calc(100% - 1.5rem); margin: 0 .75rem .75rem; padding: .55rem .8rem; color: var(--ink); background: rgba(255, 255, 255, .05); border: 1px solid var(--line); border-radius: var(--radius-small); font: 700 .78rem var(--voice-display); cursor: pointer; }
+.place-card-evidence:hover { color: #fff; border-color: var(--line-hot); }
+@media (max-width: 1050px) { .place-card { left: 298px; width: min(340px, calc(100% - 710px)); } }
+@media (max-width: 760px) {
+  /* Shorter on a phone so the card's top strip clears the floating header. */
+  .place-card { left: 8px; right: 8px; bottom: 8px; width: auto; }
+  .place-card-photo { aspect-ratio: 2 / 1; }
+  .place-card-facts { grid-template-columns: auto repeat(2, minmax(0, 1fr)); }
+  .place-card-facts > div:nth-child(4) { display: none; }
+}

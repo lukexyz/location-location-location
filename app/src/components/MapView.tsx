@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -29,9 +30,11 @@ interface MapViewProps {
   routeBoundary?: RouteBoundary;
   selectedId: string;
   onSelect: (id: string) => void;
+  /** Rendered over the map, inside its bounds: the place card. */
+  overlay?: ReactNode;
 }
 
-export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSelect }: MapViewProps) {
+export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSelect, overlay }: MapViewProps) {
   const first = candidates[0].location;
   const [zoom, setZoom] = useState(9);
   const pinSize = pinSizeForZoom(zoom);
@@ -87,6 +90,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
         })}
       </MapContainer>
       <FocusFilters />
+      {overlay}
     </section>
   );
 }
@@ -164,7 +168,8 @@ function FieldController({
  * phone the map has the width to itself.
  */
 export function visibleFieldPadding(width: number): { paddingTopLeft: [number, number]; paddingBottomRight: [number, number] } {
-  if (width <= 760) return { paddingTopLeft: [36, 36], paddingBottomRight: [36, 36] };
+  // On a phone the header floats over the top of the map, so the fit keeps the field below it.
+  if (width <= 760) return { paddingTopLeft: [36, 112], paddingBottomRight: [36, 36] };
   const rankWidth = width <= 1050 ? 270 : 310;
   const dossierWidth = width <= 1050 ? 370 : 420;
   return { paddingTopLeft: [rankWidth + 50, 190], paddingBottomRight: [dossierWidth + 50, 70] };

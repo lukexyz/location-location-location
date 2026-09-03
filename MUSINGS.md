@@ -1068,6 +1068,13 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - Honest limitation: a Wikipedia lead image is not always the postcard shot. Hemel Hempstead's is its Magic Roundabout. A later option could let the user point at a different Commons file per place.
 - Verified: contracts and Python suite green, typecheck clean, 80 Vitest tests.
 
+### P32 completion note
+
+- Picking a pin or a shortlist row pops open a card over the map: the photo with a soft top-and-bottom scrim, the rank in a circle, a "Within limits" / "Limit unverified" / "Outside limit" badge, the name in a yellow pill, the author and licence in the corner linking to the Commons page, then four facts (fit, commute, typical price or rent, and the strongest everyday signal that is actually present, so "4 cafés in 15 min" beats "0 betting shops") and a "See the evidence" button that focuses the evidence heading. A close button dismisses it; loading a bundle closes it; the initial selection never opens it.
+- Photos resolve against the bundle's folder: the demo's under `demo/photos/`, a served run's under `runs/<name>/photos/`, a picked file's nowhere, in which case the card shows a gradient and the same facts. The card sits bottom-left of the visible map on desktop and over the bottom of the map on a phone, above Leaflet's controls but under every panel and modal.
+- The card's name is a label, not a heading, so the evidence panel keeps the only heading for the place and the existing tests kept their meaning. The evidence heading became focusable for the "See the evidence" hand-off.
+- Verified: typecheck and build clean, 85 Vitest tests (five new), 44 Playwright tests including an axe scan with the card open and a geometry check that the card never touches the side cards, screenshots at 1280 and 390.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.

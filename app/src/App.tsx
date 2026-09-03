@@ -3,12 +3,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import demoData from "./data/demo-results.json";
 import { Dossier } from "./components/Dossier";
 import { MapView } from "./components/MapView";
+import { PlaceCard } from "./components/PlaceCard";
 import { ProgressModal } from "./components/ProgressModal";
 import { RankedList } from "./components/RankedList";
 import { StartBanner, StartDialog } from "./components/StartPanel";
 import type { SortMode } from "./components/RankedList";
 import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
+import { assetBaseFor } from "./lib/placeCard";
 import { isLocalViewer } from "./lib/progress";
 import { useProgressFeed } from "./lib/useProgressFeed";
 import { MAX_CANDIDATES, parseResultBundle, ResultValidationError } from "./lib/validateResult";
@@ -21,6 +23,8 @@ const demoResult = parseResultBundle(demoData);
 // 1,000-candidate limit so the two limits cannot contradict each other.
 export const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+// The demo's photos ship with the site; a served run's live beside its results; a picked file has none.
+const DEMO_ASSET_BASE = `${import.meta.env.BASE_URL}demo/`;
 const DEMO_STATE: LoadState = {
   kind: "demo",
   message: "Sample data: real towns, synthetic evidence",
@@ -44,6 +48,8 @@ export default function App() {
   const [categoryWeights, setCategoryWeights] = useState<WeightMap>({});
   const [loadState, setLoadState] = useState<LoadState>(DEMO_STATE);
   const [startOpen, setStartOpen] = useState(false);
+  const [assetBase, setAssetBase] = useState<string | undefined>(DEMO_ASSET_BASE);
+  const [cardOpen, setCardOpen] = useState(false);
   const progress = useProgressFeed(LOCAL_VIEWER);
   const [dismissedRun, setDismissedRun] = useState<string | null>(null);
   const [loadingResult, setLoadingResult] = useState(false);
@@ -79,8 +85,24 @@ export default function App() {
     window.requestAnimationFrame(() => document.querySelector<HTMLElement>(".start-button")?.focus());
   }, []);
 
-  function loadBundle(next: ResearchResult, state: LoadState) {
+  /** A pick from the map or the shortlist opens the card; the initial selection and a bundle load do not. */
+  const selectPlace = useCallback((id: string) => {
+    setSelectedId(id);
+    setCardOpen(true);
+  }, []);
+
+  function showEvidence() {
+    const heading = document.getElementById("dossier-heading");
+    const scroller = document.querySelector<HTMLElement>(".dossier-scroll");
+    if (scroller && typeof scroller.scrollTo === "function") scroller.scrollTo({ top: 0 });
+    if (heading && typeof heading.scrollIntoView === "function") heading.scrollIntoView({ block: "start" });
+    heading?.focus();
+  }
+
+  function loadBundle(next: ResearchResult, state: LoadState, base: string | undefined) {
     setStartOpen(false);
+    setCardOpen(false);
+    setAssetBase(base);
     setResult(next);
     setFieldSerial((serial) => serial + 1);
     setWeights({});
@@ -99,7 +121,7 @@ export default function App() {
         );
       }
       const next = parseResultBundle(JSON.parse(await file.text()));
-      loadBundle(next, { kind: "loaded", message: `${file.name} loaded in this tab only` });
+      loadBundle(next, { kind: "loaded", message: `${file.name} loaded in this tab only` }, undefined);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to read that result bundle.";
       setLoadState({ kind: "error", message });
@@ -109,7 +131,7 @@ export default function App() {
   }
 
   function restoreDemo() {
-    loadBundle(demoResult, DEMO_STATE);
+    loadBundle(demoResult, DEMO_STATE, DEMO_ASSET_BASE);
   }
 
   async function loadServedResult(url: string) {
@@ -120,7 +142,7 @@ export default function App() {
         throw new ResultValidationError(`The local serve returned HTTP ${response.status} for ${url}.`);
       }
       const next = parseResultBundle(await response.json());
-      loadBundle(next, { kind: "loaded", message: `${next.run_id} loaded from the local run; it stays in this tab` });
+      loadBundle(next, { kind: "loaded", message: `${next.run_id} loaded from the local run; it stays in this tab` }, assetBaseFor(url));
       setDismissedRun(progress?.started_at ?? null);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to read the finished result.";
@@ -145,7 +167,16 @@ export default function App() {
         fieldKey={`${result.run_id}:${result.generated_at}:${fieldSerial}`}
         routeBoundary={result.route_boundary}
         selectedId={selected.id}
-        onSelect={setSelectedId}
+        onSelect={selectPlace}
+        overlay={cardOpen ? (
+          <PlaceCard
+            candidate={selected}
+            assetBase={assetBase}
+            previewScore={whatIf?.get(selected.id)?.overallScore}
+            onClose={() => setCardOpen(false)}
+            onEvidence={showEvidence}
+          />
+        ) : null}
       />
 
       <header className="instrument-header panel-cut">
@@ -209,7 +240,7 @@ export default function App() {
           sortMode={sortMode}
           whatIf={whatIf}
           onSort={setSortMode}
-          onSelect={setSelectedId}
+          onSelect={selectPlace}
         >
           <TunePanel
             baseline={baseline}
