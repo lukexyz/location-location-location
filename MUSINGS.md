@@ -962,6 +962,13 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The field fits into the visible part of the map: on a wide screen the fit pads for the two side panels, the header, and the front door, so no pin starts under a panel; on a phone it pads evenly. A new Playwright check asserts that nothing on the page animates while idle, replacing the two scan-line checks.
 - Verified: typecheck and build clean, 78 Vitest tests, screenshots at 1280 and 390 reviewed with live tiles.
 
+### P21 completion note
+
+- Every panel is now one flat card: a border, a 12px radius, and a soft drop shadow, with the chamfer, the inner hairline, the gradient, and the viewport frame line removed. Inner blocks share a 7px radius. Every glow (status lights, buttons, the score dial, the bars, the pins, the slider thumb) is gone; the plumbob keeps its bounce and nothing else.
+- The palette lifted off pure black: background `#11171a`, panels `rgba(20, 26, 29, 0.94)`, accent `#b4f36b`, sun `#ffcd6b`, coral `#ff8577`. The visual contract test pins the new tokens.
+- Uppercase letter-spaced mono is now reserved for eyebrows, readout labels, definition terms, and the status rail; panel headings, place names, category and metric names, sort keys, buttons, links, and the tune rows read in sentence case at a slightly larger size.
+- One regression caught in review: giving the readout strip `overflow: hidden` let the evidence column's flex layout squash it to ten pixels. It is `flex: 0 0 auto` now.
+
 ### Decisions
 
 - Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.
