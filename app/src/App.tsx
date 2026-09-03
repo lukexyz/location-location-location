@@ -10,6 +10,7 @@ import { StartBanner, StartDialog } from "./components/StartPanel";
 import type { SortMode } from "./components/RankedList";
 import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
+import { categoryNames, sectionColours } from "./lib/palette";
 import { assetBaseFor } from "./lib/placeCard";
 import { isLocalViewer } from "./lib/progress";
 import { useProgressFeed } from "./lib/useProgressFeed";
@@ -55,6 +56,7 @@ export default function App() {
   const [loadingResult, setLoadingResult] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const baseline = useMemo(() => deriveBaseline(result), [result]);
+  const sections = useMemo(() => sectionColours(categoryNames(result)), [result]);
   const whatIfActive = weightsDiffer(weights, baseline, categoryWeights);
   const whatIf = useMemo(() => {
     if (!whatIfActive) return undefined;
@@ -236,6 +238,7 @@ export default function App() {
       >
         <RankedList
           candidates={candidates}
+          routeBoundary={result.route_boundary}
           selectedId={selected.id}
           sortMode={sortMode}
           whatIf={whatIf}
@@ -246,6 +249,7 @@ export default function App() {
             baseline={baseline}
             weights={weights}
             categoryWeights={categoryWeights}
+            sections={sections}
             onChange={setWeights}
             onCategoryChange={setCategoryWeights}
             onReset={restoreImportance}
@@ -254,6 +258,7 @@ export default function App() {
         <Dossier
           candidate={selected}
           routeBoundary={result.route_boundary}
+          sections={sections}
           whatIf={whatIf?.get(selected.id)}
         />
       </main>

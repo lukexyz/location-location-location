@@ -124,8 +124,8 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 /* Two labelled rows of segmented keys: which agent, which shell. */
 .start-choice { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .8rem; }
 .start-choice + .start-choice { margin-top: .45rem; }
-.segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; padding: 3px; border: 1px solid var(--line); border-radius: var(--radius-small); background: rgba(0, 0, 0, .22); }
-.segmented .sort-key { min-height: 34px; border: 0; border-radius: 5px; background: transparent; font-size: .72rem; }
+.segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: rgba(0, 0, 0, .22); }
+.segmented .sort-key { min-height: 34px; border: 0; border-radius: 999px; background: transparent; font-size: .72rem; }
 .segmented .sort-key:hover { background: rgba(255, 255, 255, .06); }
 .start-tabs .sort-key[aria-selected="true"] { color: var(--primary-ink); background: var(--primary); border-color: var(--primary); }
 .start-command { margin-top: 1rem; padding: .7rem .75rem .75rem; border: 1px solid var(--line-hot); border-radius: var(--radius-small); background: rgba(242, 107, 58, .07); }
@@ -173,12 +173,11 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .rank-panel { left: 14px; width: min(310px, calc(100vw - 28px)); display: flex; flex-direction: column; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: 1rem 1rem .7rem; }
 .panel-heading h2 { margin: .2rem 0 0; font-size: 1.1rem; font-weight: 700; letter-spacing: 0; }
-.count-readout { color: var(--acid); font: 1.6rem var(--voice-mono); }
 
 /* Sort: a row of small keys instead of a native select. */
 .sort-keys { display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); gap: 3px; padding: 0 1rem .7rem; border-bottom: 1px solid var(--line); }
 .sort-keys-label { align-self: center; padding-right: .35rem; color: var(--muted); font: .52rem var(--voice-mono); letter-spacing: .14em; text-transform: uppercase; }
-.sort-key { min-height: 28px; padding: .3rem .2rem; overflow: hidden; color: var(--muted); background: rgba(255, 255, 255, .04); border: 1px solid var(--line); border-radius: var(--radius-small); font: 600 .64rem var(--voice-display); letter-spacing: .01em; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.sort-key { min-height: 28px; padding: .3rem .2rem; overflow: hidden; color: var(--muted); background: rgba(255, 255, 255, .04); border: 1px solid var(--line); border-radius: 999px; font: 600 .64rem var(--voice-display); letter-spacing: .01em; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .sort-key:hover { color: var(--ink); border-color: var(--line-hot); }
 .sort-key[aria-pressed="true"] { color: var(--primary-ink); background: var(--primary); border-color: var(--primary); }
 
@@ -386,4 +385,42 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
   .place-card-photo { aspect-ratio: 2 / 1; }
   .place-card-facts { grid-template-columns: auto repeat(2, minmax(0, 1fr)); }
   .place-card-facts > div:nth-child(4) { display: none; }
+}
+
+/* Stat tiles: the search at a glance, a big number over a small label. */
+.stat-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; margin: 0; padding: 0 1rem .7rem; }
+.stat-tiles > div { min-width: 0; padding: .5rem .35rem .45rem; text-align: center; background: rgba(0, 0, 0, .22); border: 1px solid var(--line); border-radius: var(--radius-small); }
+.stat-tiles strong, .stat-tiles span { display: block; }
+.stat-tiles strong { color: var(--acid); font: 800 1.05rem var(--voice-display); }
+.stat-tiles > div:first-child strong { color: var(--primary); }
+.stat-tiles span { margin-top: .1rem; color: var(--muted); font: .47rem/1.25 var(--voice-mono); letter-spacing: .06em; text-transform: uppercase; overflow-wrap: anywhere; }
+.limit-line.fail { color: var(--danger); }.limit-line.unknown { color: var(--acid); }
+
+/* Section colours: each scoring category carries one colour through the evidence panel and the tune panel. */
+.category-block { --section: var(--muted); }
+.category-block > header .eyebrow { display: flex; align-items: center; gap: .45rem; color: var(--section); }
+.category-block > header .eyebrow::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: var(--section); }
+.category-block > header > strong, .category-block .category-result strong { color: var(--section); }
+.category-bar span { background: var(--section); }
+.category-block.unmeasured { --section: var(--amber); }
+.tune-group { --section: var(--muted); }
+.tune-row.category label { padding-left: .55rem; border-left: 3px solid var(--section); }
+.tune-row.category label span { color: var(--section); }
+
+/* Pin labels: the place's name beside its pin; the selected one turns yellow. On a phone only the selected label shows. */
+.pin-label { position: absolute; top: 50%; left: calc(100% + 6px); transform: translateY(-50%); padding: .22rem .6rem; color: var(--ink); background: rgba(28, 30, 29, .9); border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; font: 700 .7rem var(--voice-display); white-space: nowrap; pointer-events: none; }
+.score-marker.selected + .pin-label { color: var(--acid-ink); background: var(--acid); border-color: var(--acid); }
+
+/* Legend: a pill at the bottom of the map; the place card takes its spot while open. */
+.map-legend { position: absolute; z-index: 1000; left: 50%; bottom: 44px; transform: translateX(-50%); display: flex; gap: .9rem; margin: 0; padding: .45rem .9rem; list-style: none; color: var(--ink); background: var(--panel-heavy); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); font: .68rem var(--voice-text); white-space: nowrap; }
+.map-legend li { display: flex; align-items: center; gap: .4rem; }
+.legend-pin { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid #2b2e2d; }
+.legend-pin.unverified { background: var(--acid); border-style: dashed; }
+.legend-pin.excluded { background: var(--slate); }
+.legend-line { width: 18px; height: 3px; border-radius: 2px; background: var(--primary); }
+.place-card ~ .map-legend { display: none; }
+@media (max-width: 760px) {
+  .map-legend { display: none; }
+  .pin-label { display: none; }.score-marker.selected + .pin-label { display: block; }
+  .stat-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

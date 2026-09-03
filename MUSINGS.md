@@ -1081,8 +1081,31 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - Every dark-on-accent text colour became a token (`--primary-ink`, `--acid-ink`), so no literal lime or green remains in the stylesheet. The visual contract pins the new tokens.
 - Verified: typecheck and build clean, 85 Vitest tests, 44 Playwright tests with axe clean on both modals and the card, screenshots at 1280 and 390.
 
+### P34 completion note
+
+- Section colours: each scoring category gets one colour by sorted name (orange, teal, lilac, yellow, pink, blue, cycling), carried through the evidence panel's category eyebrows, scores, and bars and the tune panel's category rows. The lilac was lightened after axe caught a 4.2:1 contrast on the charcoal.
+- Stat tiles under the shortlist heading: places, the drive limit when the boundary has one (labelled "proxy" when it is), average confidence, and the fact count. Pill sort keys and segmented keys; the limit line under each row is coral when breached and yellow when unverified.
+- The map carries a name pill beside every pin (yellow for the selected one; on a phone only the selected label shows) and a key pill at the bottom that steps aside while the place card is open.
+- README: the part table, a Photos section, the serve route, and a privacy bullet. Screenshots refreshed.
+- Verified: typecheck and build clean, 89 Vitest tests, 46 Playwright tests with axe clean, screenshots at 1280 and 390.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.
 - Attribution is always shown on the card. CC BY requires it and the reference card does it well.
 - The research command's two-call cap is untouched; photos are a separate opt-in command with its own preview.
+
+## 2026-09-03 — Where the Project Stands After the Bright, Warm, Illustrated Pass
+
+### State
+
+- The viewer is bright and warm: a full-colour map that fades to greyscale outside the search area, charcoal cards, orange for actions, yellow for numbers and names, teal for measures, a colour per category, stat tiles, a key, and a name beside every pin.
+- Picking a place pops open a card with its photo, author and licence, rank, limit badge, four facts, and a way into the evidence. Photos are cited evidence fetched on the user's machine by an opt-in, previewed, cached command that works for any place the pipeline produces; the demo carries three real ones.
+- Nineteen commits after 0f4bb4d, none pushed. Python: 94 tests, ruff clean. Viewer: 89 Vitest tests, 46 Playwright tests with axe clean, CI grep clean on the build.
+
+### Not yet done
+
+- Push and the Pages deploy.
+- The first real end-to-end run from a pasted line, now including the photos command handing a `NAME-photos` bundle to the served viewer.
+- A Wikipedia lead image is not always the postcard shot. A `--prefer CANDIDATE=File:...` override on the photos command would let a user choose a different Commons file per place.
+- The card sits bottom-left of the map rather than beside its pin; anchoring it to the pin would need projection maths and a test in the browser.

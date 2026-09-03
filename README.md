@@ -69,8 +69,9 @@ and never claims a property exists because an area looks affordable.
 
 | Part | What it tells you |
 | --- | --- |
-| **Map** | Route envelope, numbered score pins, the selected place. OpenStreetMap basemap with visible attribution. |
-| **Shortlist** | Researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
+| **Map** | The search area in full colour with the rest of the map faded to greyscale, an orange boundary, numbered score pins with the place's name beside each, and a key. OpenStreetMap basemap with visible attribution. |
+| **Place card** | Pops open when you pick a pin or a row: the place's photo with its author and licence, rank, limit badge, fit, commute, typical price, the strongest everyday signal, and a way into the evidence. Photos come from the optional photos command below; a bundle without them gets a gradient. |
+| **Shortlist** | Places, drive limit, average confidence, and fact count at a glance; then researched rank, hard-limit status (clear, unverified, or breached), measured share when a weighted category has no evidence, score. Sort by recommendation, suitability, confidence, or name without changing rank numbers. |
 | **Tune importance** | Sliders that preview a what-if order using the scorer's own arithmetic. Bright amber scores and the footer say a preview is active; researched ranks stay put. |
 | **Evidence** | Overall fit, confidence, coverage, hard limits, playful readouts, unmeasured categories, route assumptions, rail intelligence, housing affordability, street care, and every metric's raw value, curve score, weight, contribution, confidence, basis, source, and date. |
 | **Playful readouts** | Sourdough-to-Slots, Emergency Croissant Radius, Green Escape, Last Train Home, Rail Roulette, Pavement Pride. Restatements of cited evidence that add nothing to the score and say "no evidence" when there is none. |
@@ -219,6 +220,22 @@ fly-tipping as a low-confidence local-authority prior, report volume as
 informational, and lets only a structured visit audit no more than 180 days old
 override the proxy.
 
+### Photos
+
+```powershell
+python scripts/fetch_photos.py --run-dir research-runs/NAME-street-care
+python scripts/fetch_photos.py --run-dir research-runs/NAME-street-care --execute
+```
+
+Optional, and separate from the research command's call cap. The preview lists
+one Wikipedia page lookup per place by name, checked against its rounded
+coordinates, then one Commons metadata call and one image download per page
+found. Only place names and rounded coordinates are sent. Only CC0, CC BY,
+CC BY-SA, or public-domain images are kept, each with its author, licence, and
+source page, and every response is cached under `cache/` for thirty days so a
+repeat makes no calls. The command writes a sibling `NAME-photos` bundle with
+the images under `photos/`; a photo never changes a score.
+
 ### Sharing a run
 
 Sharing is a separate, deliberate step. Preview a redacted export, read what it
@@ -268,8 +285,8 @@ python scripts/serve_viewer.py --open
 ```
 
 The serve command hosts the built viewer on `127.0.0.1:43118` only, together
-with `research-runs/progress.json` and any finished
-`research-runs/NAME/results.json`. While the research or an import command
+with `research-runs/progress.json`, any finished
+`research-runs/NAME/results.json`, and that run's `photos/` images. While the research or an import command
 works it appends real stage events to that feed (boundary, discovery with the
 cache state, measured counts per metric, ranked places by limit status, the
 written bundle), and the locally served viewer shows them in a progress modal
@@ -305,6 +322,9 @@ the synthetic public demo, never ignored preferences or private research runs.
 - Provider keys live in your environment and are never written into a bundle,
   the ledger, or the static site.
 - The public demo is synthetic and says so in the interface.
+- Photos are fetched only by the opt-in photos command, which sends place names
+  and rounded coordinates to Wikipedia and Commons and nothing else. The viewer
+  never fetches them itself.
 
 ## Inspiration and licence
 

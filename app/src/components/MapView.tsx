@@ -91,6 +91,12 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
       </MapContainer>
       <FocusFilters />
       {overlay}
+      <ul className="map-legend" aria-label="Map key">
+        <li><i className="legend-pin valid" aria-hidden="true" />Within limits</li>
+        <li><i className="legend-pin unverified" aria-hidden="true" />Limit unverified</li>
+        <li><i className="legend-pin excluded" aria-hidden="true" />Outside limit</li>
+        <li><i className="legend-line" aria-hidden="true" />Search area</li>
+      </ul>
     </section>
   );
 }
@@ -181,13 +187,18 @@ function ZoomTracker({ onZoom }: { onZoom: (zoom: number) => void }) {
   return null;
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char);
+}
+
 function scoreIcon(candidate: CandidateResult, selected: boolean, size: number): L.DivIcon {
   const state = MARKER_STATE[candidate.hard_constraints.status];
   const score = Math.round(candidate.overall_score);
   const half = size / 2;
   return L.divIcon({
     className: "score-marker-shell",
-    html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px"><b>${score}</b><i>${candidate.rank}</i></span>`,
+    html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px"><b>${score}</b><i>${candidate.rank}</i></span>`
+      + `<span class="pin-label" aria-hidden="true">${escapeHtml(candidate.name)}</span>`,
     iconSize: [size, size],
     iconAnchor: [half, half],
   });

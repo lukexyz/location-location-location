@@ -19,10 +19,12 @@ const CONSTRAINT_TONE: Record<ConstraintStatus, "good" | "warn" | "bad"> = {
 export function Dossier({
   candidate,
   routeBoundary,
+  sections,
   whatIf,
 }: {
   candidate: CandidateResult;
   routeBoundary?: RouteBoundary;
+  sections?: Map<string, string>;
   whatIf?: WhatIfScore;
 }) {
   const status = candidate.hard_constraints.status;
@@ -119,7 +121,7 @@ export function Dossier({
         )}
 
         {candidate.categories.map((category) => (
-          <section className="category-block" key={category.category}>
+          <section className="category-block" key={category.category} style={{ "--section": sections?.get(category.category) } as React.CSSProperties}>
             <header>
               <div>
                 <span className="eyebrow">CATEGORY / WEIGHT {category.weight}</span>
@@ -140,7 +142,7 @@ export function Dossier({
         ))}
 
         {candidate.unmeasured_categories.map((item) => (
-          <section className="category-block unmeasured" key={item.category} aria-label={`${label(item.category)} has no evidence`}>
+          <section className="category-block unmeasured" key={item.category} aria-label={`${label(item.category)} has no evidence`} style={{ "--section": sections?.get(item.category) } as React.CSSProperties}>
             <header>
               <div>
                 <span className="eyebrow">CATEGORY / WEIGHT {item.weight} / NO EVIDENCE</span>

@@ -6,6 +6,7 @@ interface TunePanelProps {
   baseline: TuningBaseline;
   weights: WeightMap;
   categoryWeights: WeightMap;
+  sections?: Map<string, string>;
   onChange: (weights: WeightMap) => void;
   onCategoryChange: (weights: WeightMap) => void;
   onReset: () => void;
@@ -17,7 +18,7 @@ interface TunePanelProps {
  * against the Python scorer. Category importance sits above the metrics it
  * governs, exactly as the scorer combines them.
  */
-export function TunePanel({ baseline, weights, categoryWeights, onChange, onCategoryChange, onReset }: TunePanelProps) {
+export function TunePanel({ baseline, weights, categoryWeights, sections, onChange, onCategoryChange, onReset }: TunePanelProps) {
   const active = weightsDiffer(weights, baseline, categoryWeights);
   return (
     <details className={`tune-panel${active ? " active" : ""}`}>
@@ -35,7 +36,7 @@ export function TunePanel({ baseline, weights, categoryWeights, onChange, onCate
           const categoryResearched = baseline.categoryWeights[category];
           const categoryId = `tune-category-${category}`;
           return (
-            <div className="tune-group" key={category} role="group" aria-label={`${label(category)} importance`}>
+            <div className="tune-group" key={category} role="group" aria-label={`${label(category)} importance`} style={{ "--section": sections?.get(category) } as React.CSSProperties}>
               <div className="tune-row category">
                 <label htmlFor={categoryId}>
                   <span>{label(category)}</span>

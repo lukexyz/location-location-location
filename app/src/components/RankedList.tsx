@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { ReactNode } from "react";
 
 import type { WhatIfScore } from "../lib/whatif";
-import type { CandidateResult, ConstraintStatus } from "../types";
+import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
 const LIMIT_TEXT: Record<ConstraintStatus, string> = {
   pass: "within limits", unknown: "limit unverified", fail: "outside hard limit",
@@ -10,6 +10,7 @@ const LIMIT_TEXT: Record<ConstraintStatus, string> = {
 
 interface RankedListProps {
   candidates: CandidateResult[];
+  routeBoundary?: RouteBoundary;
   selectedId: string;
   sortMode: SortMode;
   whatIf?: Map<string, WhatIfScore>;
@@ -22,7 +23,26 @@ export type SortMode = "rank" | "score" | "confidence" | "name";
 
 const SORT_MODES: SortMode[] = ["rank", "score", "confidence", "name"];
 
-export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, onSelect, children }: RankedListProps) {
+const PROFILE_WORD: Record<string, string> = { "driving-car": "drive", "cycling-regular": "cycle", "foot-walking": "walk" };
+
+/** The four numbers that describe a search at a glance. */
+export function searchStats(candidates: CandidateResult[], routeBoundary?: RouteBoundary): Array<{ key: string; value: string; label: string }> {
+  const facts = candidates.reduce(
+    (total, candidate) => total + candidate.categories.reduce((count, category) => count + category.metrics.length, 0) + candidate.informational_metrics.length,
+    0,
+  );
+  const confidence = candidates.length ? Math.round(candidates.reduce((total, candidate) => total + candidate.confidence, 0) / candidates.length) : 0;
+  const stats = [{ key: "places", value: String(candidates.length), label: candidates.length === 1 ? "place" : "places" }];
+  if (routeBoundary?.duration_minutes) {
+    const word = PROFILE_WORD[routeBoundary.travel_profile ?? ""] ?? "travel";
+    stats.push({ key: "limit", value: `${routeBoundary.duration_minutes} min`, label: routeBoundary.type === "distance_proxy" ? `${word} · proxy` : word });
+  }
+  stats.push({ key: "confidence", value: `${confidence}%`, label: "confidence" });
+  stats.push({ key: "facts", value: facts.toLocaleString("en-GB"), label: facts === 1 ? "fact" : "facts" });
+  return stats;
+}
+
+export function RankedList({ candidates, routeBoundary, selectedId, sortMode, whatIf, onSort, onSelect, children }: RankedListProps) {
   const listRef = useRef<HTMLOListElement>(null);
   // Short enough to sit four abreast in the narrowest register without truncating.
   const sortLabels: Record<SortMode, string> = {
@@ -50,9 +70,11 @@ export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, o
           <span className="eyebrow">{whatIf ? "WHAT-IF ORDER" : "RESEARCHED RANK"}</span>
           <h2 id="rank-heading">Shortlist</h2>
         </div>
-        <span className="count-readout" aria-label={`${candidates.length} candidates`}>
-          {String(candidates.length).padStart(2, "0")}
-        </span>
+      </div>
+      <div className="stat-tiles" role="group" aria-label="Search at a glance">
+        {searchStats(candidates, routeBoundary).map((stat) => (
+          <div key={stat.key}><strong>{stat.value}</strong><span>{stat.label}</span></div>
+        ))}
       </div>
       <div className="sort-keys" role="group" aria-label="Sort candidates">
         <span className="sort-keys-label" aria-hidden="true">Sort</span>
@@ -90,7 +112,7 @@ export function RankedList({ candidates, selectedId, sortMode, whatIf, onSort, o
                 <span className="rank-number">{String(candidate.rank).padStart(2, "0")}</span>
                 <span className="rank-copy">
                   <strong>{candidate.name}</strong>
-                  <small>
+                  <small className={`limit-line ${candidate.hard_constraints.status}`}>
                     {LIMIT_TEXT[candidate.hard_constraints.status]}
                     {candidate.score_coverage_percent < 100 ? ` · ${candidate.score_coverage_percent.toFixed(0)}% measured` : ""}
                     {preview ? ` · researched ${candidate.overall_score.toFixed(1)}` : ""}

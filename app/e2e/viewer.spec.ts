@@ -168,3 +168,18 @@ test("picking a pin pops open a card with the place's photo and its credit", asy
   await card.getByRole("button", { name: "Close card" }).click();
   await expect(page.locator(".place-card")).toHaveCount(0);
 });
+
+test("pins carry their names and the map has a key", async ({ page, isMobile }) => {
+  await expect(page.locator(".pin-label")).toHaveCount(3);
+  await expect(page.locator(".pin-label").filter({ hasText: "Welwyn Garden City" })).toBeVisible();
+  const legend = page.getByRole("list", { name: "Map key" });
+  if (isMobile) {
+    await expect(legend).toBeHidden();
+    return;
+  }
+  await expect(legend).toBeVisible();
+  await expect(legend).toContainText("Search area");
+  await page.getByRole("button", { name: /Hemel Hempstead/ }).click();
+  await expect(page.getByTestId("place-card")).toBeVisible();
+  await expect(legend).toBeHidden();
+});

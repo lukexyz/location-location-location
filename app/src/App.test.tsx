@@ -328,6 +328,16 @@ describe("viewer", () => {
   });
 });
 
+describe("search at a glance", () => {
+  it("shows places, confidence, and fact counts as tiles", () => {
+    render(<App />);
+    const tiles = within(screen.getByRole("group", { name: "Search at a glance" }) as HTMLElement);
+    expect(tiles.getByText("places").previousElementSibling).toHaveTextContent("3");
+    expect(tiles.getByText("confidence").previousElementSibling).toHaveTextContent(/^\d+%$/);
+    expect(Number(tiles.getByText("facts").previousElementSibling?.textContent)).toBeGreaterThan(10);
+  });
+});
+
 describe("place card", () => {
   it("stays closed until a place is picked, then shows the photo, credit, facts, and a way into the evidence", async () => {
     const user = userEvent.setup();
