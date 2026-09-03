@@ -211,6 +211,21 @@ export interface StreetCareSummary {
   place: StreetCarePlace;
 }
 
+/** One freely licensed photo of the place, fetched on the user's machine with its author and licence. */
+export interface PlacePhoto {
+  candidate_id: string;
+  /** Relative to the bundle's folder, e.g. photos/welwyn-garden-city.jpg. */
+  file: string;
+  width: number;
+  height: number;
+  title: string;
+  author: string;
+  licence: string;
+  licence_url: string | null;
+  source_url: string;
+  page_title: string;
+}
+
 export interface CandidateResult {
   id: string;
   name: string;
@@ -227,6 +242,7 @@ export interface CandidateResult {
   rail_summary?: RailSummary;
   housing_summary?: HousingSummary;
   street_care_summary?: StreetCareSummary;
+  photo?: PlacePhoto;
   missing_metrics: string[];
   warnings: string[];
 }

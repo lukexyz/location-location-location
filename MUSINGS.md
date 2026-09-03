@@ -1061,6 +1061,13 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - The evidence bundle gained an optional `photo_research` block and each result candidate an optional `photo` record (`schemas/photo-research.schema.json`), validated in Python; the manifest's sources and licences include the Commons pages and licences. The serve command has one more route, `/runs/<name>/photos/<slug>.jpg|png`, with the same name rules and a 404 for everything else. The skill has the step.
 - Verified: ruff clean, 94 Python tests (eight new across lookup, licence gate, validation, the command, the cache, and the route).
 
+### P31 completion note
+
+- The three demo photos were fetched once through the cache with the same code path a user's run takes (nine live calls, three places) and committed under `app/public/demo/photos/` with their metadata in `fixtures/demo/photos.json`: Welwyn Garden City by Spearhead (CC BY-SA 3.0), Hemel Hempstead by Peter O'Connor (CC BY-SA 2.0), Maidenhead by Tom Bastin (CC BY 2.0). `scripts/build_demo.py` merges them, so the demo bundle carries a `photo` per place and stays reproducible.
+- The viewer's validator accepts the optional `photo` record with the same rules as Python (file pattern, positive size, URLs, matching candidate id), and the JSON Schema parity test covers it through the demo bundle.
+- Honest limitation: a Wikipedia lead image is not always the postcard shot. Hemel Hempstead's is its Magic Roundabout. A later option could let the user point at a different Commons file per place.
+- Verified: contracts and Python suite green, typecheck clean, 80 Vitest tests.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.

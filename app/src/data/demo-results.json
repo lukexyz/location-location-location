@@ -223,6 +223,18 @@
       "missing_metrics": [],
       "name": "Welwyn Garden City",
       "overall_score": 78.77,
+      "photo": {
+        "author": "Spearhead",
+        "candidate_id": "welwyn-garden-city",
+        "file": "photos/welwyn-garden-city.jpg",
+        "height": 960,
+        "licence": "CC BY-SA 3.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "page_title": "Welwyn Garden City",
+        "source_url": "https://commons.wikimedia.org/wiki/File:The_Parkway_Fountain.jpg",
+        "title": "Welwyn Garden City",
+        "width": 1280
+      },
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 58,
@@ -607,6 +619,18 @@
       "missing_metrics": [],
       "name": "Hemel Hempstead",
       "overall_score": 73.18,
+      "photo": {
+        "author": "Peter O'Connor aka anemoneprojectors",
+        "candidate_id": "hemel-hempstead",
+        "file": "photos/hemel-hempstead.jpg",
+        "height": 960,
+        "licence": "CC BY-SA 2.0",
+        "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+        "page_title": "Hemel Hempstead",
+        "source_url": "https://commons.wikimedia.org/wiki/File:GOC_Hemel_Hempstead_113_Plough_Roundabout,_Hemel_Hempstead_(48726958143).jpg",
+        "title": "Hemel Hempstead",
+        "width": 1280
+      },
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 38,
@@ -972,6 +996,18 @@
       "missing_metrics": [],
       "name": "Maidenhead",
       "overall_score": 67.08,
+      "photo": {
+        "author": "Tom Bastin from Reading, UK",
+        "candidate_id": "maidenhead",
+        "file": "photos/maidenhead.jpg",
+        "height": 960,
+        "licence": "CC BY 2.0",
+        "licence_url": "https://creativecommons.org/licenses/by/2.0",
+        "page_title": "Maidenhead",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Maidenhead_Town_Hall.jpg",
+        "title": "Maidenhead",
+        "width": 1280
+      },
       "place_kind": "town",
       "rail_summary": {
         "fastest_total_minutes": 72,

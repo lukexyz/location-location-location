@@ -58,7 +58,7 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
       "id", "name", "place_kind", "location", "rank", "overall_score", "confidence",
       "hard_constraints", "categories", "unmeasured_categories", "score_coverage_percent",
       "informational_metrics", "rail_summary", "housing_summary", "street_care_summary",
-      "missing_metrics", "warnings",
+      "photo", "missing_metrics", "warnings",
     ],
     path,
   );
@@ -149,8 +149,32 @@ function validateCandidate(value: unknown, index: number, ids: Set<string>): voi
   if (candidate.street_care_summary !== undefined) {
     validateStreetCareSummary(candidate.street_care_summary, `${path}.street_care_summary`, id);
   }
+  if (candidate.photo !== undefined) {
+    validatePhoto(candidate.photo, `${path}.photo`, id);
+  }
   stringArray(candidate.missing_metrics, `${path}.missing_metrics`);
   stringArray(candidate.warnings, `${path}.warnings`);
+}
+
+const PHOTO_FILE = /^photos\/[a-z0-9][a-z0-9-]{0,79}\.(jpg|png)$/;
+
+function validatePhoto(value: unknown, path: string, candidateId: string): void {
+  const photo = record(value, path);
+  exactKeys(photo, ["candidate_id", "file", "width", "height", "title", "author", "licence", "licence_url", "source_url", "page_title"], path);
+  if (string(photo.candidate_id, `${path}.candidate_id`) !== candidateId) {
+    throw new ResultValidationError(`${path}.candidate_id does not match its candidate`);
+  }
+  if (!PHOTO_FILE.test(string(photo.file, `${path}.file`))) {
+    throw new ResultValidationError(`${path}.file must be photos/<slug>.jpg or .png`);
+  }
+  integer(photo.width, `${path}.width`, 1);
+  integer(photo.height, `${path}.height`, 1);
+  string(photo.title, `${path}.title`);
+  string(photo.author, `${path}.author`);
+  string(photo.licence, `${path}.licence`);
+  if (photo.licence_url !== null) url(photo.licence_url, `${path}.licence_url`);
+  url(photo.source_url, `${path}.source_url`);
+  string(photo.page_title, `${path}.page_title`);
 }
 
 function validateStreetCareSummary(value: unknown, path: string, candidateId: string): void {

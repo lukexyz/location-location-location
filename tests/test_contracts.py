@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from location3.validation import validate_evidence, validate_profile
 from location3.housing import merge_housing_research
+from location3.photos import merge_photo_research
 from location3.rail import merge_rail_research
 from location3.reporting import write_bundle
 from location3.schema_validation import validate_schema_document
@@ -41,6 +42,8 @@ class ContractTests(unittest.TestCase):
         enriched = merge_housing_research(profile, enriched, housing)
         street = json.loads((ROOT / "fixtures/demo/street-care.json").read_text(encoding="utf-8"))
         enriched = merge_street_care_research(enriched, street)
+        photos = json.loads((ROOT / "fixtures/demo/photos.json").read_text(encoding="utf-8"))
+        enriched = merge_photo_research(enriched, photos)
         validate_evidence(enriched)
         results = score_research(profile, enriched, "2026-08-01T12:00:00+00:00")
         with tempfile.TemporaryDirectory() as directory:

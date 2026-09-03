@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "provider": "wikipedia",
+  "retrieved_at": "2026-09-03T09:47:55+00:00",
+  "photos": [
+    {
+      "candidate_id": "welwyn-garden-city",
+      "file": "photos/welwyn-garden-city.jpg",
+      "width": 1280,
+      "height": 960,
+      "title": "Welwyn Garden City",
+      "author": "Spearhead",
+      "licence": "CC BY-SA 3.0",
+      "licence_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:The_Parkway_Fountain.jpg",
+      "page_title": "Welwyn Garden City"
+    },
+    {
+      "candidate_id": "hemel-hempstead",
+      "file": "photos/hemel-hempstead.jpg",
+      "width": 1280,
+      "height": 960,
+      "title": "Hemel Hempstead",
+      "author": "Peter O'Connor aka anemoneprojectors",
+      "licence": "CC BY-SA 2.0",
+      "licence_url": "https://creativecommons.org/licenses/by-sa/2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:GOC_Hemel_Hempstead_113_Plough_Roundabout,_Hemel_Hempstead_(48726958143).jpg",
+      "page_title": "Hemel Hempstead"
+    },
+    {
+      "candidate_id": "maidenhead",
+      "file": "photos/maidenhead.jpg",
+      "width": 1280,
+      "height": 960,
+      "title": "Maidenhead",
+      "author": "Tom Bastin from Reading, UK",
+      "licence": "CC BY 2.0",
+      "licence_url": "https://creativecommons.org/licenses/by/2.0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Maidenhead_Town_Hall.jpg",
+      "page_title": "Maidenhead"
+    }
+  ]
+}
