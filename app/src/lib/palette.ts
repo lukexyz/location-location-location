@@ -6,7 +6,7 @@ import type { ResearchResult } from "../types";
  * so they are stable for a bundle however its candidates order their
  * categories, and they cycle if a run has more categories than colours.
  */
-export const SECTION_COLOURS = ["#f26b3a", "#3ec5b8", "#a99cff", "#f6c343", "#ff6fa5", "#5aa9ff"] as const;
+export const SECTION_COLOURS = ["#a78bfa", "#4ade80", "#f472b6", "#2dd4bf", "#c084fc", "#a3e635"] as const;
 
 export function sectionColours(categories: Iterable<string>): Map<string, string> {
   const names = [...new Set(categories)].sort((left, right) => left.localeCompare(right));

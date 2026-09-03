@@ -1095,6 +1095,12 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - Luke's call: the original map, the tiniest vignette around the edges, and a dotted orange line. So the focus mask, its SVG filters, and the blend modes are gone entirely; there is no second tile host. The boundary is a dotted orange line (`dashArray` "1 9", round caps, 4px) with a four-percent fill, and a `box-shadow` inset of 22px at fourteen-percent opacity sits below the pins as the whole vignette.
 - Lesson, kept for next time: every attempt to make the outside look different from the inside made the map worse on some device. One basemap, one line, and the pins pointing is what a map wants.
 
+### P37 completion note (purple does, green says)
+
+- Luke asked for a modern green and purple palette in place of the orange and yellow. The tokens carry it: `--primary` is now violet (`#a78bfa`, ink `#170c33`) for the call to action, buttons, selected keys, slider thumbs, the rank circle, the dotted boundary, and pins within limits; `--acid` is green (`#4ade80`, ink `#052e16`) for scores, the fit dial, name pills, and the status light; the measures colour is lavender (`#c4b5fd`) for confidence and category bars. Amber keeps its job and now owns the unverified pin, the unverified legend swatch, and the unverified limit line, which had borrowed the yellow. Coral and slate are unchanged.
+- Section colours cycle violet, green, pink, teal, purple, lime. The photo card's name pill takes the green rather than the warning amber.
+- Then Luke asked that 79 look greener than 73, relative to the run. Pins within limits are now graded from a dull green (`#7a9b85`, the lowest score in the run) to the vivid one (`#4ade80`, the highest), mixed in RGB by `fitScale` and `fitColour` in `pins.ts` over every candidate's score, excluded places included, so the spread is the whole run's. A run of one place, or of equal scores, is all vivid. The legend's swatch is the gradient and says greener fits better, and the legend now centres in the gap between the two cards, as the banner does, rather than on the viewport, since the longer label ran under the evidence card. Unverified pins stay amber and dashed; a place outside its limits keeps the slate pin and the strike, since colour must never suggest it is in.
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.
@@ -1105,9 +1111,9 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 
 ### State
 
-- The viewer is bright and warm: a full-colour map with a dotted orange boundary and a barely-there edge vignette, charcoal cards, orange for actions, yellow for numbers and names, teal for measures, a colour per category, stat tiles, a key, and a name beside every pin.
+- The viewer is bright and modern: a full-colour map with a dotted purple boundary and a barely-there edge vignette, charcoal cards, purple for actions, green for numbers and names, lavender for measures, amber for anything unverified, a colour per category, stat tiles, a key, and a name beside every pin.
 - Picking a place pops open a card with its photo, author and licence, rank, limit badge, four facts, and a way into the evidence. Photos are cited evidence fetched on the user's machine by an opt-in, previewed, cached command that works for any place the pipeline produces; the demo carries three real ones.
-- Twenty commits after 0f4bb4d, none pushed. Python: 94 tests, ruff clean. Viewer: 87 Vitest tests, 46 Playwright tests with axe clean, CI grep clean on the build.
+- Twenty-two commits after 0f4bb4d, none pushed. Python: 94 tests, ruff clean. Viewer: 87 Vitest tests, 46 Playwright tests with axe clean, CI grep clean on the build.
 
 ### Not yet done
 

@@ -4,13 +4,13 @@ import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-import { pinSizeForZoom } from "../lib/pins";
+import { fitColour, fitScale, pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
-// The search boundary is the one vector besides the pins: a dotted orange line with a whisper of fill.
+// The search boundary is the one vector besides the pins: a dotted purple line with a whisper of fill.
 const BOUNDARY_STYLE = {
-  color: "#f26b3a", weight: 4, opacity: 1, dashArray: "1 9", lineCap: "round" as const,
-  fillColor: "#f26b3a", fillOpacity: 0.04, className: "search-boundary",
+  color: "#a78bfa", weight: 4, opacity: 1, dashArray: "1 9", lineCap: "round" as const,
+  fillColor: "#a78bfa", fillOpacity: 0.05, className: "search-boundary",
 };
 
 const MARKER_STATE: Record<ConstraintStatus, string> = { pass: "valid", unknown: "unverified", fail: "excluded" };
@@ -34,6 +34,8 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
   const first = candidates[0].location;
   const [zoom, setZoom] = useState(9);
   const pinSize = pinSizeForZoom(zoom);
+  // Pins within limits are graded green against the whole run: the best fit is the most vivid.
+  const fit = fitScale(candidates.map((candidate) => candidate.overall_score));
   return (
     <section className="map-field" aria-label="Candidate map">
       <MapContainer
@@ -68,7 +70,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
             <Marker
               key={candidate.id}
               position={[candidate.location.latitude, candidate.location.longitude]}
-              icon={scoreIcon(candidate, selected, pinSize)}
+              icon={scoreIcon(candidate, selected, pinSize, fit(candidate.overall_score))}
               zIndexOffset={selected ? 1000 : 0}
               title={`${candidate.name}: rank ${candidate.rank}, score ${candidate.overall_score.toFixed(1)}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
               alt={`${candidate.name}, ${MARKER_TEXT[candidate.hard_constraints.status]}`}
@@ -79,7 +81,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
       </MapContainer>
       {overlay}
       <ul className="map-legend" aria-label="Map key">
-        <li><i className="legend-pin valid" aria-hidden="true" />Within limits</li>
+        <li><i className="legend-pin valid" aria-hidden="true" />Within limits, greener fits better</li>
         <li><i className="legend-pin unverified" aria-hidden="true" />Limit unverified</li>
         <li><i className="legend-pin excluded" aria-hidden="true" />Outside limit</li>
         <li><i className="legend-line" aria-hidden="true" />Search area</li>
@@ -154,13 +156,13 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] ?? char);
 }
 
-function scoreIcon(candidate: CandidateResult, selected: boolean, size: number): L.DivIcon {
+function scoreIcon(candidate: CandidateResult, selected: boolean, size: number, fit: number): L.DivIcon {
   const state = MARKER_STATE[candidate.hard_constraints.status];
   const score = Math.round(candidate.overall_score);
   const half = size / 2;
   return L.divIcon({
     className: "score-marker-shell",
-    html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px"><b>${score}</b><i>${candidate.rank}</i></span>`
+    html: `<span class="score-marker ${state}${selected ? " selected" : ""}" style="--pin:${size}px;--fit:${fit.toFixed(2)};--fit-colour:${fitColour(fit)}"><b>${score}</b><i>${candidate.rank}</i></span>`
       + `<span class="pin-label" aria-hidden="true">${escapeHtml(candidate.name)}</span>`,
     iconSize: [size, size],
     iconAnchor: [half, half],

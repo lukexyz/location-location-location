@@ -10,6 +10,9 @@ test.beforeEach(async ({ page }) => {
 test("map, ranked list, and dossier stay synchronized", async ({ page }) => {
   await expect(page.getByLabel("Location cubed")).toBeVisible();
   await expect(page.locator(".score-marker")).toHaveCount(3);
+  // Pins within limits are graded green against the run: the best fit is the most vivid, the rest sit between.
+  await expect(page.locator('.leaflet-marker-icon[title^="Welwyn"] .score-marker')).toHaveAttribute("style", /--fit:1\.00;--fit-colour:#4ade80/);
+  await expect(page.locator('.leaflet-marker-icon[title^="Hemel"] .score-marker')).toHaveAttribute("style", /--fit:0\.52;/);
   await page.getByRole("button", { name: /Hemel Hempstead/ }).click();
   await expect(page.getByRole("heading", { name: "Hemel Hempstead" })).toBeVisible();
   await expect(page.locator(".score-marker.selected b")).toHaveText("73");

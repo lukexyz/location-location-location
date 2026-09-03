@@ -24,13 +24,13 @@
   --panel: rgba(43, 46, 45, 0.94);
   --panel-heavy: rgba(36, 39, 38, 0.97);
   --line: rgba(255, 255, 255, 0.12);
-  --line-hot: rgba(242, 107, 58, 0.65);
-  /* Orange does, yellow says, teal measures. Coral is for a breached limit or an error; slate is for a place that is out. */
-  --primary: #f26b3a;
-  --primary-ink: #24110a;
-  --acid: #f6c343;
-  --acid-ink: #241a05;
-  --teal: #3ec5b8;
+  --line-hot: rgba(167, 139, 250, 0.65);
+  /* Purple does, green says, lavender measures. Amber is for anything unverified or a warning; coral for a breached limit or an error; slate for a place that is out. */
+  --primary: #a78bfa;
+  --primary-ink: #170c33;
+  --acid: #4ade80;
+  --acid-ink: #052e16;
+  --teal: #c4b5fd;
   --slate: #7c848b;
   --plumbob: #8be15d;
   --amber: #f6c343;
@@ -94,10 +94,10 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .load-state.error { color: var(--danger); }.load-state.error i { background: var(--danger); }
 .load-state.error span { text-transform: none; font-family: var(--voice-text); font-size: var(--text-size); }
 .header-actions { grid-area: actions; display: flex; align-items: stretch; gap: .45rem; }
-.import-button, .utility-button { min-height: 44px; display: flex; justify-content: center; flex-direction: column; padding: .45rem .9rem; cursor: pointer; text-align: left; border: 1px solid var(--line-hot); border-radius: var(--radius-small); color: var(--ink); background: rgba(242, 107, 58, .14); }
+.import-button, .utility-button { min-height: 44px; display: flex; justify-content: center; flex-direction: column; padding: .45rem .9rem; cursor: pointer; text-align: left; border: 1px solid var(--line-hot); border-radius: var(--radius-small); color: var(--ink); background: rgba(167, 139, 250, .14); }
 .import-button span { color: var(--muted); font: .56rem var(--voice-mono); letter-spacing: .14em; text-transform: uppercase; }.import-button strong { font: 700 .82rem var(--voice-display); letter-spacing: .01em; }
 .utility-button { color: var(--ink); border-color: var(--line); background: rgba(255, 255, 255, .04); font: 600 .72rem var(--voice-display); letter-spacing: .01em; }
-.import-button:hover, .utility-button:hover { background-color: rgba(242, 107, 58, .28); color: #fff; }
+.import-button:hover, .utility-button:hover { background-color: rgba(167, 139, 250, .28); color: #fff; }
 .utility-button:disabled { cursor: default; opacity: .55; }
 
 /* The front door: a short invite over the map between the two cards, shown only while the sample is active. */
@@ -124,11 +124,11 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .segmented .sort-key { min-height: 34px; border: 0; border-radius: 999px; background: transparent; font-size: .72rem; }
 .segmented .sort-key:hover { background: rgba(255, 255, 255, .06); }
 .start-tabs .sort-key[aria-selected="true"] { color: var(--primary-ink); background: var(--primary); border-color: var(--primary); }
-.start-command { margin-top: 1rem; padding: .7rem .75rem .75rem; border: 1px solid var(--line-hot); border-radius: var(--radius-small); background: rgba(242, 107, 58, .07); }
+.start-command { margin-top: 1rem; padding: .7rem .75rem .75rem; border: 1px solid var(--line-hot); border-radius: var(--radius-small); background: rgba(167, 139, 250, .07); }
 .start-command-head { display: flex; align-items: center; gap: .8rem; }
 .start-command-head .start-copied { margin-left: auto; }
 .copy-button { min-height: 34px; padding: .35rem .9rem; color: var(--primary-ink); background: var(--primary); border-color: var(--primary); }
-.copy-button:hover { background: #ff8455; color: var(--primary-ink); }
+.copy-button:hover { background: #c4b0ff; color: var(--primary-ink); }
 /* The line wraps rather than scrolls: a wrapped pre copies as one line and needs no focusable scroll region. */
 .start-command pre { margin: .55rem 0 0; padding: .75rem .85rem; color: var(--acid); background: #161817; border: 1px solid var(--line); border-radius: var(--radius-small); font: .82rem / 1.6 var(--voice-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
 .start-copied { color: var(--amber); font: .58rem var(--voice-mono); letter-spacing: .08em; text-transform: uppercase; }
@@ -181,7 +181,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .rank-list { flex: 1 1 9rem; min-height: 7rem; overflow: auto; list-style: none; margin: 0; padding: .4rem 0; scrollbar-width: thin; scrollbar-color: #4b5c50 transparent; }
 .rank-entry { width: 100%; display: grid; grid-template-columns: 2.2rem 1fr auto; align-items: center; gap: .7rem; padding: .85rem 1rem; text-align: left; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid rgba(176, 204, 184, .1); cursor: pointer; }
 .rank-entry:hover { background: rgba(255, 255, 255, .035); }
-.rank-entry[aria-pressed="true"] { background: rgba(242, 107, 58, .12); box-shadow: inset 3px 0 var(--primary); }
+.rank-entry[aria-pressed="true"] { background: rgba(167, 139, 250, .12); box-shadow: inset 3px 0 var(--primary); }
 .rank-number { color: var(--muted); font: .68rem var(--voice-mono); }.rank-copy { min-width: 0; }
 .rank-copy strong, .rank-copy small { display: block; }.rank-copy strong { font-size: .98rem; font-weight: 700; letter-spacing: 0; }
 .rank-copy small { margin-top: .2rem; color: var(--muted); font: .64rem var(--voice-text); }
@@ -273,7 +273,8 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 
 /* Score pins: sized by zoom (--pin), with a shape cue for limit status so colour is never the only signal. */
 .score-marker-shell { background: transparent !important; border: 0 !important; }
-.score-marker { --pin: 58px; position: relative; width: var(--pin); height: var(--pin); display: grid; place-items: center; border-radius: 50%; color: var(--primary-ink); background: var(--primary); border: 3px solid #2b2e2d; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); transition: transform .2s ease, box-shadow .2s ease; }
+/* Within limits: green, graded from the dullest (worst fit in the run) to the most vivid (best); see fitScale. */
+.score-marker { --pin: 58px; position: relative; width: var(--pin); height: var(--pin); display: grid; place-items: center; border-radius: 50%; color: var(--acid-ink); background: var(--fit-colour, var(--acid)); border: 3px solid #2b2e2d; box-shadow: 0 6px 18px rgba(0, 0, 0, .35); transition: transform .2s ease, box-shadow .2s ease; }
 .score-marker b { position: relative; z-index: 1; font: 700 max(.7rem, calc(var(--pin) * .3)) var(--voice-mono); line-height: 1; }
 .score-marker i { position: absolute; z-index: 2; right: -4px; top: -4px; min-width: max(17px, calc(var(--pin) * .34)); height: max(17px, calc(var(--pin) * .34)); display: grid; place-items: center; border-radius: 50%; color: var(--ink); background: #2b2e2d; border: 1px solid rgba(255, 255, 255, .3); font: normal max(.55rem, calc(var(--pin) * .17)) var(--voice-mono); line-height: 1; font-style: normal; }
 .score-marker.excluded { color: #f3f1ea; background: var(--slate); }
@@ -281,13 +282,13 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .score-marker.excluded::after { content: ""; position: absolute; left: 6%; right: 6%; top: calc(50% - 1px); height: 2px; background: #1c1e1d; opacity: .8; transform: rotate(-45deg); pointer-events: none; }
 .score-marker.excluded b { text-shadow: 0 0 2px var(--slate), 0 0 3px var(--slate), 0 0 5px var(--slate); }
 /* Unverified: a dashed ring. */
-.score-marker.unverified { color: var(--acid-ink); background: var(--acid); border-style: dashed; }
+.score-marker.unverified { color: var(--acid-ink); background: var(--amber); border-style: dashed; }
 .score-marker.selected { transform: scale(1.18); box-shadow: 0 8px 24px rgba(0, 0, 0, .45), 0 0 0 3px #fff; }
 
 /* Below 1050px the disclosure stays in the header in a compact form; nothing about the load state is ever hidden. */
 @media (max-width: 1050px) {
   .dossier { width: 370px; }.rank-panel { width: 270px; }
-  .start-banner { left: 298px; right: 398px; flex-direction: column; align-items: stretch; text-align: center; }.start-banner h2 { font-size: .8rem; }
+  .start-banner { left: 298px; right: 398px; flex-direction: column; align-items: stretch; text-align: center; }.start-banner h2 { font-size: .8rem; }.map-legend { left: 298px; right: 398px; }
   .instrument-header { grid-template-columns: auto minmax(7rem, 1fr) minmax(0, 1.5fr) auto; gap: .8rem; }
   .load-state { font-size: .56rem; }
   .sort-keys { grid-template-columns: repeat(4, minmax(0, 1fr)); }.sort-keys-label { display: none; }
@@ -352,7 +353,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 
 /* The place card: pops open over the map when a place is picked. Photo with the credit in the corner, rank, limit badge, three facts, a way into the evidence. */
 .place-card { position: absolute; z-index: 1100; /* above Leaflet's controls; the map's own stacking context keeps it under every card and modal */ left: 338px; bottom: 44px; width: min(360px, calc(100% - 800px)); overflow: hidden; background: var(--panel-heavy); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 18px 44px rgba(0, 0, 0, .4); }
-.place-card-photo { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: linear-gradient(135deg, rgba(242, 107, 58, .35), rgba(43, 46, 45, .2) 55%, rgba(246, 195, 67, .3)); }
+.place-card-photo { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: linear-gradient(135deg, rgba(167, 139, 250, .35), rgba(43, 46, 45, .2) 55%, rgba(74, 222, 128, .3)); }
 .place-card-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .place-card-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0, 0, 0, .22), transparent 35%, transparent 60%, rgba(0, 0, 0, .45)); }
 .place-card-photo > :not(img) { z-index: 1; }
@@ -362,7 +363,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .place-card-badge.unknown { color: var(--acid-ink); background: var(--amber); border-color: var(--amber); }
 .place-card-close { position: absolute; top: .6rem; right: .6rem; display: grid; place-items: center; width: 30px; height: 30px; color: var(--ink); background: rgba(28, 30, 29, .85); border: 1px solid rgba(255, 255, 255, .18); border-radius: 50%; font: 1.05rem/1 var(--voice-display); cursor: pointer; }
 .place-card-close:hover { background: #161817; color: #fff; }
-.place-card-name { position: absolute; left: .6rem; bottom: .6rem; margin: 0; padding: .32rem .7rem; color: var(--acid-ink); background: var(--amber); border-radius: 8px; font: 800 1rem var(--voice-display); box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
+.place-card-name { position: absolute; left: .6rem; bottom: .6rem; margin: 0; padding: .32rem .7rem; color: var(--acid-ink); background: var(--acid); border-radius: 8px; font: 800 1rem var(--voice-display); box-shadow: 0 2px 8px rgba(0, 0, 0, .35); }
 .place-card-credit { position: absolute; right: .6rem; bottom: .65rem; max-width: 46%; overflow: hidden; padding: .2rem .5rem; color: #e8eee9; background: rgba(28, 30, 29, .8); border-radius: 6px; font: .56rem var(--voice-mono); text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .place-card-credit:hover { text-decoration: underline; }
 .place-card-facts { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: .4rem; margin: 0; padding: .7rem .75rem .5rem; }
@@ -388,7 +389,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .stat-tiles strong { color: var(--acid); font: 800 1.05rem var(--voice-display); }
 .stat-tiles > div:first-child strong { color: var(--primary); }
 .stat-tiles span { margin-top: .1rem; color: var(--muted); font: .47rem/1.25 var(--voice-mono); letter-spacing: .06em; text-transform: uppercase; overflow-wrap: anywhere; }
-.limit-line.fail { color: var(--danger); }.limit-line.unknown { color: var(--acid); }
+.limit-line.fail { color: var(--danger); }.limit-line.unknown { color: var(--amber); }
 
 /* Section colours: each scoring category carries one colour through the evidence panel and the tune panel. */
 .category-block { --section: var(--muted); }
@@ -406,10 +407,11 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .score-marker.selected + .pin-label { color: var(--acid-ink); background: var(--acid); border-color: var(--acid); }
 
 /* Legend: a pill at the bottom of the map; the place card takes its spot while open. */
-.map-legend { position: absolute; z-index: 1000; left: 50%; bottom: 44px; transform: translateX(-50%); display: flex; gap: .9rem; margin: 0; padding: .45rem .9rem; list-style: none; color: var(--ink); background: var(--panel-heavy); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); font: .68rem var(--voice-text); white-space: nowrap; }
+.map-legend { position: absolute; z-index: 1000; left: 338px; right: 448px; bottom: 44px; width: max-content; max-width: 100%; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; row-gap: .25rem; column-gap: .9rem; padding: .45rem .9rem; list-style: none; color: var(--ink); background: var(--panel-heavy); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 24px rgba(0, 0, 0, .3); font: .68rem var(--voice-text); white-space: nowrap; }
 .map-legend li { display: flex; align-items: center; gap: .4rem; }
-.legend-pin { width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid #2b2e2d; }
-.legend-pin.unverified { background: var(--acid); border-style: dashed; }
+.legend-pin { width: 12px; height: 12px; border-radius: 50%; background: var(--acid); border: 2px solid #2b2e2d; }
+.legend-pin.valid { width: 24px; border-radius: 6px; background: linear-gradient(90deg, #7a9b85, #4ade80); }
+.legend-pin.unverified { background: var(--amber); border-style: dashed; }
 .legend-pin.excluded { background: var(--slate); }
 .legend-line { width: 20px; height: 4px; background: radial-gradient(circle, var(--primary) 1.6px, transparent 1.9px) 0 0 / 5px 4px repeat-x; }
 .place-card ~ .map-legend { display: none; }
