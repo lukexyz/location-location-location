@@ -1054,6 +1054,13 @@ After the reskin Luke sent two things: a screenshot of his Aotearoa 2026 trip pl
 - Outside the boundary the map is now desaturated rather than darkened: two grey mask layers with a saturation blend mode, feathered outward through the same erode-and-blur filters, plus a faint white fog on the far layer. Inside stays full colour; outside is bright greyscale. The vignette is gone.
 - Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests (the synchronisation test expects four overlay paths), screenshots at 1280 and 390.
 
+### P30 completion note
+
+- `location3.photos` looks each candidate up on Wikipedia by name, rejects disambiguation pages and articles more than 25 km from the candidate's coordinates, falls back to a geosearch within 10 km, reads the lead image's author and licence from Commons, keeps only CC0, CC BY, CC BY-SA, or public-domain images, and downloads a 1280px rendition. Artist HTML is reduced to text. Nothing about the origin, budget, or limits is sent.
+- `python scripts/fetch_photos.py --run-dir <run>` previews every call per place and the cap (four per place), then after `--execute` fetches through the caching transport (provider `wikimedia`, 30-day TTL under `cache/`), writes a sibling `<run>-photos` bundle with the images under `photos/`, records the progress feed, and rescores; a photo never moves a score. A repeat run makes no calls.
+- The evidence bundle gained an optional `photo_research` block and each result candidate an optional `photo` record (`schemas/photo-research.schema.json`), validated in Python; the manifest's sources and licences include the Commons pages and licences. The serve command has one more route, `/runs/<name>/photos/<slug>.jpg|png`, with the same name rules and a 404 for everything else. The skill has the step.
+- Verified: ruff clean, 94 Python tests (eight new across lookup, licence gate, validation, the command, the cache, and the route).
+
 ### Decisions
 
 - The viewer's network rule is unchanged: map tiles only. Photos are files beside the run, served by the loopback server or bundled with the demo.

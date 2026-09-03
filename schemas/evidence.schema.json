@@ -43,6 +43,9 @@
     },
     "street_care_research": {
       "$ref": "street-care-research.schema.json"
+    },
+    "photo_research": {
+      "$ref": "photo-research.schema.json"
     }
   },
   "$defs": {

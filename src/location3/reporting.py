@@ -109,6 +109,10 @@ def _evidence_values(
             values.add(place["fly_tipping"]["source"][rail_source_key])
             if place["local_reports"]:
                 values.add(place["local_reports"]["source"][rail_source_key])
+    photo_research = evidence.get("photo_research")
+    if photo_research:
+        key = "source_url" if observation_key == "source_url" else "licence"
+        values.update(photo[key] for photo in photo_research["photos"])
     return sorted(values)
 
 

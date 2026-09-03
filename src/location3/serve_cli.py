@@ -2,8 +2,8 @@
 
 Nothing here leaves the machine. The server binds to a loopback address only,
 reads `app/dist` for the viewer, `research-runs/progress.json` for the feed,
-and `research-runs/<name>/results.json` for a finished run, and refuses every
-other path. The viewer polls the feed only when it is served this way.
+`research-runs/<name>/results.json` for a finished run and that run's
+`photos/` images, and refuses every other path. The viewer polls the feed only when it is served this way.
 """
 
 from __future__ import annotations
@@ -22,10 +22,12 @@ from .progress import PROGRESS_FILE
 DEFAULT_PORT = 43118
 RUN_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 LOOPBACK = "127.0.0.1"
+PHOTO_FILE = re.compile(r"^[a-z0-9][a-z0-9-]{0,79}\.(jpg|png)$")
+IMAGE_TYPES = {"jpg": "image/jpeg", "png": "image/png"}
 
 
 class ViewerHandler(SimpleHTTPRequestHandler):
-    """Static viewer plus two private, read-only JSON routes."""
+    """Static viewer plus private, read-only routes for the feed, results, and photos."""
 
     def __init__(self, *args, root: Path, **kwargs) -> None:
         self._root = root
@@ -44,20 +46,33 @@ class ViewerHandler(SimpleHTTPRequestHandler):
                 return
             self._send_private_json(self._root / "research-runs" / name / "results.json")
             return
+        match = re.fullmatch(r"/runs/([^/]+)/photos/([^/]+)", path)
+        if match:
+            name, file = match.group(1), match.group(2)
+            if not RUN_NAME.fullmatch(name) or name in (".", "..") or not PHOTO_FILE.fullmatch(file):
+                self.send_error(404)
+                return
+            self._send_private_file(
+                self._root / "research-runs" / name / "photos" / file, IMAGE_TYPES[file.rsplit(".", 1)[1]]
+            )
+            return
         if path.startswith("/runs/") or path.startswith("/research-runs"):
             self.send_error(404)
             return
         super().do_GET()
 
     def _send_private_json(self, path: Path) -> None:
+        self._send_private_file(path, "application/json; charset=utf-8", cache="no-store")
+
+    def _send_private_file(self, path: Path, content_type: str, *, cache: str = "private, max-age=3600") -> None:
         if not path.is_file():
             self.send_error(404)
             return
         body = path.read_bytes()
         self.send_response(200)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-store")
+        self.send_header("Cache-Control", cache)
         self.end_headers()
         self.wfile.write(body)
 
@@ -95,7 +110,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     url = f"http://{LOOPBACK}:{args.port}/"
     print(f"Serving the viewer at {url} (loopback only; Ctrl+C to stop)")
     print(f"Progress feed: {url}{PROGRESS_FILE} from research-runs/{PROGRESS_FILE}")
-    print("Finished runs: /runs/<name>/results.json from research-runs/<name>/")
+    print("Finished runs: /runs/<name>/results.json and /runs/<name>/photos/* from research-runs/<name>/")
     if args.open:
         threading.Timer(0.5, webbrowser.open, args=(url,)).start()
     try:

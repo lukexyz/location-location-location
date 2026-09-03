@@ -118,6 +118,7 @@
             },
             "additionalProperties": false
           },
+          "photo": {"$ref": "photo-research.schema.json#/$defs/photo"},
           "missing_metrics": {"type": "array", "items": {"type": "string"}},
           "warnings": {"type": "array", "items": {"type": "string"}}
         },

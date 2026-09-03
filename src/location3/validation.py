@@ -283,6 +283,14 @@ def validate_evidence(bundle: dict[str, Any]) -> None:
                     "street-care observation does not match its raw components"
                 )
 
+    photo_research = bundle.get("photo_research")
+    if photo_research is not None:
+        if not isinstance(photo_research, dict):
+            raise ValueError("evidence photo_research must be an object")
+        from .photos import validate_photo_research
+
+        validate_photo_research(photo_research, candidate_ids)
+
 
 def validate_basis(record: dict[str, Any], confidence: float, label: str) -> str:
     """Require an honest evidence basis; an agent estimate cannot claim high confidence."""
@@ -387,6 +395,11 @@ def validate_provenance(
             if place["local_reports"]:
                 sources.add(place["local_reports"]["source"]["url"])
                 licences.add(place["local_reports"]["source"]["licence"])
+    photo_research = evidence.get("photo_research")
+    if photo_research:
+        for photo in photo_research["photos"]:
+            sources.add(photo["source_url"])
+            licences.add(photo["licence"])
     sources = sorted(sources)
     licences = sorted(licences)
     if manifest["sources"] != sources:

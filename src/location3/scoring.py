@@ -52,6 +52,13 @@ def score_research(
             place["candidate_id"]: place for place in street_research["places"]
         }
 
+    photo_by_candidate: dict[str, dict[str, Any]] = {}
+    photo_research = evidence.get("photo_research")
+    if photo_research:
+        photo_by_candidate = {
+            photo["candidate_id"]: photo for photo in photo_research["photos"]
+        }
+
     scored = [
         _score_candidate(
             candidate,
@@ -61,6 +68,7 @@ def score_research(
             street_by_candidate.get(candidate["id"]),
             street_research["assessment_date"] if street_research else None,
             profile,
+            photo=photo_by_candidate.get(candidate["id"]),
         )
         for candidate in evidence["candidates"]
     ]
@@ -94,6 +102,8 @@ def _score_candidate(
     street_place: dict[str, Any] | None,
     street_assessment_date: str | None,
     profile: dict[str, Any],
+    *,
+    photo: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     weights = profile["weights"]
     category_weights = profile["category_weights"]
@@ -309,6 +319,9 @@ def _score_candidate(
             "components": deepcopy(street_assessment["components"]),
             "place": deepcopy(street_place),
         }
+    if photo:
+        # Presentation only: a photo never touches a score.
+        result["photo"] = deepcopy(photo)
     return result
 
 

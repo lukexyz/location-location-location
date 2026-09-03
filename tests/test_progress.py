@@ -152,6 +152,9 @@ class ServeTests(unittest.TestCase):
             (runs / PROGRESS_FILE).write_text('{"status": "running"}', encoding="utf-8")
             (runs / "run-a" / "results.json").write_text('{"run_id": "run-a"}', encoding="utf-8")
             (runs / "run-a" / "profile.json").write_text('{"secret": true}', encoding="utf-8")
+            (runs / "run-a" / "photos").mkdir()
+            (runs / "run-a" / "photos" / "run-a.jpg").write_bytes(b"JPEG-BYTES")
+            (runs / "run-a" / "photos" / "notes.txt").write_text("private", encoding="utf-8")
             (runs / "secret.txt").write_text("origin", encoding="utf-8")
 
             server = make_server(root, 0)
@@ -169,9 +172,13 @@ class ServeTests(unittest.TestCase):
                     self.assertEqual(json.loads(response.read()), {"status": "running"})
                 with urlopen(f"{base}/runs/run-a/results.json") as response:
                     self.assertEqual(json.loads(response.read()), {"run_id": "run-a"})
+                with urlopen(f"{base}/runs/run-a/photos/run-a.jpg") as response:
+                    self.assertEqual(response.headers["Content-Type"], "image/jpeg")
+                    self.assertEqual(response.read(), b"JPEG-BYTES")
                 for forbidden in (
                     "/runs/run-a/profile.json", "/runs/../secret.txt", "/research-runs/secret.txt",
                     "/runs/%2e%2e/secret.txt", "/runs/missing/results.json", "/research-runs/run-a/results.json",
+                    "/runs/run-a/photos/notes.txt", "/runs/run-a/photos/../profile.json", "/runs/run-a/photos/missing.jpg",
                 ):
                     with self.subTest(path=forbidden):
                         with self.assertRaises(HTTPError) as caught:
