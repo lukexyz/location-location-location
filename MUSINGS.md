@@ -1,5 +1,43 @@
 # MUSINGS
 
+## The Vision (restated 2026-09-03)
+
+This block is the standing statement of what LOCATION³ is for. Everything below it is a dated log, and earlier entries describe the thinking of their day; where they disagree with this block, this block wins.
+
+### The product in one paragraph
+
+LOCATION³ is a personal place-finding instrument that you run yourself. You open the public demo, see what a finished search looks like, and are immediately offered one line to paste into your own terminal. That line boots the real app locally. Your coding agent, Claude Code or Codex, running on the subscription you already pay for, asks what matters to you: where you need to get to and by when, your housing budget, how much you care about cafés, green space, betting shops, and street care, and which limits are absolute. It then does the research, previewing every outbound call before it happens, while a research modal shows you honestly what it is doing and finding. Deterministic Python turns the evidence into scores. At the end you get your own ranked map, with a dossier per place that says why it scored what it did, how fresh the evidence is, and what is missing.
+
+### The three parts, and what each is for
+
+| Part | Job | Must never |
+| --- | --- | --- |
+| **Public demo** on GitHub Pages | The shop window. Show a real, finished result on real towns so a visitor understands the output in ten seconds, then send them to make their own with a large, unmissable call to action. | Run research, ask for credentials, or hold anyone's data. |
+| **Local app** in the cloned repository | The real product. One-line bootstrap, an agent-led conversation to set criteria, preview-then-execute research, a live progress surface, and the same viewer rendering a private result bundle. | Cost money beyond the agent subscription the person already has, or send anything anywhere without previewing it first. |
+| **Deterministic core** in Python | The authority. Boundaries, catchments, hard limits, curves, weights, confidence, provenance, and schemas. | Let an agent assign a score or label an estimate as measured. |
+
+### Why "your own agent, your own subscription" is the whole idea
+
+The research an estate-agent or a paid data product would charge for is exactly the work a coding agent already does well: reading published tables, citing sources, reconciling conflicting figures, and writing a structured file that a schema can check. So the product does not run a research service. It hands the person a skill, lets their agent do the gathering on a subscription they already own, and keeps the scoring in code that cannot be talked into a number. Free for the user, private by construction, and every figure carries a basis and a citation.
+
+### What a first-time visitor should experience, in order
+
+1. Land on the demo. A banner says plainly that this is a sample on real towns with synthetic evidence, and a large button says "Run your own search."
+2. Click it. A modal offers Claude Code and Codex tabs, each with one copy-paste command, a sentence about what happens next, and a sentence about what stays private.
+3. Paste the line. The repository is cloned, dependencies install, and the agent opens with the research skill loaded. If no routing key is present, the first run still works with a clearly labelled fallback boundary; the key is offered as an upgrade, not a gate.
+4. Talk. The agent asks for an approximate origin, destinations, budget, importance, and hard limits, and shows a preview of exactly what will leave the machine.
+5. Approve. Research runs while a progress modal shows real stage names, real counts, and a little whimsy on top.
+6. Explore. The viewer opens on a private result bundle: ranked map, dossiers, what-if importance, and honest warnings.
+7. Optionally share a redacted export, previewed first.
+
+### Principles that have not changed
+
+- Hard constraints remove places; weighted preferences rank the survivors.
+- Every score is explainable and uncertainty stays visible; missing evidence never reads as "fine."
+- No surprise costs: two live provider calls per run, previewed before they happen.
+- Private by default: profiles, origins, budgets, visit audits, and results never leave the machine unless the person exports them on purpose.
+- Playfulness sits on top of serious evidence, never in place of it.
+
 ## 2026-09-01 — Initial Product Direction
 
 ### Mission
@@ -787,3 +825,62 @@ The project is on target with the scope-corrected vision and the build claims ab
 - The Python scorer owns every number; the viewer previews and never persists.
 - Two live provider calls per run, previewed before they happen, remains the ceiling until a measured need proves otherwise.
 - Every new evidence source enters through the importer skeleton with a basis, a citation, and a disclosure line, or not at all.
+
+## 2026-09-03 — The Missing Front Door: Demo to Personal Search
+
+### Prompt
+
+After the P9–P15 deploy went live, Luke looked at the Pages site and put a finger on the gap: the demo shows a finished result, but nothing on it says that it is a sample, nothing invites you to make your own search with your own criteria, and there is no one-line path from the page to the real, locally running app. The core of the product is that your own agent, on your existing subscription, does the research for free while an honest progress modal shows what is happening, and you get personalised results back. The demo is only there to bring people in. The head of this file was restated on the same day to say that plainly.
+
+### Assessment
+
+The repository already encodes the product. It just does not tell anyone.
+
+**Where the code already agrees with the vision**
+
+- The skill at `skills/location-research/SKILL.md` exists, with Claude Code and Codex pointers. Its steps 6 to 10 already have the agent research rail, housing, and street-care evidence with citations, and each importer previews before it executes. That is exactly the "free research on your own subscription" mechanic.
+- The viewer is deliberately a read-only renderer that never phones home. That is the right property for a shop window: the demo can never leak anything.
+
+**Where it falls short**
+
+1. **No front door.** The only hint in the viewer is a small status line saying demonstration data is active, plus a load-file button. Nothing says "this is a sample, go make yours." The README has the path, but a visitor arriving from the Pages link does not read the README.
+2. **No one-liner.** Getting from zero to a run means clone, install uv, sync, `npm install`, get an OpenRouteService key, set it, then invoke the skill. The skill is repository-scoped, so it does nothing until all of that is done.
+3. **The routing key breaks the "free" promise.** OpenRouteService is free, but it is a signup form and an email at the moment of highest drop-off. A keyless fallback for the first run matters more than any spinner.
+4. **Criteria live in the terminal, not the app.** Weights and hard limits are CLI flags and a TOML file. The agent conversation is effectively the criteria UI, which is fine, but the viewer never tells the visitor that the conversation is where it happens.
+5. **No progress surface.** Research runs in the terminal and the viewer only opens at the end. A live modal needs the viewer to see progress, which means a tiny local server or a progress file the run script writes and the viewer watches. That is an architectural addition, not a cosmetic one, but a contained one: localhost does not break the no-external-network rule.
+
+### Gameplan P16–P19
+
+Ordered by how much each unlocks per unit of work. The door comes first because without it nobody reaches anything else.
+
+#### P16 — Hero call to action on the demo
+
+- A banner above the map, visible at every width: "This is a sample on real towns with synthetic evidence. Run your own search."
+- Clicking opens a modal with Claude Code and Codex tabs. Each tab shows a single copy-paste command with a copy button, one sentence on what happens next, and one sentence on what stays private.
+- The modal is static content; no network, no analytics, no external scripts. It disappears when a private bundle is loaded and returns with the demo.
+- Vitest covers the modal's content and the copy action; Playwright and axe cover it on desktop and mobile.
+
+#### P17 — Make the one-liner true
+
+- A bootstrap script, `scripts/bootstrap.ps1` and `scripts/bootstrap.sh`, that clones the repository, runs `uv sync` and `npm install`, checks for a routing key, prints what was and was not found, and starts the chosen agent in the repository so the skill is loaded from `.claude/skills` or `.agents/skills`.
+- The command in the P16 modal is the command this script makes work. Test it from an empty directory on Windows and on a POSIX shell.
+- The README's "Running it" section points at the bootstrap first and keeps the manual steps as the long form.
+
+#### P18 — Keyless first run
+
+- When no `ORS_API_KEY` is present, the research command falls back to a plain distance boundary around the origin, sized from the requested minutes and a stated speed assumption, and labels the boundary basis `proxy` in the manifest, the result, and the viewer's route-boundary panel.
+- The preview says clearly which boundary will be used and that a key upgrades it to a real isochrone. The skill's first step offers the key as an upgrade, never as a gate.
+- Python tests cover the fallback geometry and the manifest label; the viewer test covers the proxy wording.
+
+#### P19 — Progress modal on a local serve
+
+- A `serve` command that hosts the built viewer and a `progress.json` on localhost only. The research and import commands append stage events to that file: stage name, counts so far, cache hits, provider host, and any warning.
+- The viewer polls the local progress feed only when served from localhost, never on Pages, and shows a modal with real stage names and real counts, with the whimsical copy layered on top. When the run finishes, the modal offers to load the new bundle.
+- The rule that the viewer makes no external network request beyond OSM tiles is unchanged; localhost is the machine itself.
+- Tests: Python covers the event writer; Vitest covers the modal's rendering of a fixture feed; Playwright drives a fake feed end to end.
+
+### Decisions
+
+- The demo stays a static, read-only renderer. The call to action is content, not a feature.
+- The agent conversation remains the criteria interface for v1. A criteria form in the viewer is deferred until P16–P19 show whether people get stuck before or after the conversation starts.
+- Criteria, previews, execution, and the two-call ceiling all stay in the deterministic Python core; the bootstrap and the serve command only wrap it.
