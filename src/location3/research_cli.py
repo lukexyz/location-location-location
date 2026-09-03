@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from datetime import datetime, timedelta, timezone
 import json
 import os
@@ -15,6 +16,7 @@ from .catalog import METRICS
 from .config import brand_group, load_preferences
 from .net import HttpTransport, UrllibTransport
 from .osm import OverpassAmenityCollector
+from .progress import PROGRESS_FILE, ProgressLog, result_url
 from .reporting import write_bundle
 from .routing import (
     PROXY_PROVIDER, DistanceProxyBoundary, OpenRouteServiceIsochrones, describe_proxy,
@@ -94,6 +96,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         search=search,
         origin_decimals=args.origin_decimals,
         measure=args.measure,
+        # The feed sits beside the runs so the local serve command can find it.
+        progress=ProgressLog(output.parent / PROGRESS_FILE),
     )
     return 0
 
@@ -359,8 +363,44 @@ def execute_research(
     generated_at: str | None = None,
     origin_decimals: int = DEFAULT_ORIGIN_DECIMALS,
     measure: Sequence[str] = (),
+    progress: ProgressLog | None = None,
 ) -> dict[str, object]:
     generated_at = generated_at or datetime.now(timezone.utc).isoformat()
+    log = progress or ProgressLog(None)
+    log.start(run_id, command="research")
+    try:
+        return _execute_research(
+            log, root=root, output=output, cache_directory=cache_directory, run_id=run_id,
+            latitude=latitude, longitude=longitude, duration_minutes=duration_minutes,
+            route_profile=route_profile, api_key=api_key,
+            include_local_preferences=include_local_preferences, search=search,
+            transport=transport, generated_at=generated_at, origin_decimals=origin_decimals,
+            measure=measure,
+        )
+    except Exception as error:
+        log.fail(f"{type(error).__name__}: {error}")
+        raise
+
+
+def _execute_research(
+    log: ProgressLog,
+    *,
+    root: Path,
+    output: Path,
+    cache_directory: Path,
+    run_id: str,
+    latitude: float,
+    longitude: float,
+    duration_minutes: int,
+    route_profile: str,
+    api_key: str,
+    include_local_preferences: bool,
+    search: dict[str, Any] | None,
+    transport: HttpTransport | None,
+    generated_at: str,
+    origin_decimals: int,
+    measure: Sequence[str],
+) -> dict[str, object]:
     preferences = load_preferences(root, include_local=include_local_preferences)
     search = search or build_search_profile(preferences)
     measured = select_research_metrics(search, measure)
@@ -387,15 +427,43 @@ def execute_research(
         ).boundary(
             latitude, longitude, duration_minutes, profile=route_profile
         )
+        log.event(
+            "boundary",
+            f"Isochrone for {duration_minutes} min by {route_profile} from OpenRouteService",
+            counts={"vertices": _vertex_count(boundary.geometry)},
+            provider=boundary.provider,
+            cache=str(ledger.entries[-1]["cache"]) if ledger.entries else None,
+        )
     else:
         boundary = DistanceProxyBoundary().boundary(
             latitude, longitude, duration_minutes, profile=route_profile
+        )
+        log.event(
+            "boundary",
+            f"Distance proxy computed locally: {boundary.description}",
+            counts={"vertices": _vertex_count(boundary.geometry)},
+            provider=boundary.provider,
         )
     collector = OverpassAmenityCollector(
         premium_grocers=brand_group(preferences, "premium_grocers"),
         transport=overpass_transport,
     )
     research = collector.collect(boundary, metrics=measured)
+    found = research.evidence["candidates"]
+    observations = research.evidence["observations"]
+    log.event(
+        "discovery",
+        f"Overpass returned {len(found)} places inside the boundary",
+        counts={"candidates": len(found), "observations": len(observations)},
+        provider=research.provider,
+        cache=str(ledger.entries[-1]["cache"]) if ledger.entries else None,
+    )
+    per_metric = Counter(str(item.get("metric", "unknown")) for item in observations)
+    log.event(
+        "measure",
+        f"Measured {len(per_metric)} metrics across {len(found)} places",
+        counts=dict(per_metric),
+    )
 
     profile = {
         "schema_version": "1",
@@ -421,6 +489,15 @@ def execute_research(
     }
     validate_profile(profile)
     results = score_research(profile, research.evidence, generated_at)
+    statuses = Counter(
+        item["hard_constraints"]["status"] for item in results["candidates"]
+    )
+    log.event(
+        "score",
+        f"Ranked {len(results['candidates'])} places; {statuses['pass']} within hard limits, "
+        f"{statuses['unknown']} unverified, {statuses['fail']} outside",
+        counts={"ranked": len(results["candidates"]), **statuses},
+    )
     manifest = write_bundle(
         output,
         profile,
@@ -438,7 +515,17 @@ def execute_research(
         f"{ledger.network_requests} live calls, "
         f"{sum(entry['cache'] == 'hit' for entry in ledger.entries)} cache hits"
     )
+    log.event("write", f"Bundle written to {output}")
+    log.done(result_url(output, root))
     return manifest
+
+
+def _vertex_count(geometry: dict[str, Any]) -> int:
+    coordinates = geometry.get("coordinates") or []
+    if geometry.get("type") == "MultiPolygon":
+        coordinates = coordinates[0] if coordinates else []
+    ring = coordinates[0] if coordinates else []
+    return max(len(ring) - 1, 0)
 
 
 def route_boundary_record(boundary: Any, generated_at: str) -> dict[str, Any]:

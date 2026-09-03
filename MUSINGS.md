@@ -902,6 +902,14 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - The skill's first step now tells the agent to mention the upgrade once and carry on; the README says the same in the run-flow summary and the research section.
 - Verified on 2026-09-03: ruff clean, 80 Python tests (four new: proxy geometry and input checks, keyless execution, and the two previews), 65 Vitest tests (two new: schema parity for the boundary type in both validators, and the dossier's proxy wording), 34 Playwright tests, clean build, demo bundle reproduces byte-identically.
 
+### P19 completion note
+
+- The run can be watched. `location3.progress.ProgressLog` appends stage events to `research-runs/progress.json` atomically: the research command records the boundary (isochrone with its cache state, or the locally computed proxy), discovery with candidate and observation counts and the Overpass cache state, measured counts per metric, ranked places by limit status, and the written bundle; the importers record the merge and the write. A failure marks the feed failed with the exception text and re-raises. A log with no path is a silent no-op, which is what library callers and every existing test get.
+- `python scripts/serve_viewer.py` hosts `app/dist`, the feed, and `research-runs/<name>/results.json` on 127.0.0.1 only, with no-store JSON, nosniff, and no referrer. Profiles, evidence, provenance, anything nested, and any path outside those three routes are 404; a test walks the traversal attempts.
+- The viewer polls `./progress.json` every two seconds only when its page is served from a loopback address, and never inside unit tests. A 404, a dev server's HTML fallback, or an unparsable document all mean "no run in progress". The modal shows the real events in the text voice with the whimsy on top: a stage caption ("Knocking on doors" for discovery), a rotating quip line, a plumbob spinner that respects reduced motion, and when the run finishes a "Load this result" button that fetches the served bundle through the same validator as a file import. Dismissing hides the modal until a new run starts.
+- Confirmed against the real serve command on 2026-09-03: built the viewer, started the server, dropped the running fixture into the feed, saw the modal, swapped in the finished fixture, saw the load button, and confirmed a missing run returns 404. Screenshots were reviewed at 1280px.
+- Verified: ruff clean, 86 Python tests (six new across the log, the research stages and failure path, and the server's routes), 78 Vitest tests (13 new across the feed parser, the modal, and captions), 38 Playwright tests with axe clean on both modals, clean build, the CI private-material grep passes on the fresh `app/dist`.
+
 ### Decisions
 
 - The demo stays a static, read-only renderer. The call to action is content, not a feature.

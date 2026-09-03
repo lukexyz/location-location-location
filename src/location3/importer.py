@@ -17,6 +17,7 @@ from pathlib import Path
 from shutil import copy2
 from typing import Any, Callable, Sequence
 
+from .progress import PROGRESS_FILE, ProgressLog, result_url
 from .reporting import write_bundle
 from .scoring import score_research
 from .validation import validate_provenance
@@ -78,19 +79,33 @@ def run_import(argv: Sequence[str] | None, spec: ImportSpec) -> int:
         return 0
 
     plan.profile["search"]["providers"].update(plan.providers)
-    generated_at = datetime.now(timezone.utc).isoformat()
-    results = score_research(plan.profile, plan.evidence, generated_at)
-    write_bundle(
-        output,
-        plan.profile,
-        plan.evidence,
-        results,
-        request_ledger=list(manifest["request_ledger"]) + list(plan.request_ledger),
-    )
-    for name in (*SIDECARS, *plan.copies):
-        source = args.run_dir / name
-        if source.exists():
-            copy2(source, output / name)
+    root = Path(__file__).resolve().parents[2]
+    progress = ProgressLog(args.run_dir.parent / PROGRESS_FILE)
+    progress.start(str(plan.profile["run_id"]), command=f"import-{spec.label}")
+    try:
+        generated_at = datetime.now(timezone.utc).isoformat()
+        results = score_research(plan.profile, plan.evidence, generated_at)
+        progress.event(
+            "import",
+            f"{spec.label} evidence merged and {len(results['candidates'])} places rescored",
+            counts={"candidates": len(results["candidates"])},
+        )
+        write_bundle(
+            output,
+            plan.profile,
+            plan.evidence,
+            results,
+            request_ledger=list(manifest["request_ledger"]) + list(plan.request_ledger),
+        )
+        for name in (*SIDECARS, *plan.copies):
+            source = args.run_dir / name
+            if source.exists():
+                copy2(source, output / name)
+        progress.event("write", f"Bundle written to {output}")
+        progress.done(result_url(output, root))
+    except Exception as error:
+        progress.fail(f"{type(error).__name__}: {error}")
+        raise
     print(f"Wrote {spec.label}-enriched bundle to {output}")
     return 0
 

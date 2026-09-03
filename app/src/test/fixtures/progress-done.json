@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "run_id": "my-search",
+  "command": "research",
+  "status": "done",
+  "started_at": "2026-09-03T08:00:00+00:00",
+  "updated_at": "2026-09-03T08:00:09+00:00",
+  "events": [
+    {
+      "at": "2026-09-03T08:00:01+00:00",
+      "stage": "boundary",
+      "message": "Distance proxy computed locally: 30 min by driving-car as a 14.0 km radius",
+      "level": "info",
+      "counts": {"vertices": 64},
+      "provider": "distance-proxy"
+    },
+    {
+      "at": "2026-09-03T08:00:04+00:00",
+      "stage": "discovery",
+      "message": "Overpass returned 17 places inside the boundary",
+      "level": "info",
+      "counts": {"candidates": 17, "observations": 68},
+      "provider": "overpass",
+      "cache": "miss"
+    },
+    {
+      "at": "2026-09-03T08:00:06+00:00",
+      "stage": "measure",
+      "message": "Measured 5 metrics across 17 places",
+      "level": "info",
+      "counts": {"cafes": 17, "green_space": 17}
+    },
+    {
+      "at": "2026-09-03T08:00:08+00:00",
+      "stage": "score",
+      "message": "Ranked 17 places; 17 within hard limits, 0 unverified, 0 outside",
+      "level": "info",
+      "counts": {"ranked": 17, "pass": 17}
+    },
+    {
+      "at": "2026-09-03T08:00:09+00:00",
+      "stage": "write",
+      "message": "Bundle written to research-runs/my-search",
+      "level": "info"
+    }
+  ],
+  "result_url": "runs/my-search/results.json"
+}

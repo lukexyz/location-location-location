@@ -260,6 +260,23 @@ writes from the same fixture.
 
 ![The same instrument on a phone](docs/screenshots/mobile-overview.png)
 
+### Watching a run
+
+```powershell
+npm run build
+python scripts/serve_viewer.py --open
+```
+
+The serve command hosts the built viewer on `127.0.0.1:43118` only, together
+with `research-runs/progress.json` and any finished
+`research-runs/NAME/results.json`. While the research or an import command
+works it appends real stage events to that feed (boundary, discovery with the
+cache state, measured counts per metric, ranked places by limit status, the
+written bundle), and the locally served viewer shows them in a progress modal
+with a little whimsy on top. When the run finishes the modal offers to load
+the result into the tab. The public demo never polls; a viewer only asks for
+the feed when its page is served from the loopback address.
+
 ### Checks and deployment
 
 ```powershell

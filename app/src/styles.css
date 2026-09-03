@@ -144,6 +144,28 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .start-dialog-footer a { color: var(--acid); font: .6rem var(--voice-mono); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; }
 .start-dialog-footer a:hover { text-decoration: underline; }
 
+/* Progress: the same door, now reporting what the local command has actually done. */
+.progress-dialog { width: min(640px, 100%); }
+.plumbob { position: relative; width: 34px; height: 34px; flex: 0 0 auto; perspective: 120px; }
+.plumbob i { position: absolute; inset: 4px; display: block; background: var(--acid); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); box-shadow: 0 0 18px rgba(189, 255, 120, .6); animation: plumbob 1.6s ease-in-out infinite; }
+.plumbob.done i { animation: none; }
+.plumbob.failed i { background: var(--danger); box-shadow: 0 0 18px rgba(255, 119, 109, .5); animation: none; }
+@keyframes plumbob { 0%, 100% { transform: rotateY(0) translateY(0); } 50% { transform: rotateY(180deg) translateY(-4px); } }
+.progress-quip { margin: .7rem 0 .8rem; color: var(--ink); font: var(--text-size) / var(--text-line) var(--voice-text); }
+.progress-events { max-height: 40dvh; margin: 0; padding: 0; overflow: auto; list-style: none; border: 1px solid var(--line); background: rgba(0, 0, 0, .22); box-shadow: var(--shadow); scrollbar-width: thin; scrollbar-color: #4b5c50 transparent; }
+.progress-event { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .6rem; padding: .55rem .7rem; border-bottom: 1px solid rgba(176, 204, 184, .1); }
+.progress-time { color: var(--muted); font: .58rem / 1.6 var(--voice-mono); letter-spacing: .06em; }
+.progress-stage { display: block; color: var(--acid); font: .66rem var(--voice-mono); letter-spacing: .1em; text-transform: uppercase; }
+.progress-body p { margin: .2rem 0 0; font: var(--text-size) / var(--text-line) var(--voice-text); }
+.progress-body small { display: block; margin-top: .2rem; color: var(--muted); font: .56rem var(--voice-mono); letter-spacing: .06em; text-transform: uppercase; }
+.progress-event.warning .progress-stage { color: var(--amber); }
+.progress-event.error .progress-stage { color: var(--danger); }
+.progress-event.pending .progress-stage { color: var(--muted); animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { to { opacity: .35; } }
+.progress-actions { align-items: center; }
+.progress-dialog .start-button { min-height: 50px; }
+.progress-dialog.failed { border-color: var(--danger); }
+
 /* Side panels: bezels docked to the frame's left and right edges. */
 .rank-panel, .dossier { position: absolute; z-index: 500; top: 104px; bottom: 43px; }
 .rank-panel { left: 14px; width: min(310px, calc(100vw - 28px)); display: flex; flex-direction: column; }

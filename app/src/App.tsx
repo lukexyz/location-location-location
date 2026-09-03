@@ -3,11 +3,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import demoData from "./data/demo-results.json";
 import { Dossier } from "./components/Dossier";
 import { MapView } from "./components/MapView";
+import { ProgressModal } from "./components/ProgressModal";
 import { RankedList } from "./components/RankedList";
 import { StartBanner, StartDialog } from "./components/StartPanel";
 import type { SortMode } from "./components/RankedList";
 import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
+import { isLocalViewer } from "./lib/progress";
+import { useProgressFeed } from "./lib/useProgressFeed";
 import { MAX_CANDIDATES, parseResultBundle, ResultValidationError } from "./lib/validateResult";
 import { deriveBaseline, orderWhatIf, scoreWhatIf, weightsDiffer } from "./lib/whatif";
 import type { WeightMap, WhatIfScore } from "./lib/whatif";
@@ -22,6 +25,9 @@ const DEMO_STATE: LoadState = {
   kind: "demo",
   message: "Demonstration data active: real towns, synthetic evidence",
 };
+// The feed is polled only from a loopback page (the local serve command or the
+// dev server), never from the public demo, and never inside unit tests.
+const LOCAL_VIEWER = typeof window !== "undefined" && isLocalViewer(window.location) && import.meta.env.MODE !== "test";
 
 export default function App() {
   const [result, setResult] = useState<ResearchResult>(demoResult);
@@ -32,6 +38,9 @@ export default function App() {
   const [categoryWeights, setCategoryWeights] = useState<WeightMap>({});
   const [loadState, setLoadState] = useState<LoadState>(DEMO_STATE);
   const [startOpen, setStartOpen] = useState(false);
+  const progress = useProgressFeed(LOCAL_VIEWER);
+  const [dismissedRun, setDismissedRun] = useState<string | null>(null);
+  const [loadingResult, setLoadingResult] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const baseline = useMemo(() => deriveBaseline(result), [result]);
   const whatIfActive = weightsDiffer(weights, baseline, categoryWeights);
@@ -96,6 +105,26 @@ export default function App() {
   function restoreDemo() {
     loadBundle(demoResult, DEMO_STATE);
   }
+
+  async function loadServedResult(url: string) {
+    setLoadingResult(true);
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new ResultValidationError(`The local serve returned HTTP ${response.status} for ${url}.`);
+      }
+      const next = parseResultBundle(await response.json());
+      loadBundle(next, { kind: "loaded", message: `${next.run_id} loaded from the local run; it stays in this tab` });
+      setDismissedRun(progress?.started_at ?? null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to read the finished result.";
+      setLoadState({ kind: "error", message });
+    } finally {
+      setLoadingResult(false);
+    }
+  }
+
+  const progressVisible = progress !== undefined && dismissedRun !== progress.started_at && !startOpen;
 
   function restoreImportance() {
     setWeights({});
@@ -201,6 +230,14 @@ export default function App() {
       </footer>
 
       {startOpen && <StartDialog onClose={closeStart} />}
+      {progressVisible && (
+        <ProgressModal
+          feed={progress}
+          loading={loadingResult}
+          onLoad={(url) => void loadServedResult(url)}
+          onDismiss={() => setDismissedRun(progress.started_at)}
+        />
+      )}
     </div>
   );
 }

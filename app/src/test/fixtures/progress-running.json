@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "run_id": "my-search",
+  "command": "research",
+  "status": "running",
+  "started_at": "2026-09-03T08:00:00+00:00",
+  "updated_at": "2026-09-03T08:00:04+00:00",
+  "events": [
+    {
+      "at": "2026-09-03T08:00:01+00:00",
+      "stage": "boundary",
+      "message": "Distance proxy computed locally: 30 min by driving-car as a 14.0 km radius",
+      "level": "info",
+      "counts": {"vertices": 64},
+      "provider": "distance-proxy"
+    },
+    {
+      "at": "2026-09-03T08:00:04+00:00",
+      "stage": "discovery",
+      "message": "Overpass returned 17 places inside the boundary",
+      "level": "info",
+      "counts": {"candidates": 17, "observations": 68},
+      "provider": "overpass",
+      "cache": "miss"
+    }
+  ],
+  "result_url": null
+}

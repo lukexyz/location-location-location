@@ -60,6 +60,30 @@ test("the front door opens a modal with a copyable one-line command", async ({ p
   await expect(page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeFocused();
 });
 
+test("a local progress feed opens the research modal and loads the finished result", async ({ page }) => {
+  let phase = "running";
+  await page.route("**/progress.json", (route) => route.fulfill({
+    contentType: "application/json",
+    body: readFileSync(`src/test/fixtures/progress-${phase}.json`, "utf8"),
+  }));
+  await page.route("**/runs/my-search/results.json", (route) => {
+    const bundle = JSON.parse(readFileSync("src/data/demo-results.json", "utf8"));
+    bundle.run_id = "my-search";
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify(bundle) });
+  });
+  const working = page.getByRole("dialog", { name: "Knocking on doors" });
+  await expect(working).toBeVisible({ timeout: 10_000 });
+  await expect(working.getByText("Overpass returned 17 places inside the boundary")).toBeVisible();
+  await expect(working.getByText("17 candidates · 68 observations · overpass · cache miss")).toBeVisible();
+  phase = "done";
+  const finished = page.getByRole("dialog", { name: "Research complete" });
+  await expect(finished).toBeVisible({ timeout: 10_000 });
+  await finished.getByRole("button", { name: /LOAD THIS RESULT/ }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator(".load-state")).toContainText("my-search loaded from the local run");
+  await expect(page.getByRole("button", { name: "RESET DEMO" })).toBeVisible();
+});
+
 test("the instrument reflows without horizontal overflow", async ({ page }) => {
   const dimensions = await page.evaluate(() => ({
     viewport: window.innerWidth,
