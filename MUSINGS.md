@@ -992,6 +992,11 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - The plumbob, the quips, and the "knocking on doors" captions stay; they finally fit the room.
 - The viewer still makes no request beyond OpenStreetMap tiles; the reskin uses system fonts only.
 
+### P25 completion note (focus mask)
+
+- Luke asked for the search area to be in focus with the rest of the map dimmed. `focusMask` builds one polygon: the world with each boundary polygon's outer ring cut out as a hole, drawn with an even-odd fill at 42% dark, no stroke, and non-interactive. Inside the boundary the map stays in full colour; outside it drops back. Islands inside a boundary polygon stay inside the search.
+- The synchronisation test now expects two vector paths in the overlay pane (boundary and mask). Verified: typecheck and build clean, 80 Vitest tests (two new for the mask), 38 Playwright tests, screenshots at 1280 and 390.
+
 ## 2026-09-03 — Where the Project Stands After the Reskin
 
 ### State

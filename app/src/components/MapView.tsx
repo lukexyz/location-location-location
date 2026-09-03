@@ -3,6 +3,7 @@ import L from "leaflet";
 import { GeoJSON, MapContainer, Marker, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
+import { focusMask } from "../lib/focusMask";
 import { pinSizeForZoom } from "../lib/pins";
 import type { CandidateResult, ConstraintStatus, RouteBoundary } from "../types";
 
@@ -38,6 +39,14 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <ZoomControl position="bottomright" />
+        {routeBoundary && (
+          <GeoJSON
+            key={`mask:${routeBoundary.retrieved_at}`}
+            data={focusMask(routeBoundary.geometry)}
+            interactive={false}
+            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.42, fillRule: "evenodd" }}
+          />
+        )}
         {routeBoundary && (
           <GeoJSON
             key={routeBoundary.retrieved_at}
