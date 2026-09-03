@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import demoData from "./data/demo-results.json";
 import { Dossier } from "./components/Dossier";
 import { MapView } from "./components/MapView";
 import { RankedList } from "./components/RankedList";
+import { StartBanner, StartDialog } from "./components/StartPanel";
 import type { SortMode } from "./components/RankedList";
 import { TunePanel } from "./components/TunePanel";
 import { compactDate } from "./lib/format";
@@ -30,6 +31,7 @@ export default function App() {
   const [weights, setWeights] = useState<WeightMap>({});
   const [categoryWeights, setCategoryWeights] = useState<WeightMap>({});
   const [loadState, setLoadState] = useState<LoadState>(DEMO_STATE);
+  const [startOpen, setStartOpen] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const baseline = useMemo(() => deriveBaseline(result), [result]);
   const whatIfActive = weightsDiffer(weights, baseline, categoryWeights);
@@ -56,8 +58,14 @@ export default function App() {
   }, [result, sortMode, whatIf]);
   const selected = candidates.find((candidate) => candidate.id === selectedId) ?? candidates[0];
   const demoActive = result === demoResult;
+  const closeStart = useCallback(() => {
+    setStartOpen(false);
+    // Hand focus back to the door the visitor came through.
+    window.requestAnimationFrame(() => document.querySelector<HTMLElement>(".start-button")?.focus());
+  }, []);
 
   function loadBundle(next: ResearchResult, state: LoadState) {
+    setStartOpen(false);
     setResult(next);
     setFieldSerial((serial) => serial + 1);
     setWeights({});
@@ -147,6 +155,8 @@ export default function App() {
         </div>
       </header>
 
+      {demoActive && <StartBanner onOpen={() => setStartOpen(true)} />}
+
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         Selected candidate: {selected.name}, rank {selected.rank}, score {selected.overall_score.toFixed(1)}.
         {whatIf ? ` What-if score ${whatIf.get(selected.id)!.overallScore.toFixed(1)}.` : ""}
@@ -189,6 +199,8 @@ export default function App() {
         {whatIf && <span className="whatif-readout">WHAT-IF PREVIEW · RESEARCHED RANKS RETAINED</span>}
         <span className="privacy-readout">LOCAL READ · NO RESULT UPLOAD · MAP TILES REMOTE</span>
       </footer>
+
+      {startOpen && <StartDialog onClose={closeStart} />}
     </div>
   );
 }

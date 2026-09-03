@@ -107,6 +107,43 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .import-button:hover, .utility-button:hover { background-color: rgba(189, 255, 120, .12); color: #fff; }
 .utility-button:disabled { cursor: default; opacity: .55; }
 
+/* The front door: a hero strip over the map between the two bezels, shown only while the sample is active. */
+.start-banner { position: absolute; z-index: 520; top: 104px; left: 338px; right: 448px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1rem; }
+.start-banner-copy { min-width: 0; }
+.start-banner h2 { margin: .3rem 0 0; font-size: clamp(.86rem, 1.3vw, 1.1rem); line-height: 1.22; text-transform: uppercase; letter-spacing: .04em; }
+.start-button { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .22rem; min-height: 58px; padding: .6rem 1.2rem; color: #071006; background: var(--acid); border: 1px solid var(--acid); box-shadow: 0 0 24px rgba(189, 255, 120, .35), inset 0 -2px rgba(0, 0, 0, .25); cursor: pointer; text-transform: uppercase; }
+.start-button strong { font: 800 .95rem var(--voice-display); letter-spacing: .08em; white-space: nowrap; }
+.start-button span { color: #1d2f14; font: .52rem var(--voice-mono); letter-spacing: .16em; white-space: nowrap; }
+.start-button:hover { background: #d3ff9d; }
+
+/* The door itself: a modal with one line per agent and shell, static content only. */
+.start-backdrop { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 1rem; overflow: auto; background: rgba(4, 8, 7, .78); backdrop-filter: blur(3px); }
+.start-dialog { width: min(760px, 100%); max-height: calc(100dvh - 2rem); overflow: auto; padding: 1.1rem 1.2rem 1.2rem; background: var(--panel-heavy); border: 1px solid var(--line-hot); box-shadow: var(--shadow), 0 0 40px rgba(189, 255, 120, .12); scrollbar-width: thin; scrollbar-color: #4b5c50 transparent; }
+.start-dialog-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.start-dialog h2 { margin: .25rem 0 0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: .08em; }
+.start-dialog h2:focus { outline: none; }.start-dialog h2:focus-visible { outline: 2px solid var(--acid); outline-offset: 4px; }
+.start-intro, .start-note, .start-columns li { font: var(--text-size) / var(--text-line) var(--voice-text); color: var(--ink); }
+.start-intro { margin: .7rem 0 .9rem; }
+.start-tabs, .start-shells { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+.start-tabs { margin-bottom: 3px; }
+.start-tabs .sort-key { min-height: 38px; font-size: .64rem; }
+.start-tabs .sort-key[aria-selected="true"] { color: #071006; background: var(--acid); border-color: var(--acid); box-shadow: inset 0 -2px rgba(0, 0, 0, .28), 0 0 10px rgba(189, 255, 120, .25); }
+.start-shells .sort-key { min-height: 28px; }
+.start-command { margin-top: .8rem; padding: .7rem .75rem; border: 1px solid var(--line); background: rgba(0, 0, 0, .22); box-shadow: var(--shadow); }
+/* The line wraps rather than scrolls: a wrapped pre copies as one line and needs no focusable scroll region. */
+.start-command pre { margin: .4rem 0 0; padding: .6rem .7rem; color: var(--acid); background: #050807; border: 1px solid var(--line); font: .72rem / 1.5 var(--voice-mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.start-command-actions { display: flex; align-items: center; gap: .8rem; margin-top: .6rem; }
+.start-copied { color: var(--amber); font: .58rem var(--voice-mono); letter-spacing: .08em; text-transform: uppercase; }
+.start-note { margin: .6rem 0 0; color: var(--muted); }
+.start-note code { color: var(--acid); font: .68rem var(--voice-mono); }
+.start-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+.start-columns h3 { margin: 0 0 .4rem; color: var(--muted); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+.start-columns ol, .start-columns ul { margin: 0; padding-left: 1.2rem; }
+.start-columns li + li { margin-top: .35rem; }
+.start-dialog-footer { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: 1rem; padding-top: .8rem; border-top: 1px solid var(--line); }
+.start-dialog-footer a { color: var(--acid); font: .6rem var(--voice-mono); letter-spacing: .1em; text-transform: uppercase; text-decoration: none; }
+.start-dialog-footer a:hover { text-decoration: underline; }
+
 /* Side panels: bezels docked to the frame's left and right edges. */
 .rank-panel, .dossier { position: absolute; z-index: 500; top: 104px; bottom: 43px; }
 .rank-panel { left: 14px; width: min(310px, calc(100vw - 28px)); display: flex; flex-direction: column; }
@@ -230,6 +267,7 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 /* Below 1050px the disclosure stays in the header in a compact form; nothing about the load state is ever hidden. */
 @media (max-width: 1050px) {
   .dossier { width: 370px; }.rank-panel { width: 270px; }
+  .start-banner { left: 298px; right: 398px; flex-direction: column; align-items: stretch; text-align: center; }.start-banner h2 { font-size: .8rem; }
   .instrument-header { grid-template-columns: auto minmax(7rem, 1fr) minmax(0, 1.5fr) auto; gap: .8rem; }
   .load-state { font-size: .56rem; }
   .sort-keys { grid-template-columns: repeat(4, minmax(0, 1fr)); }.sort-keys-label { display: none; }
@@ -245,6 +283,8 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
   .load-state { padding-top: .35rem; border-top: 1px solid var(--line); font-size: .54rem; }
   .utility-button { min-height: 42px; padding: .4rem .5rem; font-size: .52rem; }.import-button { min-height: 42px; padding: .4rem .6rem; }
   .rank-panel, .dossier { position: relative; inset: auto; width: auto; margin: 8px; clip-path: none; }
+  .start-banner { position: relative; inset: auto; margin: 8px; flex-direction: column; align-items: stretch; clip-path: none; }.start-button { width: 100%; }
+  .start-columns { grid-template-columns: 1fr; }.start-dialog { padding: .9rem; }
   .rank-panel { max-height: none; }.rank-list { flex: 0 1 auto; max-height: 18rem; }.tune-panel { overflow: visible; }.dossier { max-height: none; }
   .dossier-scroll { overflow: visible; }.map-feed-label { bottom: .8rem; }
   .sort-keys { grid-template-columns: auto repeat(4, minmax(0, 1fr)); }.sort-keys-label { display: block; }

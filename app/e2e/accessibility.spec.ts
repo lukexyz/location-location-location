@@ -13,6 +13,15 @@ test("has no automatically detectable WCAG A or AA violations", async ({ page })
   expect(scan.violations).toEqual([]);
 });
 
+test("the front door modal has no automatically detectable violations", async ({ page }) => {
+  await page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }).click();
+  await expect(page.getByRole("dialog", { name: "Run your own search" })).toBeVisible();
+  const scan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(scan.violations).toEqual([]);
+});
+
 test("supports skip navigation, keyboard import, and candidate arrow keys", async ({ page }) => {
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Skip to candidate results" });

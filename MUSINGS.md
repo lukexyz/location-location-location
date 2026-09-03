@@ -879,6 +879,14 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - The rule that the viewer makes no external network request beyond OSM tiles is unchanged; localhost is the machine itself.
 - Tests: Python covers the event writer; Vitest covers the modal's rendering of a fixture feed; Playwright drives a fake feed end to end.
 
+### P16 completion note
+
+- The demo now has a front door. While the sample bundle is active a bezel sits over the map between the register and the dossier (below the map on a phone) saying "Sample run / real towns, synthetic evidence" with a large acid button, "Run your own search". It disappears when a private bundle is imported and returns with the demo.
+- The button opens a modal, not a page. Tabs choose Claude Code or Codex; a segmented control chooses Windows PowerShell or macOS/Linux, defaulting from the visitor's platform. The one line is rendered from a pure function in `app/src/lib/onboarding.ts`, copied with one button, and followed by the skill's invocation, the prerequisites, five "what happens next" steps, three "what stays private" notes, and links to the workflow and the source. The modal is a plain `role="dialog"` with its own focus handling because jsdom has no native dialog methods; the heading takes focus on open, Tab is trapped, Escape and the backdrop close it, and focus returns to the door.
+- Nothing about the modal touches the network: the unit test stubs `fetch` and asserts it is never called; the copy button uses the clipboard only.
+- Verified on 2026-09-03: 63 Vitest tests (three new: door visibility, the modal end to end, and the command strings), 34 Playwright tests passing with axe clean on desktop and mobile including the open modal (the command block wraps rather than scrolls so it needs no focusable scroll region), clean build.
+- Known nit: on a 1280px desktop the banner covers the top-most demo pin; the map is still fitted and the pin is reachable once the banner is dismissed by loading a bundle. Left as is because the banner is the point while the sample is active.
+
 ### Decisions
 
 - The demo stays a static, read-only renderer. The call to action is content, not a feature.

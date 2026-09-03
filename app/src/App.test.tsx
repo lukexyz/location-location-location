@@ -201,6 +201,53 @@ describe("viewer", () => {
     expect(screen.queryByRole("button", { name: "RESET DEMO" })).not.toBeInTheDocument();
   });
 
+  it("offers the front door only while the sample is active", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeInTheDocument();
+    expect(screen.getByText(/REAL TOWNS, SYNTHETIC EVIDENCE/)).toBeInTheDocument();
+    const file = new File([JSON.stringify(demoData)], "mine.json", { type: "application/json" });
+    await user.upload(screen.getByTestId("result-import"), file);
+    expect(await screen.findByText("mine.json loaded in this tab only")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /RUN YOUR OWN SEARCH/ })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "RESET DEMO" }));
+    expect(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeInTheDocument();
+  });
+
+  it("opens a modal with one copyable line per agent and shell, and never fetches", async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.fn();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", fetchSpy);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    render(<App />);
+    await user.click(screen.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }));
+    const dialog = screen.getByRole("dialog", { name: "Run your own search" });
+    expect(dialog).toHaveAttribute("aria-modal", "true");
+    expect(screen.getByRole("heading", { name: "Run your own search" })).toHaveFocus();
+    expect(within(dialog).getByRole("tab", { name: "Claude Code" })).toHaveAttribute("aria-selected", "true");
+    const command = () => screen.getByTestId("bootstrap-command").textContent ?? "";
+    expect(command()).toMatch(/bootstrap\.(ps1|sh)/);
+    expect(command()).toContain("claude");
+    await user.click(within(dialog).getByRole("button", { name: "macOS / Linux" }));
+    expect(command()).toMatch(/^curl -fsSL .*bootstrap\.sh \| sh -s -- claude$/);
+    await user.click(within(dialog).getByRole("tab", { name: "Codex" }));
+    expect(command()).toMatch(/sh -s -- codex$/);
+    expect(within(dialog).getByText("$location-research")).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Windows PowerShell" }));
+    expect(command()).toMatch(/^\$env:LOCATION3_AGENT = "codex"; irm .*bootstrap\.ps1 \| iex$/);
+    await user.click(within(dialog).getByRole("button", { name: "Copy the command" }));
+    expect(writeText).toHaveBeenCalledWith(command());
+    expect(await within(dialog).findByText("Copied to the clipboard")).toBeInTheDocument();
+    expect(within(dialog).getByRole("heading", { name: "What happens next" })).toBeInTheDocument();
+    expect(within(dialog).getByRole("heading", { name: "What stays private" })).toBeInTheDocument();
+    expect(within(dialog).getByRole("link", { name: /full research workflow/ })).toHaveAttribute("href", expect.stringContaining("SKILL.md"));
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it("keeps the load-state disclosure in the document at every width", () => {
     const { container } = render(<App />);
     const status = container.querySelector(".load-state")!;

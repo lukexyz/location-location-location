@@ -218,6 +218,11 @@ npm run dev
 The viewer starts with demonstration data: three real commuter-belt towns
 (Welwyn Garden City, Hemel Hempstead, and Maidenhead) carrying clearly labelled
 synthetic evidence, so nothing in the demo is a measurement of those towns.
+While the demo is active a banner above the map says so and offers **Run your
+own search**: a modal with one copy-paste line per agent (Claude Code or Codex)
+and shell that clones this repository, installs it, and opens the agent with the
+research skill loaded. The modal is static content; the viewer makes no request
+to show it.
 Importing a `results.json` reads it only inside the current browser tab. Map
 tiles remain an external network request. What-if tuning uses the same
 arithmetic as the Python scorer and is tested against

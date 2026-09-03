@@ -46,6 +46,20 @@ test("an imported result can be reset on desktop and mobile", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Welwyn Garden City" })).toBeVisible();
 });
 
+test("the front door opens a modal with a copyable one-line command", async ({ page }) => {
+  await page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Run your own search" });
+  await expect(dialog).toBeVisible();
+  await expect(page.getByTestId("bootstrap-command")).toContainText(/bootstrap\.(ps1|sh)/);
+  await dialog.getByRole("tab", { name: "Codex" }).click();
+  await expect(page.getByTestId("bootstrap-command")).toContainText("codex");
+  await dialog.getByRole("button", { name: "macOS / Linux" }).click();
+  await expect(page.getByTestId("bootstrap-command")).toContainText("curl -fsSL");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /RUN YOUR OWN SEARCH/ })).toBeFocused();
+});
+
 test("the instrument reflows without horizontal overflow", async ({ page }) => {
   const dimensions = await page.evaluate(() => ({
     viewport: window.innerWidth,

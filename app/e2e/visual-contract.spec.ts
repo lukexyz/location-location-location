@@ -12,7 +12,8 @@ test("preserves the instrument layout and colour contract", async ({ page }) => 
   const map = await page.locator(".map-field").boundingBox();
   const rank = await page.locator(".rank-panel").boundingBox();
   const dossier = await page.locator(".dossier").boundingBox();
-  if (!header || !map || !rank || !dossier) throw new Error("Instrument geometry is unavailable");
+  const door = await page.locator(".start-banner").boundingBox();
+  if (!header || !map || !rank || !dossier || !door) throw new Error("Instrument geometry is unavailable");
 
   const tokens = await page.evaluate(() => {
     const styles = getComputedStyle(document.documentElement);
@@ -34,7 +35,13 @@ test("preserves the instrument layout and colour contract", async ({ page }) => 
     expect(dossier.x + dossier.width).toBeCloseTo(viewport.width - 14, 0);
     expect(header.y + header.height).toBeLessThan(rank.y);
     expect(rank.x + rank.width).toBeLessThan(dossier.x);
+    // The front door sits over the map between the bezels and never covers either.
+    expect(door.x).toBeGreaterThanOrEqual(rank.x + rank.width);
+    expect(door.x + door.width).toBeLessThanOrEqual(dossier.x);
+    expect(door.y).toBeGreaterThanOrEqual(header.y + header.height);
   } else {
+    expect(door.y).toBeGreaterThanOrEqual(map.y + map.height);
+    expect(rank.y).toBeGreaterThanOrEqual(door.y + door.height);
     expect(rank.y).toBeGreaterThanOrEqual(map.y + map.height);
     expect(dossier.y).toBeGreaterThan(rank.y);
     expect(rank.width).toBeLessThanOrEqual(viewport.width - 16);
