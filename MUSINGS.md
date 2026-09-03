@@ -941,3 +941,23 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - The demo is content plus a renderer; every capability that touches a person's data runs on their machine behind a preview.
 - Anything that stands in for a measurement carries a label everywhere it can be seen, the distance proxy included.
 - Localhost is the machine itself; the viewer's no-external-network rule is unchanged.
+
+## 2026-09-03 — Giving the Viewer Some Life
+
+### Prompt
+
+Luke looked at the live front door and said it was a bit ugly, and that the aesthetic may not match the app's utility. My read, after screenshots at 1440, 1280, and 390: the layout is sound, the tone is wrong. Every surface is dressed as an ops console (chamfers, bezels, glow, a map filtered to a dim green ghost, and nouns like "instrument", "register", and "dossier") for a tool whose job is helping someone find a lovely place to live. Luke agreed: "give it a bit more life", "make the map nice and colourful for a start", then the rest; commit first so it can be reverted. The revert point is 0f4bb4d.
+
+### Gameplan
+
+- **P20 — A real map.** Serve OpenStreetMap tiles in colour with only a gentle tone, drop the vignette, the grid, the scan line, and the "MAP FEED" label, and fit the field with top padding so the front door never covers a pin. Nothing animates while idle.
+- **P21 — Flat, warm panels.** One border, a soft radius, a soft shadow, no chamfer, no inner hairline, no glow. A lifted background, a friendlier lime accent, coral and sun for the other two states. Uppercase letter-spaced mono is reserved for eyebrows and tiny labels; names, headings, metrics, and controls go to sentence case.
+- **P22 — Plain words.** "Shortlist" and "Evidence" instead of "Candidate register" and "Evidence dossier"; a tagline that says what the tool is for; a status rail that says where the data went in words. Class names and ARIA contracts stay put so the tests keep meaning.
+- **P23 — A lighter front door.** A compact invite strip, a modal whose two toggle rows are labelled, whose command block is the hero with the copy button inside it, and whose "what happens next" is three steps.
+- **P24 — Evidence.** Refresh the README screenshots, adjust the README wording, and record what changed.
+
+### Decisions
+
+- Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.
+- The plumbob, the quips, and the "knocking on doors" captions stay; they finally fit the room.
+- The viewer still makes no request beyond OpenStreetMap tiles; the reskin uses system fonts only.
