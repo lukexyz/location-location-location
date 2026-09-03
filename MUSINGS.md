@@ -1186,3 +1186,8 @@ One commit per milestone, nothing pushed unless asked.
 - Windsor and Maidenhead's fly-tipping rate halves between the two years, and Defra's 2023/24 row records every incident under one land type, which reads as a reporting change rather than cleaner streets. The schema has nowhere to say so on the place, and a descriptive `reporting_basis` would trigger the "does not report all incidents" warning, which is a different claim. It is noted here instead.
 - The synthetic fixture moves to `fixtures/synthetic/` and the Python tests point at it, because they lean on its visit audits, stale audits, local reports, and small samples; the contract test round-trips both fixtures. The viewer's copy and tests follow the real demo: "three real towns, cited evidence", Maidenhead on top, a basis test that looks for Measured, Transformed, and Agent-inferred rather than Synthetic. README screenshots refreshed.
 
+
+### P41 completion note (deploy on push)
+
+- `pages.yml` now also listens for `workflow_run` of Verify, completed, on `main`, and its build job runs only when that run succeeded or when someone dispatched it by hand. A push that passes Verify deploys itself; the manual button stays for a redeploy without a push. The build job still runs the viewer tests before it uploads, which costs a few minutes and guards the manual path. The README's deploy paragraph says so.
+

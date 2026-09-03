@@ -311,10 +311,12 @@ unit tests, demo reproducibility, viewer unit tests, browser and accessibility
 tests, and the production build. Refresh the documentation screenshots with
 `CAPTURE_SCREENSHOTS=1 npx playwright test screenshots.spec.ts` from `app/`.
 
-The Pages deployment is deliberately manual. After selecting **GitHub Actions**
-as the repository's Pages source, run **Deploy viewer to Pages** from the Actions
-tab. The workflow tests the viewer and deploys only `app/dist`, which contains
-the public demo, never ignored preferences or private research runs.
+The Pages deployment follows a green **Verify** run on `main`: once **GitHub
+Actions** is the repository's Pages source, every push that passes the checks
+deploys itself, and **Deploy viewer to Pages** can still be run by hand from the
+Actions tab for a redeploy without a push. The workflow tests the viewer again
+and deploys only `app/dist`, which contains the public demo, never ignored
+preferences or private research runs.
 
 ## Cost and privacy boundaries
 

@@ -1,6 +1,11 @@
 name: Deploy viewer to Pages
 
 on:
+  # A green Verify on main deploys itself; the manual dispatch stays for a redeploy without a push.
+  workflow_run:
+    workflows: [Verify]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions: {}
@@ -11,6 +16,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
