@@ -997,6 +997,11 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - Luke asked for the search area to be in focus with the rest of the map dimmed. `focusMask` builds one polygon: the world with each boundary polygon's outer ring cut out as a hole, drawn with an even-odd fill at 42% dark, no stroke, and non-interactive. Inside the boundary the map stays in full colour; outside it drops back. Islands inside a boundary polygon stay inside the search.
 - The synchronisation test now expects two vector paths in the overlay pane (boundary and mask). Verified: typecheck and build clean, 80 Vitest tests (two new for the mask), 38 Playwright tests, screenshots at 1280 and 390.
 
+### P26 completion note (feathered edge and vignette)
+
+- The mask path carries a 16px CSS blur, so inside and outside blend across the boundary instead of cutting at it; its opacity rose to 46% to compensate. A light inset vignette (42% at the map's edges, nothing in the middle) sits over the whole map under every card. Neither layer animates or takes pointer events.
+- Verified: typecheck and build clean, 80 Vitest tests, 38 Playwright tests, screenshots at 1280 and 390.
+
 ## 2026-09-03 — Where the Project Stands After the Reskin
 
 ### State

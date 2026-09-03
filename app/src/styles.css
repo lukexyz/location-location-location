@@ -66,6 +66,10 @@ button:focus-visible, summary:focus-visible, a:focus-visible, input:focus-visibl
 .map-field { z-index: 0; background: #ece9df; }
 .map-canvas { background: #ece9df; }
 .leaflet-tile-pane { filter: saturate(1.05) contrast(0.97) brightness(0.985); }
+/* The mask edge is feathered so inside and outside blend over a couple of hundred metres rather than cutting. */
+.focus-mask { filter: blur(16px); }
+/* A light vignette over the whole map, under every card, so the eye settles on the middle. */
+.map-vignette { position: absolute; inset: 0; z-index: 400; pointer-events: none; box-shadow: inset 0 0 160px 24px rgba(13, 20, 22, 0.42); }
 .leaflet-control-attribution { color: #4f5a54 !important; background: rgba(255, 255, 255, 0.72) !important; font-size: 9px !important; }
 .leaflet-control-attribution a { color: #24312a !important; }
 .leaflet-bar { overflow: hidden; border: 1px solid var(--line) !important; border-radius: var(--radius-small) !important; box-shadow: var(--shadow) !important; }

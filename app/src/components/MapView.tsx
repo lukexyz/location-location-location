@@ -44,7 +44,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
             key={`mask:${routeBoundary.retrieved_at}`}
             data={focusMask(routeBoundary.geometry)}
             interactive={false}
-            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.42, fillRule: "evenodd" }}
+            style={{ stroke: false, fillColor: "#0d1416", fillOpacity: 0.46, fillRule: "evenodd", className: "focus-mask" }}
           />
         )}
         {routeBoundary && (
@@ -77,6 +77,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           );
         })}
       </MapContainer>
+      <div className="map-vignette" aria-hidden="true" />
     </section>
   );
 }
