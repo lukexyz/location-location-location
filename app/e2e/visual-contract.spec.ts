@@ -49,21 +49,9 @@ test("preserves the instrument layout and colour contract", async ({ page }) => 
   }
 });
 
-test("honours reduced-motion preferences", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  const durationMs = await page.locator(".scan-line").evaluate(
-    (element) => {
-      const duration = getComputedStyle(element).animationDuration;
-      const value = Number.parseFloat(duration);
-      return duration.endsWith("ms") ? value : value * 1000;
-    },
+test("nothing animates while the viewer is idle", async ({ page }) => {
+  const animated = await page.evaluate(() =>
+    Array.from(document.querySelectorAll("*")).filter((element) => getComputedStyle(element).animationName !== "none").length,
   );
-  expect(durationMs).toBeLessThanOrEqual(0.01);
-});
-
-test("runs the scan as a single state pulse instead of an idle loop", async ({ page }) => {
-  const iterations = await page.locator(".scan-line").evaluate(
-    (element) => getComputedStyle(element).animationIterationCount,
-  );
-  expect(iterations).toBe("1");
+  expect(animated).toBe(0);
 });

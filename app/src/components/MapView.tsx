@@ -43,7 +43,7 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
             key={routeBoundary.retrieved_at}
             data={routeBoundary.geometry}
             interactive={false}
-            style={{ color: "#b6ff73", weight: 2, opacity: 0.72, fillOpacity: 0.045, dashArray: "7 6" }}
+            style={{ color: "#2f8f3c", weight: 2.5, opacity: 0.85, fillColor: "#5cc463", fillOpacity: 0.07, dashArray: "8 7" }}
           />
         )}
         <FieldController
@@ -68,15 +68,6 @@ export function MapView({ candidates, fieldKey, routeBoundary, selectedId, onSel
           );
         })}
       </MapContainer>
-      <div className="map-vignette" aria-hidden="true" />
-      <div
-        key={`${selectedId}:${routeBoundary?.retrieved_at ?? "no-boundary"}`}
-        className="scan-line active"
-        aria-hidden="true"
-      />
-      <div className="map-feed-label" aria-hidden="true">
-        MAP FEED / OSM {routeBoundary ? `/ LIMIT ${routeBoundary.provider.toUpperCase()}` : ""}
-      </div>
     </section>
   );
 }
@@ -106,7 +97,7 @@ function FieldController({
     const { candidates: field, routeBoundary: boundary, selectedId: initial } = latest.current;
     const bounds = L.latLngBounds(field.map(({ location }) => [location.latitude, location.longitude]));
     if (boundary) bounds.extend(L.geoJSON(boundary.geometry).getBounds());
-    map.fitBounds(bounds, { padding: [90, 90], maxZoom: 11, animate: false });
+    map.fitBounds(bounds, { ...visibleFieldPadding(map.getSize().x), maxZoom: 11, animate: false });
     // The bundle's own top candidate is selected on load; that is not a user choice.
     settledSelection.current = initial;
   }, [fieldKey, map]);
@@ -122,6 +113,18 @@ function FieldController({
     }
   }, [map, selectedId]);
   return null;
+}
+
+/**
+ * On a wide screen the side panels, the header, and the front door float over
+ * the map, so the field is fitted into the part that stays visible. On a
+ * phone the map has the width to itself.
+ */
+export function visibleFieldPadding(width: number): { paddingTopLeft: [number, number]; paddingBottomRight: [number, number] } {
+  if (width <= 760) return { paddingTopLeft: [36, 36], paddingBottomRight: [36, 36] };
+  const rankWidth = width <= 1050 ? 270 : 310;
+  const dossierWidth = width <= 1050 ? 370 : 420;
+  return { paddingTopLeft: [rankWidth + 50, 190], paddingBottomRight: [dossierWidth + 50, 70] };
 }
 
 function ZoomTracker({ onZoom }: { onZoom: (zoom: number) => void }) {

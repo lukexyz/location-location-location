@@ -956,6 +956,12 @@ Luke looked at the live front door and said it was a bit ugly, and that the aest
 - **P23 — A lighter front door.** A compact invite strip, a modal whose two toggle rows are labelled, whose command block is the hero with the copy button inside it, and whose "what happens next" is three steps.
 - **P24 — Evidence.** Refresh the README screenshots, adjust the README wording, and record what changed.
 
+### P20 completion note
+
+- OpenStreetMap tiles now render in colour with only a slight tone; the vignette, the grid, the scan line, its keyframes, and the "MAP FEED" label are gone, and the boundary is a mid-green dash with a faint fill so it reads on a light map. The Leaflet attribution went light to match.
+- The field fits into the visible part of the map: on a wide screen the fit pads for the two side panels, the header, and the front door, so no pin starts under a panel; on a phone it pads evenly. A new Playwright check asserts that nothing on the page animates while idle, replacing the two scan-line checks.
+- Verified: typecheck and build clean, 78 Vitest tests, screenshots at 1280 and 390 reviewed with live tiles.
+
 ### Decisions
 
 - Dark stays: the panels float over a light, colourful map, so the score colours and the map both read. A paper reskin was the other route and is a rewrite of every panel.
