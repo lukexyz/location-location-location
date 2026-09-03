@@ -39,7 +39,9 @@ if (Have git) { Write-Host "  git        found" } else { Write-Host "  git      
 if (Have uv) { Write-Host "  uv         found (installs Python 3.11+ itself)" } else { Write-Host "  uv         MISSING  irm https://astral.sh/uv/install.ps1 | iex"; $missing += "uv" }
 if (Have node) {
   $nodeMajor = 0
-  try { $nodeMajor = [int](& node -p 'process.versions.node.split(".")[0]') } catch { $nodeMajor = 0 }
+  # Parse `node --version` here rather than asking node to evaluate quoted code:
+  # Windows PowerShell 5.1 strips embedded quotes from native-command arguments.
+  try { $nodeMajor = [int]((& node --version).Trim().TrimStart("v").Split(".")[0]) } catch { $nodeMajor = 0 }
   if ($nodeMajor -ge 22) { Write-Host "  node       found (v$nodeMajor)" } else { Write-Host "  node       TOO OLD (v$nodeMajor; need 22+)  https://nodejs.org"; $missing += "node" }
 } else { Write-Host "  node       MISSING  https://nodejs.org (22 or newer)"; $missing += "node" }
 if (Have npm) { Write-Host "  npm        found" } else { Write-Host "  npm        MISSING  ships with Node"; $missing += "npm" }

@@ -39,7 +39,8 @@ missing=""
 if have git; then say "  git        found"; else say "  git        MISSING  https://git-scm.com/downloads"; missing="$missing git"; fi
 if have uv; then say "  uv         found (installs Python 3.11+ itself)"; else say "  uv         MISSING  curl -LsSf https://astral.sh/uv/install.sh | sh"; missing="$missing uv"; fi
 if have node; then
-  node_major="$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)"
+  node_major="$(node --version 2>/dev/null | sed -e 's/^v//' -e 's/\..*$//' || echo 0)"
+  node_major="${node_major:-0}"
   if [ "$node_major" -ge 22 ] 2>/dev/null; then say "  node       found (v$node_major)"; else say "  node       TOO OLD (v$node_major; need 22+)  https://nodejs.org"; missing="$missing node"; fi
 else say "  node       MISSING  https://nodejs.org (22 or newer)"; missing="$missing node"; fi
 if have npm; then say "  npm        found"; else say "  npm        MISSING  ships with Node"; missing="$missing npm"; fi

@@ -1204,3 +1204,9 @@ One commit per milestone, nothing pushed unless asked.
 - Pages deploys itself after a green Verify on `main`. The photo command takes a preferred page. The backlog from the evaluation is empty.
 - Six commits after 03ee034, none pushed: b87e415 (first real run, field planning), 8be622e and 2d46224 (real demo), bd9d4fa (deploy on push), and the P42 commit. The first push will exercise the new deploy chain.
 - Still not done, and not doable from here: the bootstrap line on a clean Mac and a clean Windows machine, and a run with a real `ORS_API_KEY`. Both need a machine and a key this session does not have.
+
+## 2026-09-04 — First Bootstrap on a Clean Windows Box
+
+Luke pasted the PowerShell one-liner on another Windows machine and it stopped at the prerequisite check with `node TOO OLD (v0; need 22+)` beside a Node 24 install. The check asked Node to evaluate `process.versions.node.split(".")[0]`, and Windows PowerShell 5.1 strips embedded double quotes from arguments to native commands, so Node received `split(.)` and threw a syntax error that the script swallowed into a zero. PowerShell 7 escapes those quotes, which is why the line had only ever passed here.
+
+Both bootstrap scripts now read `node --version` and take the major number themselves, without handing Node any quoted code. Reproduced the failure and the fix under PowerShell 5.1 on this machine, then ran the whole script through `iex` with launch disabled: clone, `uv sync`, `npm install`, ready message, exit 0. The bootstrap line has now been exercised on a second Windows machine as far as the prerequisite check, and end to end here under the shell that machine used. A clean Mac remains untried.
