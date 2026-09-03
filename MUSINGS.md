@@ -915,3 +915,29 @@ Ordered by how much each unlocks per unit of work. The door comes first because 
 - The demo stays a static, read-only renderer. The call to action is content, not a feature.
 - The agent conversation remains the criteria interface for v1. A criteria form in the viewer is deferred until P16–P19 show whether people get stuck before or after the conversation starts.
 - Criteria, previews, execution, and the two-call ceiling all stay in the deterministic Python core; the bootstrap and the serve command only wrap it.
+
+## 2026-09-03 — Where the Project Stands After P16–P19
+
+### State
+
+- The front door exists. The public demo says it is a sample and offers one pasted line per agent and shell; the bootstrap scripts behind those lines clone, install, report, and open the agent with the research skill loaded. The lines point at `main` on GitHub, so they work the moment this branch is pushed and not before.
+- A first run needs no signup. Without a routing key the boundary is a labelled distance proxy computed locally, one live call is made, and the profile, provenance, dossier, and preview all say so. A free key upgrades it and nothing else changes.
+- A run can be watched. The research and import commands write a progress feed beside the private runs; a loopback-only serve command hosts the built viewer with that feed and finished bundles; the viewer shows real stage events under a little whimsy and offers to load the result. The public demo never polls.
+- Verification on 2026-09-03: ruff clean, 86 Python tests, demo bundle reproduces byte-identically, 78 Vitest tests, 38 Playwright tests with axe clean on both modals, clean build, the CI private-material grep passes on `app/dist`. Both bootstrap scripts were also run for real against a local clone.
+
+### Not yet exercised
+
+- The bootstrap scripts' final step, handing the terminal to `claude` or `codex` with the skill prompt, was tested only up to the launch line (`LOCATION3_LAUNCH=0`). The first real end-to-end run from a pasted line on a clean machine is the next thing to watch.
+- The Pages site still serves the P15 build; the front door reaches visitors only after the manual **Deploy viewer to Pages** run.
+
+### Remaining work
+
+- Everything listed under P9–P15 still stands: green-space network distance, per-destination isochrones, a screenshot diff gate in CI, a measured Land Registry housing adapter, run comparison, and the validation import cycle.
+- A criteria form in the viewer stays deferred until the front door shows where people stall.
+- The progress feed could carry the importers' preview lines too, so the modal explains what an import is about to do before `--execute`.
+
+### Decisions to keep
+
+- The demo is content plus a renderer; every capability that touches a person's data runs on their machine behind a preview.
+- Anything that stands in for a measurement carries a label everywhere it can be seen, the distance proxy included.
+- Localhost is the machine itself; the viewer's no-external-network rule is unchanged.
